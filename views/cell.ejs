@@ -1,0 +1,18 @@
+<% if (isHeader) { %>
+<th>
+  <%= varName %>
+</th>
+<% }
+ else if (hasLink){%>
+<td>
+  <%= value %>
+  <href>
+    <%= url %>
+  </href>
+</td>
+<% }
+else { %>
+<td>
+  <%= value %>
+</td>
+<% } %>

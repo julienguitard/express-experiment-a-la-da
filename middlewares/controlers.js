@@ -15,7 +15,7 @@ const indexControler = function(req, res, next) {
 
 const renderControler = function(req, res, next) {
   try {
-    res.render('index',{views:req.session.views});
+    res.render('index',{views:req.session.views,userName:'self'});
   }
   catch (e) {
     console.log(e);

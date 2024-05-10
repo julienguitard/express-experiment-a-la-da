@@ -92,7 +92,8 @@ There are 9 statefull views
 
  There are components:
  - Cell
- - Clickable cell
+ - Linked cell
+ - Selectable cell
  - Row
  - Table header
  - Table
@@ -100,6 +101,7 @@ There are 9 statefull views
  - Singleton page
 
  ### Footer
+
  There are 2 components:
  - Session infos
  - Login status
