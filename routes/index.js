@@ -1,57 +1,57 @@
 const express = require('express');
 const router = express.Router();
-const {indexControler,renderControler,viewControler,consoleControler} = require('../middlewares/controlers');
+const {indexControler,renderControler,viewControler,consoleControler,logToPostgresControler} = require('../middlewares/controlers');
 
 const routes = [
   {
       route:'/',
       method:'get',
-      controler:[viewControler,renderControler,consoleControler]
+      controler:[ viewControler,renderControler,consoleControler]
   },
   {
     route:'/users',
     method:'get',
-    controler:[viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
   },
   {
     route:'/artists',
     method:'get',
-    controler:[viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
   },
   {
     route:'/works',
     method:'get',
-    controler:[viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
   },
   {
     route:'/artists/interactions',
     method:'get',
-    controler:[viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
   },
   {
     route:'/works/interactions',
     method:'get',
-    controler:[viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
   },
   {
     route:'/artists/watch',
     method:'post',
-    controler:[viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
   },
   {
     route:'/works/like',
     method:'post',
-    controler:[viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
   },
   {
     route:'/artists/unwatch',
     method:'post',
-    controler:[viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
   },
   {
     route:'/works/unlike',
     method:'post',
-    controler:[viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
   }
 ];
 
