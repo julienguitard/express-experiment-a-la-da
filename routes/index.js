@@ -6,52 +6,52 @@ const routes = [
   {
       route:'/',
       method:'get',
-      controler:[ viewControler,renderControler,consoleControler]
+      controler:[logToPostgresControler,viewControler,renderControler]
+  },
+  {
+    route:'/admin',
+    method:'get',
+    controler:[logToPostgresControler, viewControler,renderControler]
+  },
+  {
+    route:'/logs',
+    method:'get',
+    controler:[logToPostgresControler, viewControler,renderControler]
   },
   {
     route:'/users',
     method:'get',
-    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler]
   },
   {
     route:'/artists',
     method:'get',
-    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler]
   },
   {
     route:'/works',
     method:'get',
-    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
-  },
-  {
-    route:'/artists/interactions',
-    method:'get',
-    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
-  },
-  {
-    route:'/works/interactions',
-    method:'get',
-    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler]
   },
   {
     route:'/artists/watch',
     method:'post',
-    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler]
   },
   {
     route:'/works/like',
     method:'post',
-    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler]
   },
   {
     route:'/artists/unwatch',
     method:'post',
-    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler]
   },
   {
     route:'/works/unlike',
     method:'post',
-    controler:[logToPostgresControler, viewControler,renderControler,consoleControler]
+    controler:[logToPostgresControler, viewControler,renderControler]
   }
 ];
 

@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS requests_logs 
 (
   id        VARCHAR(256) PRIMARY KEY,
@@ -23,14 +24,14 @@ CREATE TABLE IF NOT EXISTS errors_logs
   message      VARCHAR(256)
 );
 
-CREATE FUNCTION generate_errors_logs_event (TEXT,TEXT,TEXT) RETURNS errors_logs
+CREATE FUNCTION generate_errors_logs_event (TEXT,TEXT,TEXT,TEXT) RETURNS errors_logs
 AS
 $$
 SELECT MD5(CONCAT (CONCAT (time_,route),message)) AS id,
        TO_TIMESTAMP(CAST(time_ AS NUMERIC)) AS time_,
-       MD5(CONCAT (time_,route)) AS request_id,
+       MD5(CONCAT (request_time,route)) AS request_id,
        message
-FROM (SELECT $1 AS time_, $2 AS route, $3 AS message) $$ LANGUAGE SQL;
+FROM (SELECT $1 AS request_time, $2 AS time_, $3 AS route, $4 AS message) $$ LANGUAGE SQL;
 
 CREATE TABLE IF NOT EXISTS responses_logs 
 (
@@ -40,14 +41,14 @@ CREATE TABLE IF NOT EXISTS responses_logs
   status_code       VARCHAR(256)
 );
 
-CREATE FUNCTION generate_responses_logs_event (TEXT,TEXT,TEXT) RETURNS responses_logs
+CREATE FUNCTION generate_responses_logs_event (TEXT,TEXT,TEXT,TEXT) RETURNS responses_logs
 AS
 $$
 SELECT MD5(CONCAT (CONCAT (time_,route),status_code)) AS id,
        TO_TIMESTAMP(CAST(time_ AS NUMERIC)) AS time_,
-       MD5(CONCAT (time_,route)) AS request_id,
+       MD5(CONCAT (request_time,route)) AS request_id,
        status_code
-FROM (SELECT $1 AS time_, $2 AS route, $3 AS status_code) $$ LANGUAGE SQL;
+FROM (SELECT $1 AS request_time,$2 AS time_, $3 AS route, $4 AS status_code) $$ LANGUAGE SQL;
 
 CREATE VIEW full_logs 
 AS

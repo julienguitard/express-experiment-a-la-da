@@ -29,7 +29,7 @@ const fooControler = (req, res, next) => {
   next()
 };
 
-app.use(fooControler);
+//app.use(fooControler);
 
 app.use('/static', express.static('public'));
 app.set('views', path.join(__dirname, 'views'));

@@ -1,5 +1,3 @@
 <%- include('header.ejs');%>
-<% for(x of [1,2,2,4]){ %>
-<%- include('body.ejs');%> <% } %>
-<%= [1,2].map(v=>{return include('footer.ejs',v);}) %>
+<%- include('body.ejs',{routes:['/users','/artists','/works']});%>
 <%- include('footer.ejs',views);%>

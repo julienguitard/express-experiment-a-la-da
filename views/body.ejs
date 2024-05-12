@@ -1,3 +1,1 @@
-<p> <a href='users'>/users</a></p>
-<p> <a href='artists'>/artists</a></p>
-<p> <a href='artists'>/works</a></p>
+<%- routes.map(r=>include('href.ejs',{ref:r})) %>

@@ -1,6 +1,7 @@
 const { pool, queryPool } = require("../databases");
+const {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs} = require('../databases/procedures');
 const errorConsoleLog = require('../utils/errorConsoleLog');
-const sql_now =require('./handlers');
+const sql_now = require('./handlers');
 
 const indexControler = function (req, res, next) {
   if (req.session) {
@@ -20,6 +21,18 @@ const indexControler = function (req, res, next) {
 const renderControler = function (req, res, next) {
   try {
     res.render('index', { views: req.session.views, userName: 'self' });
+  }
+  catch (e) {
+    console.log(e);
+  }
+  finally {
+    next();
+  }
+};
+
+const dataControler = function (req, res, next) {
+  try {
+    res.send(res.json);
   }
   catch (e) {
     console.log(e);
@@ -57,12 +70,17 @@ const clockControler = function (req, res, next) {
 const logToPostgresControler = function (req, res, next) {
   const meths = Object.entries(req.route.methods).filter(([k, v]) => v).map(([k, v]) => k).join(',');
   const now_ = sql_now();
-  const reqData = queryPool(pool, 'INSERT INTO requests_logs (SELECT * FROM generate_requests_logs_event($1,$2,$3))', [now_,req.route.path,meths]);
-  const reqVoid = reqData.then(data => console.log(data.rows)).catch(errorConsoleLog);
+  const reqData = queryPool(pool, insert_into_requests_logs, [now_, req.route.path, meths]);
+  const reqVoid = reqData.catch(err => console.log('requests:', err));
   const nextVoid = reqVoid.then(next)
-  const errData = nextVoid.catch(err=>queryPool(pool, 'INSERT INTO error_logs (SELECT * FROM generate_errors_logs_event($1,$2,$3))', [now_,req.route.path,err]));
-  const resData = errData.finally(()=>queryPool(pool, 'INSERT INTO responses_logs (SELECT * FROM generate_responses_logs_event($1,$2,$3))', [now_,req.route.path,res.statusCode]));
-  resData.then(data => console.log(data.rows)).catch(errorConsoleLog);
+  const errVoid = nextVoid.catch(err => {
+    let no = sql_now();
+    return queryPool(pool, insert_into_errors_logs, [now_, no, req.route.path, err])
+  });
+  const resData =  errVoid.finally(() => {
+    let no = sql_now();
+    return queryPool(pool, insert_into_responses_logs, [now_, no, req.route.path, res.statusCode])
+  });
 }
 
 module.exports = { indexControler, renderControler, viewControler, consoleControler, logToPostgresControler };
