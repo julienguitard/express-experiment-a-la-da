@@ -25,6 +25,3 @@ async function delayIdentity(x) {
     return x;
 }
 
-//const q = delayIdentity(5);
-
-//q.then(r=>console.log(r));

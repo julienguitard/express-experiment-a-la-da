@@ -1,7 +1,0 @@
-CREATE TABLE IF NOT EXISTS requests_logs (
- id VARCHAR(256) PRIMARY KEY,
- time_ TIMESTAMP,
- method VARCHAR(16),
- route VARCHAR(256)
-);
-

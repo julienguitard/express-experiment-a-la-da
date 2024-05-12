@@ -1,5 +1,6 @@
 const { pool, queryPool } = require("../databases");
 const errorConsoleLog = require('../utils/errorConsoleLog');
+const sql_now =require('./handlers');
 
 const indexControler = function (req, res, next) {
   if (req.session) {
@@ -55,10 +56,13 @@ const clockControler = function (req, res, next) {
 
 const logToPostgresControler = function (req, res, next) {
   const meths = Object.entries(req.route.methods).filter(([k, v]) => v).map(([k, v]) => k).join(',');
-  const now_ = Math.floor(Date.now()/1000).toString()
-  const data_ = queryPool(pool, 'INSERT INTO requests_logs (SELECT MD5(CONCAT($1::text,$2::text)) AS id, TO_TIMESTAMP($1::numeric) AS time_,$2 AS route, $3 AS methods)', [now_,req.route.path,meths]);
-  data_.then(data => console.log(data.rows)).catch(errorConsoleLog);
-  next();
+  const now_ = sql_now();
+  const reqData = queryPool(pool, 'INSERT INTO requests_logs (SELECT * FROM generate_requests_logs_event($1,$2,$3))', [now_,req.route.path,meths]);
+  const reqVoid = reqData.then(data => console.log(data.rows)).catch(errorConsoleLog);
+  const nextVoid = reqVoid.then(next)
+  const errData = nextVoid.catch(err=>queryPool(pool, 'INSERT INTO error_logs (SELECT * FROM generate_errors_logs_event($1,$2,$3))', [now_,req.route.path,err]));
+  const resData = errData.finally(()=>queryPool(pool, 'INSERT INTO responses_logs (SELECT * FROM generate_responses_logs_event($1,$2,$3))', [now_,req.route.path,res.statusCode]));
+  resData.then(data => console.log(data.rows)).catch(errorConsoleLog);
 }
 
 module.exports = { indexControler, renderControler, viewControler, consoleControler, logToPostgresControler };

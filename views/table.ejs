@@ -1,4 +1,4 @@
 <table>
-  <%- include('table_header.ejs',varNames) %>
-  <%= data.map((r)=>include('row.js',row) %>
+  <%- include('table_header.ejs',data.fields) %>
+  <%= data.rows.map((row)=>include('row.js',row) %>
 </table>
