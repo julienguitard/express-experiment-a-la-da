@@ -106,8 +106,9 @@ const logToPostgresControler = function (req, res, next) {
 }
 
 const showLogsControler = function (req,res,next) {
-  const resData = queryPool(pool,select_full_logs,[]).then(data=>{console.log(data.fields,data.rows);
-  res.json({"data":parseSQLOutput(data)})});
+  const resData = queryPool(pool,select_full_logs,[]).then(data=>{console.log(data[0].fields,data[0].rows);
+    res.json({"data":parseSQLOutput(data[0])})
+  });
 }
 
 const showLogsTableControler = function (req,res,next) {
