@@ -20,4 +20,26 @@ function delayedIdentity(t) {
   return identity;
 }
 
+async function inverse(x) {
+  try {
+      const y = await 1.0 / x;
+      console.log(y);
+  }
+  catch (err) {
+      console.log('What an err: ' + err);
+  }
+  finally {
+      console.log('done');
+  }
+
+};
+
+async function delayIdentity(x) {//TO DO
+  await setTimeout(() => { }, 5000);
+  return x;
+}
+
+
+
+
 module.exports = { nestedTimeOut, showHashDate, showHashIdDate, delay };

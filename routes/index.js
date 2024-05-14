@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {indexControler,renderControler,viewControler,consoleControler,logToPostgresControler} = require('../middlewares/controlers');
+const {fooControler, indexControler,renderControler,viewControler,consoleControler,logToPostgresControler, showLogsControler,showLogsTableControler} = require('../middlewares/controlers');
 
 const routes = [
   {
@@ -14,9 +14,14 @@ const routes = [
     controler:[logToPostgresControler, viewControler,renderControler]
   },
   {
+    route:'/api/logs',
+    method:'get',
+    controler:[logToPostgresControler, viewControler,showLogsControler]
+  },
+  {
     route:'/logs',
     method:'get',
-    controler:[logToPostgresControler, viewControler,renderControler]
+    controler:[logToPostgresControler, viewControler,showLogsTableControler]
   },
   {
     route:'/users',
@@ -55,19 +60,19 @@ const routes = [
   }
 ];
 
-function setRouteMethod (rou,method,route,controler){
+function setRouteMethod (rou,method,route,controlers){
   switch (method){
     case 'get': 
-      rou.get(route,controler);
+      rou.get(route,controlers);
       break;
     case 'post': 
-      rou.post(route,controler);
+      rou.post(route,controlers);
       break;
     case 'update': 
-      rou.put(route,controler);
+      rou.put(route,controlers);
       break;
     case 'delete': 
-      rou.delete(route,controler);
+      rou.delete(route,controlers);
       break;
     default:
       console.log('Unknow method');
@@ -78,4 +83,4 @@ function setRouteMethod (rou,method,route,controler){
 routes.map((r)=>setRouteMethod(router,r.method,r.route,r.controler));
 
 
-module.exports = {routes,router,viewControler};
+module.exports = {routes,router};

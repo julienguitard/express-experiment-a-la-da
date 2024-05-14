@@ -1,0 +1,14 @@
+<%- include('header.ejs');%>
+
+<body><%- include('table.ejs',myWorksData);%>
+
+  < <p>Submit more</p>
+    <%- include('table.ejs',artistsData);%>
+
+    < <p>See more</p>
+      <%- include('table.ejs',worksData);%>
+      <p>See more</p>
+      <p><a href="/">Home</a></p>
+      <p><a href="/logout">Logout</a></p>
+</body>
+<%- include('footer.ejs',footer);%>

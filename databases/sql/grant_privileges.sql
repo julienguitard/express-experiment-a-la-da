@@ -9,3 +9,7 @@ GRANT INSERT
 GRANT INSERT
   ON responses_logs
   TO express_000;
+
+GRANT SELECT
+  ON full_logs
+  TO express_000;

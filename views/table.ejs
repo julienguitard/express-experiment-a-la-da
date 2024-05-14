@@ -1,4 +1,6 @@
 <table>
-  <%- include('table_header.ejs',data.fields) %>
-  <%= data.rows.map((row)=>include('row.js',row) %>
+  <th> <% for (c of columns) { %>
+  <td> <%= c %> </td> <% } %> </th>
+  <% for (r of rows) { %>  <tr>  <% for (rr of r) { %> <td> <%= rr %>  </td> <% } %>  </tr> <% } %> 
+
 </table>
