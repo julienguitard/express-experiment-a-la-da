@@ -90,7 +90,6 @@ const clockControler = function (req, res, next) {
 };
 
 const logToPostgresControler = function (req, res, next) {
-  console.log('logToPostgresControler');
   const meths = Object.entries(req.route.methods).filter(([k, v]) => v).map(([k, v]) => k).join(',');
   const now_ = sql_now();
   const reqData = queryPool(pool, insert_into_requests_logs, [now_, req.route.path, meths]);

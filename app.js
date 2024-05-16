@@ -3,14 +3,11 @@ const session = require('express-session');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
-const bodyParser = require('body-parser')
-const {routes, router} = require('./routes/index');
-const hash = require('./utils/hash');
-const { nestedTimeOut, showHashDate, showHashIdDate, delay } = require('./utils/delayedGeneration');
+const bodyParser = require('body-parser');
+const router = require('./routes/index');
 const app = express();
 const port = 3001;
-const { pool, query } = require('./databases/index');
-const { IncomingMessage } = require('http');
+const {IncomingMessage } = require('http');
 
 
 //app.use(fooControler);
@@ -27,6 +24,7 @@ app.use(session({
   secret: 'keyboard cat'
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
+
 app.use('/', router);
 
 module.exports = { app, port };
