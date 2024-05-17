@@ -1,9 +1,11 @@
 
-const dotenv = require('dotenv').config();
-const { Pool } = require('pg');
-const errorConsoleLog = require('../utils/errorConsoleLog');
+import dotenv_ from 'dotenv';
+import  Pool from 'pg';
+import errorConsoleLog  from '../utils/errorConsoleLog.js';
 
-const pool = new Pool({
+const dotenv= dotenv_.config()
+
+const pool = new Pool.Pool({
   database: process.env.DATABASE,
   user: 'express_000',//TO DO
   password: process.env.PASSWORD,
@@ -18,8 +20,8 @@ const pool = new Pool({
 
 async function queryPool(po, sql, params) {
   ;
-  res = await po.query(sql, params);
+  const res = await po.query(sql, params);
   return res;
 }
 
-module.exports = { pool, queryPool };
+export { pool, queryPool };

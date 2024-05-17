@@ -1,5 +1,5 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 const hash = (s) => crypto.createHash('sha256').update(s).digest('hex');
 
-module.exports = hash;
+export {hash};

@@ -1,21 +1,21 @@
-const express = require('express');
-const session = require('express-session');
-const cors = require('cors');
-const helmet = require('helmet');
-const path = require('path');
-const bodyParser = require('body-parser');
-const router = require('./routes/index');
+import express from 'express';
+import session from 'express-session';
+import cors from 'cors';
+import helmet from 'helmet';
+import path from 'path';
+import bodyParser from 'body-parser';
+import {router} from './routes/index.js';
+import {IncomingMessage } from 'http';
+
 const app = express();
 const port = 3001;
-const {IncomingMessage } = require('http');
-
 
 //app.use(fooControler);
 
 app.use(express.static('public'));
 app.use(cors());
 app.use(helmet());
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', './views');
 app.set('view engine', 'ejs');
 
 app.use(session({
@@ -27,5 +27,5 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/', router);
 
-module.exports = { app, port };
+export { app, port };
 

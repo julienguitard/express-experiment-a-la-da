@@ -1,4 +1,4 @@
-const {  renderControler, showLogsControler, showLogsTableControler } = require('../middlewares/controlers');
+import {  renderControler, showLogsControler, showLogsTableControler } from '../middlewares/controlers.js';
 
 const routes = [
     {
@@ -163,4 +163,4 @@ const routes = [
     }
   ];
 
-  module.exports = routes
+export {routes};

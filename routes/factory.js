@@ -18,4 +18,4 @@ function setRouteMethod(rou, method, route, controlers) {
     ;
   }
 
-  module.exports = setRouteMethod;
+export {setRouteMethod};

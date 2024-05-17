@@ -42,4 +42,4 @@ async function delayIdentity(x) {//TO DO
 
 
 
-module.exports = { nestedTimeOut, showHashDate, showHashIdDate, delay };
+export  { nestedTimeOut, showHashDate, showHashIdDate, delay };

@@ -1,7 +1,7 @@
-const { pool, queryPool } = require("../databases");
-const {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs,select_full_logs } = require('../databases/procedures');
-const errorConsoleLog = require('../utils/errorConsoleLog');
-const {sql_now,parseSQLOutput} = require('./handlers');
+import { pool, queryPool } from '../databases/index.js';
+import {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs,select_full_logs } from '../databases/procedures.js';
+import errorConsoleLog from '../utils/errorConsoleLog.js';
+import{sql_now,parseSQLOutput} from './handlers.js';
 
 class MyViews {
   constructor() {
@@ -119,4 +119,4 @@ const showLogsTableControler = function (req,res,next) {
 }
 
 
-module.exports = { fooControler, indexControler, renderControler, viewControler, consoleControler, logToPostgresControler, showLogsControler, showLogsTableControler};
+export { fooControler, indexControler, renderControler, viewControler, consoleControler, logToPostgresControler, showLogsControler, showLogsTableControler};

@@ -7,4 +7,4 @@ function parseSQLOutput(data) {
     return parsedData;
  }
 
- module.exports = {sql_now,parseSQLOutput};
+export {sql_now,parseSQLOutput};

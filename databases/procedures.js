@@ -9,4 +9,4 @@ const select_more_artists = 'SELECT DISTINCT artist_id FROM users_artists WHERE 
 const select_more_works = 'SELECT DISTINCT work_id FROM works_artists WHERE user_id = $1 AND liked = 0 ORDER BY RANDOM() LIMIT 50'
 
 
-module.exports = {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs,select_full_logs };
+export {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs,select_full_logs };

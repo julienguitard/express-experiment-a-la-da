@@ -1,5 +1,5 @@
-const { app, port } = require('./app');
-const mockRenderFile = require('./test/views/renderFile');
+import { app, port } from './app.js';
+import {mockRenderFile} from './test/views/renderFile.js';
 
 app.listen(port);
 console.log(`Express started on port ${port}`);
