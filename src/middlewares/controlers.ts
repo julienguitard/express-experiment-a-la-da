@@ -1,29 +1,12 @@
 import { pool, queryPool } from '../databases/index.js';
 import {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs,select_full_logs } from '../databases/procedures.js';
+import {Request,Response,NextFunction} from 'express';
+import {Session, SessionData} from 'express-session';
 import errorConsoleLog from '../utils/errorConsoleLog.js';
 import{sql_now,parseSQLOutput} from './handlers.js';
 
-class MyViews {
-  constructor() {
-    this.x = 0;
-    console.log('created' + this.x);
-  }
 
-  inc() {
-    this.x = this.x + 1;
-    console.log(this.x);
-  }
-}
-
-const myViews = new MyViews();
-
-const fooControler = (req, res, next) => {
-  myViews.inc();
-  next()
-};
-
-
-const indexControler = function (req, res, next) {
+const indexControler = function (req:Request, res:Response, next:NextFunction) {
   if (req.session) {
     if (!('views' in req.session)) {
       req.session.views = 0;
@@ -38,7 +21,7 @@ const indexControler = function (req, res, next) {
   res.render('index', { views: req.session.views });
 };
 
-const renderControler = function (req, res, next) {
+const renderControler = function (req:Request, res:Response, next:NextFunction) {
   console.log('renderControler');
   try {
     res.render('index', {footer:{ views: req.session.views, userName: 'self' }});
@@ -51,7 +34,7 @@ const renderControler = function (req, res, next) {
   }
 };
 
-const dataControler = function (req, res, next) {
+const dataControler = function (req:Request, res:Response, next:NextFunction) {
   try {
     res.send(res.json);
   }
@@ -63,7 +46,7 @@ const dataControler = function (req, res, next) {
   }
 };
 
-const viewControler = function (req, res, next) {
+const viewControler = function (req:Request, res:Response, next:NextFunction) {
   console.log('viewControler');
   if (req.session) {
     if (!('views' in req.session)) {
@@ -80,16 +63,16 @@ const viewControler = function (req, res, next) {
   next();
 }
 
-const consoleControler = function (req, res, next) {
+const consoleControler = function (req:Request, res:Response, next:NextFunction) {
   console.log(Object.entries(req.route.methods).filter(([k, v]) => v).map(([k, v]) => k) + ' ' + req.route.path);
 }
 
-const clockControler = function (req, res, next) {
+const clockControler = function (req:Request, res:Response, next:NextFunction) {
   const data_ = queryPool(pool, 'SELECT NOW() AS time_, $1 AS check_,', req.params);
   data_.then(data => res.status(200).send(data)).catch(err => res.status(50).send(err));
 };
 
-const logToPostgresControler = function (req, res, next) {
+const logToPostgresControler = function (req:Request, res:Response, next:NextFunction) {
   const meths = Object.entries(req.route.methods).filter(([k, v]) => v).map(([k, v]) => k).join(',');
   const now_ = sql_now();
   const reqData = queryPool(pool, insert_into_requests_logs, [now_, req.route.path, meths]);
@@ -105,7 +88,7 @@ const logToPostgresControler = function (req, res, next) {
 }
 
 const showLogsControler = function (req,res,next) {
-  const resData = queryPool(pool,select_full_logs,[]).then(data=>{console.log(data[0].fields,data[0].rows);
+  const resData = queryPool(pool,select_full_logs,[]).then(data=>{console.log(data.fields,data.rows);
     res.json({"data":parseSQLOutput(data[0])})
   });
 }
@@ -119,4 +102,4 @@ const showLogsTableControler = function (req,res,next) {
 }
 
 
-export { fooControler, indexControler, renderControler, viewControler, consoleControler, logToPostgresControler, showLogsControler, showLogsTableControler};
+export {indexControler, renderControler, viewControler, consoleControler, logToPostgresControler, showLogsControler, showLogsTableControler};

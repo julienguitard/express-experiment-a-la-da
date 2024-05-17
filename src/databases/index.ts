@@ -1,24 +1,25 @@
 
-import dotenv_ from 'dotenv';
-import  Pool from 'pg';
+import dotenv_,{DotenvConfigOutput} from 'dotenv';
+import  pg, {PoolConfig,Pool,QueryResult} from 'pg';
 import errorConsoleLog  from '../utils/errorConsoleLog.js';
 
-const dotenv= dotenv_.config()
-
-const pool = new Pool.Pool({
+const dotenv:DotenvConfigOutput= dotenv_.config();
+const poolConfig:PoolConfig = {
   database: process.env.DATABASE,
   user: 'express_000',//TO DO
   password: process.env.PASSWORD,
   host: process.env.HOST,
-  port: process.env.PORT,
+  port: Number(process.env.PORT),
   ssl: false,
   max: 20, // set pool max size to 20
   idleTimeoutMillis: 1000, // close idle clients after 1 second
   connectionTimeoutMillis: 1000, // return an error after 1 second if connection could not be established
   maxUses: 7500, // close (and replace) a connection after it has been used 7500 times (see below for discussion)
-});
+};
 
-async function queryPool(po, sql, params) {
+const pool:Pool = new pg.Pool(poolConfig);
+
+async function queryPool(po:Pool, sql:string, params:Array<string>):Promise<QueryResult<any>> {
   ;
   const res = await po.query(sql, params);
   return res;

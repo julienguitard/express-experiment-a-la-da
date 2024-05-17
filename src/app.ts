@@ -17,8 +17,6 @@ const sessionOptions: SessionOptions = {
 };
 const sessionMiddleware:RequestHandler= session(sessionOptions);
 
-//app.use(fooControler);
-
 app.use(express.static('public'));
 app.use(cors());
 app.use(helmet());

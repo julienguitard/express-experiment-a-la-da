@@ -1,6 +1,6 @@
 import {  renderControler, showLogsControler, showLogsTableControler } from '../middlewares/controlers.js';
 
-const routes = [
+const routes: Array<{route:String,method:string,controlers :Array<Function>}> = [
     {
       route: '/',
       method: 'get',
