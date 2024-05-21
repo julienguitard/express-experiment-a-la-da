@@ -2,10 +2,41 @@ const insert_into_requests_logs:string = 'INSERT INTO requests_logs (SELECT * FR
 const insert_into_errors_logs:string = 'INSERT INTO errors_logs (SELECT * FROM generate_errors_logs_event($1,$2,$3,$4))';
 const insert_into_responses_logs:string = 'INSERT INTO responses_logs (SELECT * FROM generate_responses_logs_event($1,$2,$3,$4))';
 const select_full_logs:string = 'SELECT * FROM full_logs LIMIT 50;SELECT * FROM full_logs LIMIT 50;';
-const select_artists:string = 'SELECT * FROM users_artists WHERE user_id = $1 AND watched = 1 LIMIT 50';//TODO
-const select_works:string = 'SELECT * FROM users_works WHERE user_id = $1 AND liked = 1 LIMIT 50';//TODO
-const select_my_works:string = 'SELECT * FROM works WHERE artist_id = $1 LIMIT 50';//TODO
-const select_more_artists:string = 'SELECT DISTINCT artist_id FROM users_artists WHERE user_id = $1 AND watched = 0 ORDER BY RANDOM() LIMIT 50'
-const select_more_works:string = 'SELECT DISTINCT work_id FROM works_artists WHERE user_id = $1 AND liked = 0 ORDER BY RANDOM() LIMIT 50'
 
-export {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs,select_full_logs };
+
+const procedures:Record<string,Array<string>> = {generate_user_from_req:['userId','time','userName','pwd'],
+generate_user_event_from_req:['userId','time','key'],
+generate_artist_from_req:['artistId','time','userId'],
+generate_artist_event_from_req:['artistId','time','key'],
+generate_work_from_req:['workId','artistId','time','workName'],
+generate_work_event_from_req:['workId','time','key'],
+generate_user_artist_from_req:['userArtistId','userID','artistID','time'],
+generate_user_artist_event_from_req:['userArtistId','time','key'],
+generate_user_work_from_req:['userWorkId','userID','workID','time'],
+generate_user_work_event_from_req:['userWorkId','time','key'],
+insert_user_event_from_req:['userId','time','key'],
+insert_artist_from_req:['artistId','time','userId'],
+insert_artist_event_from_req:['artistId','time','key'],
+insert_work_from_req:['workId','artistId','time','workName'],
+insert_work_event_from_req:['workId','time','key'],
+insert_user_artist_from_req:['userArtistId','userID','artistID','time'],
+insert_user_artist_event_from_req:['userArtistId','time','key'],
+insert_user_work_from_req:['userWorkId','userID','workID','time'],
+insert_user_work_event_from_req:['userWorkId','time','key'],
+check_login_from_req : ['userName','pwd'],
+see_my_watched_artists_from_req:['userId'],
+see_more_artists_from_req:['userId']}
+
+const proceduresArgs:Record<string,Array<string>> =  {
+    userId:['session','params'],
+    time:['unit'],
+    userName:['params'],
+    pwd:['params'],
+    key:['route'],
+    artistId:['session','params'],
+    workId:['params'],
+    userArtistId:['params'],
+    workArtistId:['params'],
+}
+
+export {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs,select_full_logs, procedures,proceduresArgs };

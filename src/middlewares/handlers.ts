@@ -1,10 +1,171 @@
-const sql_now : () => string = () => (Date.now()/1000).toString();
+import {Request, Response} from 'express';
+import {Session, SessionData} from 'express-session';
+import {Pool,QueryResult} from 'pg';
+import {queryPool} from '../databases/index.js';
+import { hash } from '../utils/hash.js'
 
-function parseSQLOutput(data:{fields:Array<{name:string}>,rows:Array<Array<any>>}):{fields:Array<string>,rows:Array<Array<any>>} {
-    const fields = data.fields.map((f)=>f.name);
-    const rows = data.rows.map(r=>fields.map(c=>r[c]));
-    const parsedData = {fields:fields, rows:rows}
+interface SessionUserData extends SessionData {
+    userId:string,
+    artistId:string,
+    startTime:string;
+} 
+
+function getTitle():string {
+    return 'Jus page';
+}
+
+function getTime(): string {
+    return (Date.now() / 1000).toString();
+};
+
+function getSigninAs(session: SessionUserData):string|undefined{
+    return session.userId||'none';
+}
+
+function getStartTime(session: SessionUserData):string|undefined{
+    return session.startTime||getTime();
+}
+
+function getUserId(route: Request["route"], session: SessionUserData, params: Request["params"]): string {
+    if (':artistId' in route.split('/')) {
+        return params.userId;
+    } else if (session.userId) {
+        return session.userId;
+    }
+    else if (params.userName && params.pwd) {
+        return hash(params.userName);
+    }
+    else {
+        throw Error('Unmatched case');
+    }
+}
+
+function getUserName(params: Request["params"]): string {
+    if (params.userName && params.pwd) {
+        return params.userName;
+    }
+    else {
+        throw Error('Unmatched case');
+    }
+}
+
+function getPwd(params: Request["params"]): string {
+    if (params.userName && params.pwd) {
+        return hash(params.pwd);
+    }
+    else {
+        throw Error('Unmatched case');
+    }
+}
+
+function getKey(route: Request["route"]): string {//TO DO
+    if ('delete' in route.split('/')) {
+        return 'delete';
+    }
+    else if ('watch' in route.split('/')) {
+        return 'watch'
+    }
+    else if ('signup' in route.split('/')) {
+        return 'create'
+    }
+    else if ('submit' in route.split('/')) {
+        return 'submit'
+    }
+    else if ('like' in route.split('/')) {
+        return 'like'
+    }
+    else {
+        return 'create';
+    }
+}
+
+
+function getArtistId(route: Request["route"], session: SessionUserData, params: Request["params"]): string {
+    if (':artistId' in route.split('/')) {
+        return params.artistId;
+    } else if (session.artistId) {
+        return session.artistId;
+    }
+    else if (session.userId) {
+        return hash(session.userId);
+    }
+    else {
+        throw Error('Unmatched case');
+    }
+}
+
+function getWorkId(route: Request["route"], params: Request["params"]): string {
+    if (':workId' in route.split('/')) {
+        return params.workId;
+    }
+    else {
+        throw Error('Unmatched case');
+    }
+}
+
+function getUserArtistId(route: Request["route"], session: SessionUserData,params: Request["params"]): string {
+    if ((':artistId' in route.split('/')) && (session.userId)) {
+        return hash(params.artistId+session.userId);
+    }
+    else {
+        throw Error('Unmatched case');
+    }
+}
+
+function getUserWorkId(route: Request["route"], session: SessionUserData,params: Request["params"]): string {
+    if ((':workId' in route.split('/')) && (session.userId)) {
+        return hash(params.workId+session.userId);
+    }
+    else {
+        throw Error('Unmatched case');
+    }
+}
+
+function requestParamsHandler(route: Request["route"], session: SessionUserData, params: Request["params"]): Record<string, any> {
+
+    return {
+        userId: getUserId(route,session,params),
+        time: getTime(),
+        userName: getUserName(params),
+        pwd: getPwd(params),
+        key: getKey(route),
+        artistId: getArtistId(route,session,params),
+        workId: getWorkId(route,params),
+        userArtistId: getUserArtistId(route,session,params),
+        workArtistId: getUserWorkId(route,session,params)
+    }
+}
+
+function dbHandlerBuilder(pool:Pool,proc:string,procArgs:Array<string>):((params:Record<string,any>) => Promise<QueryResult<any>>) {
+    function dbHandler(params:Record<string,any>):Promise<QueryResult<any>>{
+        return queryPool(pool,'SELECT * FROM ' + proc, procArgs.map((a)=>params[procArgs.a]));
+    } 
+    return dbHandler;
+}
+
+function outputCallbackBuilder(route:string,url?:string):any {
+    if ('api' in route.split('/')) {
+        return (res:Response,props:Object) => {res.json(props)};
+    }
+    else if (route){
+        return (res:Response,props:Object) => {res.render('index.js',props)};
+    }
+    else if (url) {
+        return (res:Response,props:Object) => {res.redirect(url)}
+    }
+    else {
+        throw Error('Unmatched case')
+    }
+}
+
+
+function parseSQLOutput(data: { fields: Array<{ name: string }>, rows: Array<Array<any>> }): { fields: Array<string>, rows: Array<Array<any>> } {
+    const fields = data.fields.map((f) => f.name);
+    const rows = data.rows.map(r => fields.map(c => r[c]));
+    const parsedData = { fields: fields, rows: rows }
     return parsedData;
- }
+}
 
-export {sql_now,parseSQLOutput};
+
+
+export {SessionUserData, getTime, parseSQLOutput };

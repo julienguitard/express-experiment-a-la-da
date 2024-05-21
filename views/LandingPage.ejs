@@ -1,0 +1,13 @@
+<h1>Welcome</h1>
+<% if (signinForm) { %>
+<p>Please sign in </p>
+<%- include('Form',signinForm) %>
+<p>Do not not hava an account <a>
+    <href= /landing/signup />Sign up
+  </a></p>
+<% } else if (signupForm) { %>
+<p>Please sign up</p>
+<%- include('Form',signupForm) %>
+<% } else { %>
+<p>Never</p>
+<% } %>
