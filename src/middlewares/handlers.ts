@@ -3,6 +3,7 @@ import {Session, SessionData} from 'express-session';
 import {Pool,QueryResult} from 'pg';
 import {queryPool} from '../databases/index.js';
 import { hash } from '../utils/hash.js'
+import type {IndexPage, Header, LandingPage, SigninForm, SignupForm, FormPage, Form,UserHomePage, Table ,ArtistHomePage,TablePage,EntityPage ,Entity,ErrorPage,Footer} from '../props/types.js';
 
 interface SessionUserData extends SessionData {
     userId:string,
@@ -14,16 +15,36 @@ function getTitle():string {
     return 'Jus page';
 }
 
+function getHeader():Headr{
+    return {title:getTitle()}
+}
+
+
 function getTime(): string {
     return (Date.now() / 1000).toString();
 };
 
-function getSigninAs(session: SessionUserData):string|undefined{
+function getSigninAs(session: SessionUserData):string{
     return session.userId||'none';
 }
 
-function getStartTime(session: SessionUserData):string|undefined{
+function getStartTime(session: SessionUserData):string{
     return session.startTime||getTime();
+}
+
+function getErrorPage(err:Error):ErrorPage{
+    return {err:err};
+}
+
+function getFooter(session: SessionUserData):Footer{
+    return {
+        signinAs:getSigninAs(session),
+        startTime:getStartTime(session)
+    }
+}
+
+function getFormProps(formType:string):Form{
+
 }
 
 function getUserId(route: Request["route"], session: SessionUserData, params: Request["params"]): string {

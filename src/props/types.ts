@@ -33,25 +33,30 @@ type FormPage = {
 };
 
 type Form = {
-  inputs: Array<{ inputId: string; inputType: string }>;
+  inputs: Array<{ inputId: string; inputType: string ; inputLabel: string }>;
   url: string;
 };
 
 type UserHomePage = {
   myWatchedArtists: Table;
-  myLikeWorks: Table;
+  myLikedWorks: Table;
 };
 
 type Table = {
   fields: Array<string>;
-  rows: Array<Array<any>>;
+  rows: Array<Array<Cell>>;
 };
 
+type Cell = {
+    value: number|string,
+    url? : string
+}
 type ArtistHomePage = {
-  myWatcher: Table;
+  myWatchers: Table;
+  myWorks : Table;
   myBannedUser: Table;
   myWatchedArtists: Table;
-  myLikeWorks: Table;
+  myLikedWorks: Table;
 };
 
 type TablePage = {
@@ -73,3 +78,5 @@ type Footer = {
   startTime: Date;
   loggedAs: string;
 };
+
+export type {IndexPage, Header, LandingPage, SigninForm, SignupForm, FormPage, Form,UserHomePage, Table ,ArtistHomePage,TablePage,EntityPage ,Entity,ErrorPage,Footer} ;

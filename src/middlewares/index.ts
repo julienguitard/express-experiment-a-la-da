@@ -17,32 +17,6 @@ const getIndexProps = (session:SessionUserData) => {return {
   }
 }};
 
-const indexControler = function (req:Request, res:Response, next:NextFunction) {
-  if (req.session) {
-    if (!('views' in req.session)) {
-      req.session.views = 0;
-    }
-    else {
-      ++req.session.views;
-    }
-  }
-  else {
-    throw ('Session should be initialized');
-  }
-
-  const  indexProps = {
-    header:{
-      title:'Jus sandbox'
-    },
-    footer:{
-      signedinAs : 'Ju',
-      startTime : '2024-05-20 00:00:00'
-    }
-  }
-
-  res.render('Index',{indexProps:indexProps});
-};
-
 const renderControler = function (req:Request, res:Response, next:NextFunction) {
   console.log('renderControler');
   try {
@@ -57,7 +31,7 @@ const renderControler = function (req:Request, res:Response, next:NextFunction) 
         startTime : '2024-05-20 00:00:00'
       }
     }
-    res.render('Index',{indexProps:indexProps});
+    res.render('LegacyIndex',{indexProps:indexProps});
   }
   catch (e) {
     console.log(e);

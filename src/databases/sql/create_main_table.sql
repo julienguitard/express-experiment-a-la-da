@@ -1,3 +1,4 @@
+--Main tables and views by granularity users, artists, works, users_artists, users_works
 CREATE TABLE IF NOT EXISTS users_core
 (
 id              VARCHAR(256) PRIMARY KEY,
@@ -150,7 +151,8 @@ AS
 
 CREATE OR REPLACE VIEW users_artists AS (
 SELECT MD5(user_artist_id||key_) AS id,
-       user_artist_id user_id,
+       user_artist_id,
+       user_id,
        artist_id,
        creation_time,
        key_,
@@ -216,6 +218,74 @@ GROUP BY user_work_id,
          creation_time,
          key_
 );
+
+--Views to propagate user deletion, work withdrawal and user ban
+
+
+CREATE OR REPLACE VIEW non_deleted_users_ids AS (
+SELECT user_id
+FROM (SELECT t0.user_id,
+             CAST(t1.user_id IS NULL AS INT) AS non_deleted
+      FROM (SELECT DISTINCT user_id FROM users) t0
+        LEFT JOIN (SELECT DISTINCT user_id
+                   FROM users
+                   WHERE key_ = 'delete'
+                   AND   value = 1) t1 USING (user_id))
+WHERE non_deleted = 1
+);
+
+
+CREATE OR REPLACE VIEW users_without_deleted AS(
+SELECT *
+FROM users
+  JOIN non_deleted_users_ids USING (user_id)
+);
+
+CREATE OR REPLACE VIEW artists_without_deleted AS
+(
+SELECT *
+FROM artists
+  JOIN non_deleted_users_ids USING (user_id)
+);
+
+CREATE OR REPLACE VIEW non_deleted_artists_ids AS
+(
+SELECT DISTINCT artist_id
+FROM artists_without_deleted
+);
+
+CREATE OR REPLACE VIEW works_without_deleted AS
+(SELECT *
+FROM works
+  JOIN non_deleted_artists_ids USING (artist_id)
+);
+
+CREATE OR REPLACE VIEW non_deleted_works_ids AS
+(
+SELECT DISTINCT work_id
+FROM works_without_deleted
+);
+
+CREATE OR REPLACE VIEW users_artists_without_deleted AS
+(
+SELECT *
+FROM (SELECT *
+      FROM users_artists
+        JOIN non_deleted_users_ids USING (user_id))
+  JOIN non_deleted_artists_ids USING (artist_id)
+);
+
+
+CREATE OR REPLACE VIEW users_works_without_deleted AS
+(
+SELECT *
+FROM (SELECT *
+      FROM users_works
+        JOIN non_deleted_users_ids USING (user_id))
+  JOIN non_deleted_works_ids USING (artist_id)
+);
+
+--Buffers for procedure
 
 CREATE TABLE IF NOT EXISTS users_works_events_buffer
 AS

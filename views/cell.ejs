@@ -1,18 +1,11 @@
-<% if (isHeader) { %>
-<th>
-  <%= varName %>
-</th>
-<% }
- else if (hasLink){%>
+<% if (cell.url){%>
 <td>
-  <%= value %>
-  <href>
-    <%= url %>
-  </href>
+  <%= cell.value %>
+  <a href=<%= cell.url %> </a>
 </td>
 <% }
 else { %>
 <td>
-  <%= value %>
+  <%= cell.value %>
 </td>
 <% } %>

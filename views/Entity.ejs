@@ -1,0 +1,9 @@
+<table>
+  <th> <% for (c of ['Columns,Value']) { %>
+  <td> <%= c %> </td> <% } %> </th>
+  <% for (kv of Object.entries(entity)) { %> <tr>
+    <td> kv[0] </td>
+    <td> kv[1] </td>
+  </tr> <% } %>
+
+</table>

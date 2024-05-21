@@ -1,0 +1,13 @@
+<% if (body.landingPage) { %>
+<%- include('LandingPage',body)%>
+<% } else if (body.myWatchers) { %>
+<%- include('ArtistHomePage',body)%>
+<% } else if (body.myLikedWorks) { %>
+<%- include('UserHomePage',body)%>
+<% } else if (body.table) { %>
+<%- include('TablePage',body)%>
+<% } else if (body.entity){ %>
+<%- include('EntityPage',body)%>
+<% } else { %>
+<%- include('ErrorPage',body)%>
+<% } %>
