@@ -285,6 +285,77 @@ FROM (SELECT *
   JOIN non_deleted_works_ids USING (artist_id)
 );
 
+
+CREATE OR REPLACE VIEW non_withdrawn_works_ids AS (
+SELECT work_id
+FROM (SELECT t0.work_id,
+             CAST(t1.work_id IS NULL AS INT) AS non_withdrawn
+      FROM (SELECT DISTINCT work_id FROM works_without_deleted) t0
+        LEFT JOIN (SELECT DISTINCT work_id
+                   FROM works_without_deleted
+                   WHERE key_ = 'submit'
+                   AND   value = 0) t1 USING (work_id))
+WHERE non_withdrawn = 1
+);
+
+CREATE OR REPLACE VIEW works_without_withdrawn AS
+(
+SELECT *
+FROM works_without_deleted
+  JOIN non_withdrawn_works_ids USING (work_id)
+);
+
+
+CREATE OR REPLACE VIEW users_works_without_withdrawn AS
+(
+SELECT *
+FROM users_works_without_deleted
+  JOIN non_withdrawn_works_ids USING (work_id)
+);
+
+CREATE OR REPLACE VIEW non_banned_users_artists_ids AS (
+SELECT user_artist_id, 
+       user_id,
+       artist_id
+FROM (SELECT t0.user_artist_id,
+             t0.user_id,
+             t0.artist_id,
+             CAST(t1.user_artist_id IS NULL AS INT) AS non_banned
+      FROM (SELECT DISTINCT users_artists FROM users_artists_without_deleted) t0
+        LEFT JOIN (SELECT DISTINCT user_artist_id
+                   FROM users_artists_without_deleted
+                   WHERE key_ = 'ban'
+                   AND   value = 1) t1 USING (user_artist_id))
+WHERE non_withdrawn = 1
+);
+
+CREATE OR REPLACE VIEW users_artists_without_banned AS
+(
+SELECT *
+FROM users_artists_without_deletde
+  JOIN non_banned_users_artists_ids USING (user_artist_id)
+);
+
+CREATE OR REPLACE VIEW users_works_without_banned AS
+(
+SELECT id,
+       user_work_id,
+       user_id,
+       work_id,
+       creation_time,
+       key_,
+FROM (SELECT t0.id,
+             t0.user_work_id,
+             t0.user_id,
+             t0.work_id,
+             t0.creation_time,
+            t0.key_,
+            t1.artist_id
+      FROM users_works_without_withdrawn t0
+        JOIN non_withdrawn_works_ids t1 USING (work_id))
+  JOIN users_artists_without_banned USING (user_id,artist_id)
+);
+
 --Buffers for procedure
 
 CREATE TABLE IF NOT EXISTS users_works_events_buffer

@@ -1,13 +1,14 @@
 import { pool, queryPool } from '../databases/index.js';
 import {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs,select_full_logs } from '../databases/procedures.js';
 import {Request,Response,NextFunction} from 'express';
-import {Session, SessionData} from 'express-session';
 import errorConsoleLog from '../utils/errorConsoleLog.js';
-import{getTime,parseSQLOutput,SessionUserData} from './handlers.js';
-import { getDefaultAutoSelectFamilyAttemptTimeout } from 'net';
+import { Session, SessionData } from 'express-session';
+import{getTime,parseSQLOutput} from './handlers.js';
 
 
-const getIndexProps = (session:SessionUserData) => {return {
+
+
+const getIndexProps = (session:SessionData) => {return {
   header:{
     title:'Jus sandbox'
   },
@@ -122,6 +123,7 @@ const errorControler = function (err:Error,req:Request,res:Response,next:NextFun
   getIndexProps.body = {errorPage:{err:err}};
   res.render('Index', props);
 }
+
 
 
 

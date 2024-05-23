@@ -1,21 +1,17 @@
 import {Request, Response} from 'express';
-import {Session, SessionData} from 'express-session';
 import {Pool,QueryResult} from 'pg';
 import {queryPool} from '../databases/index.js';
 import { hash } from '../utils/hash.js'
-import type {IndexPage, Header, LandingPage, SigninForm, SignupForm, FormPage, Form,UserHomePage, Table ,ArtistHomePage,TablePage,EntityPage ,Entity,ErrorPage,Footer} from '../props/types.js';
+import { Session, SessionData } from 'express-session';
+import type {IndexPage, Header, LandingPage, SigninForm, SignupForm, FormPage, 
+    Form,UserHomePage, Table ,ArtistHomePage,TablePage,EntityPage ,Entity,ErrorPage,Footer} from 'types';
 
-interface SessionUserData extends SessionData {
-    userId:string,
-    artistId:string,
-    startTime:string;
-} 
 
 function getTitle():string {
     return 'Jus page';
 }
 
-function getHeader():Headr{
+function getHeader():Header{
     return {title:getTitle()}
 }
 
@@ -24,30 +20,30 @@ function getTime(): string {
     return (Date.now() / 1000).toString();
 };
 
-function getSigninAs(session: SessionUserData):string{
+function getSigninAs(session: SessionData):string{
     return session.userId||'none';
 }
 
-function getStartTime(session: SessionUserData):string{
+function getStartTime(session: SessionData):string{
     return session.startTime||getTime();
 }
 
 function getErrorPage(err:Error):ErrorPage{
-    return {err:err};
+    return {error:err.toString()};
 }
 
-function getFooter(session: SessionUserData):Footer{
+function getFooter(session: SessionData):Footer{
     return {
         signinAs:getSigninAs(session),
         startTime:getStartTime(session)
     }
 }
 
-function getFormProps(formType:string):Form{
+//function getFormProps(formType:string):Form{
+//
+//}
 
-}
-
-function getUserId(route: Request["route"], session: SessionUserData, params: Request["params"]): string {
+function getUserId(route: Request["route"], session: SessionData, params: Request["params"]): string {
     if (':artistId' in route.split('/')) {
         return params.userId;
     } else if (session.userId) {
@@ -101,7 +97,7 @@ function getKey(route: Request["route"]): string {//TO DO
 }
 
 
-function getArtistId(route: Request["route"], session: SessionUserData, params: Request["params"]): string {
+function getArtistId(route: Request["route"], session: SessionData, params: Request["params"]): string {
     if (':artistId' in route.split('/')) {
         return params.artistId;
     } else if (session.artistId) {
@@ -124,7 +120,7 @@ function getWorkId(route: Request["route"], params: Request["params"]): string {
     }
 }
 
-function getUserArtistId(route: Request["route"], session: SessionUserData,params: Request["params"]): string {
+function getUserArtistId(route: Request["route"], session: SessionData,params: Request["params"]): string {
     if ((':artistId' in route.split('/')) && (session.userId)) {
         return hash(params.artistId+session.userId);
     }
@@ -133,7 +129,7 @@ function getUserArtistId(route: Request["route"], session: SessionUserData,param
     }
 }
 
-function getUserWorkId(route: Request["route"], session: SessionUserData,params: Request["params"]): string {
+function getUserWorkId(route: Request["route"], session: SessionData,params: Request["params"]): string {
     if ((':workId' in route.split('/')) && (session.userId)) {
         return hash(params.workId+session.userId);
     }
@@ -142,7 +138,7 @@ function getUserWorkId(route: Request["route"], session: SessionUserData,params:
     }
 }
 
-function requestParamsHandler(route: Request["route"], session: SessionUserData, params: Request["params"]): Record<string, any> {
+function requestParamsHandler(route: Request["route"], session: SessionData, params: Request["params"]): Record<string, any> {
 
     return {
         userId: getUserId(route,session,params),
@@ -189,4 +185,4 @@ function parseSQLOutput(data: { fields: Array<{ name: string }>, rows: Array<Arr
 
 
 
-export {SessionUserData, getTime, parseSQLOutput };
+export {getTime, parseSQLOutput };
