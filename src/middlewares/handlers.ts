@@ -34,7 +34,7 @@ function getErrorPage(err:Error):ErrorPage{
 
 function getFooter(session: SessionData):Footer{
     return {
-        signinAs:getSigninAs(session),
+        signedinAs:getSigninAs(session),
         startTime:getStartTime(session)
     }
 }
@@ -155,7 +155,7 @@ function requestParamsHandler(route: Request["route"], session: SessionData, par
 
 function dbHandlerBuilder(pool:Pool,proc:string,procArgs:Array<string>):((params:Record<string,any>) => Promise<QueryResult<any>>) {
     function dbHandler(params:Record<string,any>):Promise<QueryResult<any>>{
-        return queryPool(pool,'SELECT * FROM ' + proc, procArgs.map((a)=>params[procArgs.a]));
+        return queryPool(pool,'SELECT * FROM ' + proc, procArgs.map((a)=>params[a]));
     } 
     return dbHandler;
 }
@@ -176,10 +176,10 @@ function outputCallbackBuilder(route:string,url?:string):any {
 }
 
 
-function parseSQLOutput(data: { fields: Array<{ name: string }>, rows: Array<Array<any>> }): { fields: Array<string>, rows: Array<Array<any>> } {
+function parseSQLOutput(data: { fields: Array<{ name: string }>, rows: Array<Record<string,any>> }): { fields: Array<string>, rows: Array<Array<any>> } {
     const fields = data.fields.map((f) => f.name);
     const rows = data.rows.map(r => fields.map(c => r[c]));
-    const parsedData = { fields: fields, rows: rows }
+    const parsedData = { fields: fields, rows: rows };
     return parsedData;
 }
 

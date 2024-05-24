@@ -2,7 +2,7 @@ import { pool, queryPool } from '../databases/index.js';
 import {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs,select_full_logs } from '../databases/procedures.js';
 import {Request,Response,NextFunction} from 'express';
 import errorConsoleLog from '../utils/errorConsoleLog.js';
-import { Session, SessionData } from 'express-session';
+import { Session, SessionData} from 'express-session';
 import{getTime,parseSQLOutput} from './handlers.js';
 
 

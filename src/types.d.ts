@@ -1,141 +1,214 @@
 
 import { StringifyOptions } from 'querystring';
+import { Request, Reponse, Error, NextFunction } from 'express';
+import { Session, SessionData } from 'express-session';
 import { SessionData } from "./middlewares/handlers";
+import { Pool } from 'pg';
+
+declare OneMore<T> = T|Array<T>;
+
+declare TypedRoutes = Array<TypedRoute>;
+
+declare type TypedRoute = TypedRouteParams & Controler
+
+declare interface TypedRouteParams {
+    url: string,
+    verb: string
+}
+
+declare interface Controler {
+    controler: (err?: Error, req: Request, res: Response, NextFunction?:NextFunction) => void
+}
+
+declare interface ControlerCallbacks {
+    reqParamsHandler: (req:Response) => ProcedureProps,
+    dbHandler?: (props: ProcedureProp) => Promise<OneMore<QueryResult<any>>>,
+    propsBuilder: (r: OneMore<QueryResult<any>> ) => RenderableProps,
+    outputCallback: (res: Response, props: RenderableProps) => void
+}
+
+declare function buildControler(cbs: ControlerCallbacks): Controler;
+
+declare type ProcedureProps = Record<FlowingConcept,string>;
+
+declare type FlowingConcept =
+    'userName' |
+    'pwd' |
+    'userId' |
+    'artistId' |
+    'workId' |
+    'workName' |
+    'userArtistId' |
+    'userWorkId' |
+    'time' |
+    'key';
+
+declare function requestParamsHandlerSourcer(req:Response,c:FlowingConcept,s:Source):string;
+
+declare function requestParamsHandlerBuilder(
+    sourcer:(req:Response,c:FlowingConcept,s:Source) => string,
+    concepts:Record<FlowingConcept,Source>
+    )    
+declare type Source =
+    'unit' |
+    'route' |
+    'session' |
+    'params';
+
+declare interface DBHandlerParams {
+    pool: Pool,
+    procedures: Array<DBProcedure>
+}
+
+declare type DBProcedure = 'generate_user_from_req' |
+    'generate_user_event_from_req' |
+    'generate_artist_from_req' |
+    'generate_artist_event_from_req' |
+    'generate_work_from_req' |
+    'generate_work_event_from_req' |
+    'generate_user_artist_from_req' |
+    'generate_user_artist_event_from_req' |
+    'generate_user_work_from_req' |
+    'generate_user_work_event_from_req' |
+    'insert_user_event_from_req' |
+    'insert_artist_from_req' |
+    'insert_artist_event_from_req' |
+    'insert_work_from_req' |
+    'insert_work_event_from_req' |
+    'insert_user_artist_from_req' |
+    'insert_user_artist_event_from_req' |
+    'insert_user_work_from_req' |
+    'insert_user_work_event_from_req' |
+    'check_login_from_req' |
+    'see_my_watched_artists_from_req' |
+    'see_more_artists_from_req';
+
+declare interface DBProcedureParams {
+    args:Record<FlowingConcept,Source>
+}
+
+declare dBProcedureParams:DBProcedureParams;
+
+declare function dbHandlerBuilder(dBProcedureParams:DBProcedureParam):(props: ProcedureProp) => Promise< OneMore<QueryResult<any>>>;
+
+declare type Renderable = keyof RenderableProps;
+
+declare type  RenderableProps = EjsRenderableProps |
+DataRenderableProps |
+UrlRenderableProps ;
+
+declare interface EjsRenderableProps {
+    ejs:EjsView
+};
 
 
-declare type EjsView = 
-'Index'|
- 'Header'|
- 'Body'|
- 'Footer'|
- 'UserHome'|
- 'ArtistHoe'|
- 'SigninForm'|
- 'SignupForm'|
- 'Form'|
- 'Table'|
- 'Cell'|
- 'TablePage'|
- 'EntityPage'|
- 'Error';
-declare type IndexPage = {
-    header: Header;
+declare interface DataRenderableProps {
+    data:OneMore<{fields:Array<string>,rows:Array<Array<number|string>>}>
+};
+
+declare interface UrlRenderableProps {
+    'url':string
+}
+
+declare function DataPropsBuilderGenerator():((r: OneMore<QueryResult<any>> )=>DataRenderableProps);
+declare function UrlPropsBuilderConstantGenerator(url:string):((r: OneMore<QueryResult<any>>)=>UrlRenderableProps);
+
+
+
+declare interface propsBuilderParams {
+    pool: Pool,
+    renderable: Renderable
+}
+
+declare function outputCallbackGenerator(renderable: Renderable):(res: Response, props: RenderableProps) => void;
+
+
+declare type EjsView =
+    'Index' |
+    'Header' |
+    'Body' |
+    'Footer' |
+    'UserHome' |
+    'ArtistHome' |
+    'SigninForm' |
+    'SignupForm' |
+    'Form' |
+    'Table' |
+    'Cell' |
+    'TableZoom' |
+    'EntityZoom' |
+    'Error';
+declare type IndexProps = {
+    header: HeaderProps ;
     body:
-      | LandingPage
-      | UserHomePage
-      | ArtistHomePage
-      | FormPage
-      | TablePage
-      | EntityPage
-      | ErrorPage;
-    footer: Footer;
+    | LandingProps 
+    | UserHomeProps 
+    | ArtistHomeProps 
+    | FormProps 
+    | TableProps 
+    | EntityProps 
+    | ErrorProps ;
+    footer: FooterProps ;
 };
-  
-declare type Header = {
-    title: string;
+
+declare type HeaderProps  = {
+    title: string;//(userName)
 };
-  
-declare type LandingPage = {
+
+declare type LandingProps = {
     landingPage: SigninForm | SignupForm;
 };
-  
-declare type SigninForm = {
-    signinForm: FormPage;
+
+declare type SigninFormProps = {
+    signinForm: FormProps;
 };
-declare type SignupForm = {
-    signupForm: FormPage;
+declare type SignupFormProps = {
+    signupForm: FormProps;
 };
-  
-declare type FormPage = {
-    form: Form;
+
+declare type FormProps = {
+    inputs: Array<{ inputId: string; inputType: string; inputLabel: string }>;//(typeof)
+    url: string;//url
 };
-  
-declare type Form = {
-    inputs: Array<{ inputId: string; inputType: string ; inputLabel: string }>;
-    url: string;
+
+declare type UserHomeProps = {
+    myWatchedArtists: TableProps;
+    myLikedWorks: TableProps;
 };
-  
-declare type UserHomePage = {
-    myWatchedArtists: Table;
-    myLikedWorks: Table;
+
+declare type TableZoomProps = {
+    fields: Array<string>;//QueryResult keyof
+    rows: Array<Array<Cell>>;//QueryResult keyof
 };
-  
-declare type Table = {
-    fields: Array<string>;
-    rows: Array<Array<Cell>>;
+
+declare type CellProps = {
+    value: number | string,//QueryResult keyof
+    url?: string//QueryResult keyof
+}
+declare type ArtistHomeProps = {
+    myWatchers: TableProps;
+    myWorks: TableProps;
+    myBannedUser: TableProps;
+    myWatchedArtists: TableProps;
+    myLikedWorks: TableProps;
 };
-  
-declare type Cell = {
-      value: number|string,
-      url? : string
-  }
-declare type ArtistHomePage = {
-    myWatchers: Table;
-    myWorks : Table;
-    myBannedUser: Table;
-    myWatchedArtists: Table;
-    myLikedWorks: Table;
+
+declare type EntityZoomProps = {
+    entity:  Record<string, number | string>;
 };
-  
-declare type TablePage = {
-    table: Table;
-    moreUrl: string;
-};
-  
-declare type EntityPage = {
-    entity: Entity;
-};
-  
-declare type Entity = Record<string, any>;
-  
+
+declare type Entity =
+
 declare type ErrorPage = {
     error: string;
 };
-  
+
 declare type Footer = {
-    startTime: Date;
-    loggedAs: string;
+    startTime: string;
+    signedinAs: string;
 };
 
-declare type Concept = 
-'userName'|
-'pwd'|
-'userId'|
-'artistId'|
-'workId'|
-'workName'|
-'userArtistId'|
-'userWorkId'|
-'time'|
-'key';
 
-declare type Source = 
-'unit'|
-'route'|
-'session'|
-'params';
 
-declare type  DBProcedure = 'generate_user_from_req'|
-'generate_user_event_from_req'|
-'generate_artist_from_req'|
-'generate_artist_event_from_req'|
-'generate_work_from_req'|
-'generate_work_event_from_req'|
-'generate_user_artist_from_req'|
-'generate_user_artist_event_from_req'|
-'generate_user_work_from_req'|
-'generate_user_work_event_from_req'|
-'insert_user_event_from_req'|
-'insert_artist_from_req'|
-'insert_artist_event_from_req'|
-'insert_work_from_req'|
-'insert_work_event_from_req'|
-'insert_user_artist_from_req'|
-'insert_user_artist_event_from_req'|
-'insert_user_work_from_req'|
-'insert_user_work_event_from_req'|
-'check_login_from_req'|
-'see_my_watched_artists_from_req'|
-'see_more_artists_from_req';
 
-export type {IndexPage, Header, LandingPage, SigninForm, SignupForm, FormPage, Form,UserHomePage, Table ,ArtistHomePage,TablePage,EntityPage ,Entity,ErrorPage,Footer} ;
+export type { IndexPage, Header, LandingPage, SigninForm, SignupForm, FormPage, Form, UserHomePage, Table, ArtistHomePage, TablePage, EntityPage, Entity, ErrorPage, Footer };

@@ -1,0 +1,9 @@
+import {Request,Response,NextFunction} from 'express';
+
+declare module 'express' {
+    interface Request {
+        session:Session
+    }
+}
+export module 'express'; 
+export type {Request,Response,NextFunction};

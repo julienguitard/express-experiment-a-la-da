@@ -198,7 +198,7 @@ workspace:
       jelly-router: 0.3.0
       jelly-signal: 0.4.0
       jest: 1.0.0
-      js-abort-controller: 1.0.0
+      js-abort-controler: 1.0.0
       js-bigints: 2.2.1
       js-date: 8.0.0
       js-fetch: 0.2.1
