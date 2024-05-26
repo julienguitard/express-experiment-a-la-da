@@ -1,6 +1,9 @@
-import  {Router} from 'express'
-import { RequestHandler } from 'express-serve-static-core';
-function setRouteMethod(rou:Router, method:string, route:string, controlers:RequestHandler) {
+import  {Router, RequestHandler,Request, Response, NextFunction} from 'express'
+//import { RequestHandler } from 'express-serve-static-core';
+function setRouteMethod(rou:Router, 
+  method:string, 
+  route:string, 
+  controlers:Array<(req: Request, res: Response, next: NextFunction)=>void>) {
     switch (method) {
       case 'get':
         rou.get(route, controlers);

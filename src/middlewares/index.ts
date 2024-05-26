@@ -127,4 +127,4 @@ const errorControler = function (err:Error,req:Request,res:Response,next:NextFun
 
 
 
-export {indexControler, renderControler, viewControler, consoleControler, logToPostgresControler, showLogsControler, showLogsTableControler,errorControler};
+export {renderControler, viewControler, consoleControler, logToPostgresControler, showLogsControler, showLogsTableControler,errorControler};
