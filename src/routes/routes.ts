@@ -212,8 +212,45 @@ const mockRoutesParams = {
   },
   "/mock/home": {
     render: "./static/ArtistHome"
+  },
+  "/mock/profile/works/work": {
+    render: "./static/Work"
+  },
+  "/mock/profile/artists/artist": {
+    render: "./static/Artist"
+  },
+  "/mock/profile/users/user/ban": {
+    redirect: "/mock/home"
+  },
+  "/mock/profile/artists/artist/unwatch": {
+    redirect: "/mock/home"
+  },
+  "/mock/profile/works/work/unlike": {
+    redirect: "/mock/home"
+  },
+  "/mock/home/users/more": {
+    redirect: "/mock/home"
+  },
+  "/mock/home/artists/more": {
+    redirect: "/mock/home"
+  },
+  "/mock/home/works/more": {
+    redirect: "/mock/home"
+  },
+  "/mock/signout": {
+    render: "/static/Signout"
+  },
+  "/mock/signout/submit": {
+    redirect: "/mock"
+  },
+  "/mock/delete": {
+    render: "/static/Delete"
+  },
+  "/mock/delete/submit": {
+    redirect: "/mock"
   }
 };
+
 
 
 
