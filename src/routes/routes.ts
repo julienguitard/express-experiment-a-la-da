@@ -1,6 +1,6 @@
-import { logToPostgresControler,renderControler, showLogsControler, showLogsTableControler } from '../middlewares/index.js';
+import { logToPostgresControler,renderControler, showLogsControler, showLogsTableControler,mockSessionControler } from '../middlewares/index.js';
 
-import { buildMockControler } from "../middlewares/factory.js";
+import { buildMockControler, buildParametrizedMockControler } from "../middlewares/factory.js";
 
 const routes: Array<{
   route: string; method: string; procedure?: undefined; controlers: Array<Function>;
@@ -229,29 +229,84 @@ const mockRoutesParams = {
     redirect: "/mock/home"
   },
   "/mock/home/users/more": {
-    redirect: "/mock/home"
+    render: "./static/MoreUsers"
   },
   "/mock/home/artists/more": {
-    redirect: "/mock/home"
+    render: "./static/MoreArtists"
   },
   "/mock/home/works/more": {
-    redirect: "/mock/home"
+    render: "./static/MoreWorks"
   },
   "/mock/signout": {
-    render: "/static/Signout"
+    render: "./static/Signout"
   },
   "/mock/signout/submit": {
     redirect: "/mock"
   },
   "/mock/delete": {
-    render: "/static/Delete"
+    render: "./static/Delete"
   },
   "/mock/delete/submit": {
     redirect: "/mock"
   }
 };
 
-
+const mockParametrizedRoutesParams = {
+  "/parametrized": {
+    render: "./parametrized/Index",
+  },
+  "/parametrized/landing/signin": {
+    render: "./parametrized/Signin"
+  },
+  "/parametrized/landing/signup": {
+    render: "./parametrized/Signup"
+  },
+  "/parametrized/landing/signin/submit": {
+    redirect: "/parametrized/home"
+  },
+  "/parametrized/landing/signup/submit": {
+    redirect: "/parametrized/home"
+  },
+  "/parametrized/home": {
+    render: "./parametrized/ArtistHome"
+  },
+  "/parametrized/profile/works/work": {
+    render: "./parametrized/Work"
+  },
+  "/parametrized/profile/artists/artist": {
+    render: "./parametrized/Artist"
+  },
+  "/parametrized/profile/users/user/ban": {
+    redirect: "/parametrized/home"
+  },
+  "/parametrized/profile/artists/artist/unwatch": {
+    redirect: "/parametrized/home"
+  },
+  "/parametrized/profile/works/work/unlike": {
+    redirect: "/parametrized/home"
+  },
+  "/parametrized/home/users/more": {
+    render: "./parametrized/MoreUsers"
+  },
+  "/parametrized/home/artists/more": {
+    render: "./parametrized/MoreArtists"
+  },
+  "/parametrized/home/works/more": {
+    render: "./parametrized/MoreWorks"
+  },
+  "/parametrized/signout": {
+    render: "./parametrized/Signout"
+  },
+  "/parametrized/signout/submit": {
+    redirect: "/parametrized"
+  },
+  "/parametrized/delete": {
+    render: "./parametrized/Delete"
+  },
+  "/parametrized/delete/submit": {
+    redirect: "/parametrized"
+  }
+};
 
 
 
@@ -263,4 +318,12 @@ const mockRoutes = Object.entries(mockRoutesParams).map(
    }}
 );
 
-export { routes, mockRoutes };
+const mockParametrizedRoutes = Object.entries(mockParametrizedRoutesParams).map(
+  ([k,v]) => {return {
+     route: k,
+     method: 'get',
+     controlers:[logToPostgresControler, mockSessionControler, buildParametrizedMockControler(v)]
+   }}
+)
+
+export {routes, mockRoutes,mockParametrizedRoutes};

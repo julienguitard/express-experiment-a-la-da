@@ -33,6 +33,21 @@ function buildMockControler(data: Record<string,string>): (req: TypedRequest<Typ
     return mdw;
 }
 
+function buildParametrizedMockControler(data: Record<string,string>): (req: TypedRequest<TypedSession>, res: Response, next: NextFunction) => void {
+    function mdw(req: Request, res: Response, next: NextFunction) {
+        if (data.redirect!==undefined) {
+            res.redirect(data.redirect);
+        }
+        else if (data.render!==undefined){
+            res.render(data.render,req.session);
+        }
+        else {
+            throw Error("Unmatched case");
+        }
+        next();
+    }
+    return mdw;
+}
 
 
-export { buildControler,buildMockControler }
+export { buildControler,buildMockControler, buildParametrizedMockControler}

@@ -7,6 +7,7 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import {router} from './routes/index.js';
 import {IncomingMessage } from 'http';
+import { errorControler, mockErrorControler, pageNotFoundControler } from './middlewares/index.js';
 
 const app: Application = express();
 const port:number = 3001;
@@ -26,6 +27,8 @@ app.use(sessionMiddleware);
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/', router);
+//app.use(pageNotFoundControler);
+app.use(mockErrorControler);
 
 export { app, port };
 

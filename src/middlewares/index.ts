@@ -118,13 +118,23 @@ const landingControler = function(req:Request,res:Response,next:NextFunction):vo
   }
 }
 
+const mockSessionControler = function (req:Request,res:Response,next:NextFunction):void {
+    req.session.userName = "Ju";
+    req.session.startTime = "2024-04-23 09:07:12";
+    next()
+}
+
+const pageNotFoundControler = function (req:Request,res:Response,next:NextFunction):void {
+  next(Error("404"));
+}
+
+const mockErrorControler = function (err:Error,req:Request,res:Response,next:NextFunction):void {
+  res.render('./static/Error');
+}
+
 const errorControler = function (err:Error,req:Request,res:Response,next:NextFunction):void {
-  props = getIndexProps(req.session);
-  getIndexProps.body = {errorPage:{err:err}};
-  res.render('Index', props);
+  res.render('Error', {error:err});
 }
 
 
-
-
-export {renderControler, viewControler, consoleControler, logToPostgresControler, showLogsControler, showLogsTableControler,errorControler};
+export {renderControler, viewControler, consoleControler, logToPostgresControler, showLogsControler, showLogsTableControler, mockSessionControler, pageNotFoundControler, errorControler, mockErrorControler};

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="/css/index.css">
+  <title><%= userName %> sand box</title>
+</head>
+
+<table>
+  <th>
+  <td>Artist name</td>
+  <td>Unwatch</td>
+  </th>
+  <tr>
+    <td><a href="/parametrized/profile/artists/artist"> Jill </a></td>
+    <td><a href="/parametrized/profile/artists/artist/unwatch"> X </a></td>
+  </tr>
+</table>
+
+<table>
+  <th>
+  <td>Work name</td>
+  <td>Withdraw</td>
+  </th>
+  <tr>
+    <td><a href="/parametrized/profile/works/work"> Jill debut </a></td>
+    <td><a href="/parametrized/profile/myworks/work/withdraw"> X </a></td>
+  </tr>
+  <tr>
+    <td><a href="/parametrized/profile/works/work"> Dream </a></td>
+    <td><a href="/parametrized/profile/myworks/work/withdraw"> X </a></td>
+  </tr>
+</table>
+
+<a href="/parametrized/home"> Back home </a>
+<a href="/parametrized/signout"> Sign out </a>
+
+<p> Signed as <%= userName %> </p>
+<p> Started browsing at <%= startTime %> </p>
+
+</html>
