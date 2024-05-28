@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import pg, { PoolConfig, Pool, QueryResult } from 'pg';
+import {TypedRequest, TypedSession} from 'types';
 
 
 function buildControler(reqParamsHandler: (route: Request["route"], session: Request["session"], params: Request["params"]) => Record<string, any>,
@@ -16,7 +17,7 @@ function buildControler(reqParamsHandler: (route: Request["route"], session: Req
     return mdw;
 }
 
-function buildMockControler(data: Record<string,string>): (req: Request, res: Response, next: NextFunction) => void {
+function buildMockControler(data: Record<string,string>): (req: TypedRequest<TypedSession>, res: Response, next: NextFunction) => void {
     function mdw(req: Request, res: Response, next: NextFunction) {
         if (data.redirect!==undefined) {
             res.redirect(data.redirect);

@@ -7,6 +7,19 @@ import { Pool } from 'pg';
 
 declare OneMore<T> = T|Array<T>;
 
+
+declare interface TypedSession extends Session {
+    startTime?:string,
+    userId?:string,
+    artistId?:string
+}
+
+declare interface TypedRequest<T> extends Request
+{
+    session:T
+}
+
+
 declare TypedRoutes = Array<TypedRoute>;
 
 declare type TypedRoute = TypedRouteParams & Controler
@@ -211,4 +224,4 @@ declare type Footer = {
 
 
 
-export type { IndexPage, Header, LandingPage, SigninForm, SignupForm, FormPage, Form, UserHomePage, Table, ArtistHomePage, TablePage, EntityPage, Entity, ErrorPage, Footer };
+export type {TypedSession,TypedRequest,IndexPage, Header, LandingPage, SigninForm, SignupForm, FormPage, Form, UserHomePage, Table, ArtistHomePage, TablePage, EntityPage, Entity, ErrorPage, Footer };
