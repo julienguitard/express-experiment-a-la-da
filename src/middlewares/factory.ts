@@ -3,7 +3,7 @@ import pg, { PoolConfig, Pool, QueryResult } from 'pg';
 import {TypedRequest, TypedSession} from 'types';
 
 
-function buildControler(reqParamsHandler: (route: Request["route"], session: Request["session"], params: Request["params"]) => Record<string, any>,
+function buildControler(reqParamsHandler: (route: TypedRequest<TypedSession>["route"], session: TypedRequest<TypedSession>["session"], params: TypedRequest<TypedSession>["params"]) => Record<string, any>,
     dbHandler: (params: Record<string, any>) => Promise<QueryResult<any>>,
     propsBuilder: (r: QueryResult<any>) => any,
     outputCallback: (res: Response, props: any) => void) {
