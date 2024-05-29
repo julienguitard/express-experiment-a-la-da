@@ -7,6 +7,7 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import {router} from './routes/index.js';
 import {IncomingMessage } from 'http';
+//import morgan from 'morgan';
 import { errorControler, mockErrorControler, pageNotFoundControler } from './middlewares/index.js';
 
 const app: Application = express();
@@ -27,7 +28,7 @@ app.use(sessionMiddleware);
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/', router);
-//app.use(pageNotFoundControler);
+app.use(pageNotFoundControler);
 app.use(mockErrorControler);
 
 export { app, port };

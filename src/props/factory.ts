@@ -1,0 +1,25 @@
+import { EjsView, FlowingConcept, ejsViewsProps } from 'types';
+
+
+const ejsViewsProps: Record<EjsView, Array<FlowingConcept>> =
+{
+    'Index': ['startTime'],
+    'Signin': ['startTime'],
+    'Signup': ['startTime'],
+    'UserHome': ['startTime', 'userName'],
+    'ArtistHome': ['startTime', 'userName'],
+    'Ban': ['startTime', 'userName'],
+    'Unlike': ['startTime', 'userName', 'workName'],
+    'Withdraw': ['startTime', 'userName', 'workName'],
+    'Artist': ['startTime', 'userName'],
+    'User': ['startTime', 'userName'],
+    'Work': ['startTime', 'userName'],
+    'MoreArtist': ['startTime', 'userName'],
+    'MoreUser': ['startTime', 'userName'],
+    'MoreWork': ['startTime', 'userName'],
+    'Logout': ['startTime', 'userName'],
+    'Delete': ['startTime', 'userName'],
+    'Error': ['startTime', 'userName']
+};
+
+export {ejsViewsProps};

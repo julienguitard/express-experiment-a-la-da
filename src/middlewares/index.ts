@@ -134,6 +134,7 @@ const mockErrorControler = function (err:Error,req:Request,res:Response,next:Nex
 
 const errorControler = function (err:Error,req:Request,res:Response,next:NextFunction):void {
   res.render('Error', {error:err});
+  next();
 }
 
 

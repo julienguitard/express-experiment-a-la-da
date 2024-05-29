@@ -8,16 +8,40 @@ import { Pool } from 'pg';
 declare OneMore<T> = T|Array<T>;
 
 
+declare interface SqlOutput {
+    watches?:string,
+    likes?:string,
+    watchers?:string,
+    liked?:string,
+    moreUsers?:string,
+    moreArtists?:string,
+    moreWorks?:string
+}
+
+declare interface PhantomData {
+    'pwd':string,
+    'workId' :string,
+    'workName':string,
+    'userArtistId' :string,
+    'userWorkId' :string,
+    'time' :string,
+    'key'}
+
 declare interface TypedSession extends Session {
     startTime?:string,
+    reqTime?:string,
     userId?:string,
-    artistId?:string
+    userName?:string,
+    artistId?:string,
+    sqlOutput?:string
 }
 
 declare interface TypedRequest<T> extends Request
 {
     session:T
 }
+
+type FlowingConcept = keyof SqlOutput |keyof TypedSession |keyof PhantomData 
 
 
 declare TypedRoutes = Array<TypedRoute>;
@@ -44,18 +68,6 @@ declare function buildControler(cbs: ControlerCallbacks): Controler;
 
 declare type ProcedureProps = Record<FlowingConcept,string>;
 
-declare type FlowingConcept =
-    'userName' |
-    'pwd' |
-    'userId' |
-    'artistId' |
-    'workId' |
-    'workName' |
-    'userArtistId' |
-    'userWorkId' |
-    'time' |
-    'key';
-
 declare function requestParamsHandlerSourcer(req:Response,c:FlowingConcept,s:Source):string;
 
 declare function requestParamsHandlerBuilder(
@@ -67,6 +79,8 @@ declare type Source =
     'route' |
     'session' |
     'params';
+
+
 
 declare interface DBHandlerParams {
     pool: Pool,
@@ -138,90 +152,23 @@ declare function outputCallbackGenerator(renderable: Renderable):(res: Response,
 
 declare type EjsView =
     'Index' |
-    'Header' |
-    'Body' |
-    'Footer' |
+    'Signin' |
+    'Signup' |
     'UserHome' |
     'ArtistHome' |
-    'SigninForm' |
-    'SignupForm' |
-    'Form' |
-    'Table' |
-    'Cell' |
-    'TableZoom' |
-    'EntityZoom' |
+    'Ban' |
+    'Unlike' |
+    'Withdraw' |
+    'Artist' |
+    'User' |
+    'Work' |
+    'MoreArtist' |
+    'MoreUser' |
+    'MoreWork' |
+    'Logout' |
+    'Delete'|
     'Error';
-declare type IndexProps = {
-    header: HeaderProps ;
-    body:
-    | LandingProps 
-    | UserHomeProps 
-    | ArtistHomeProps 
-    | FormProps 
-    | TableProps 
-    | EntityProps 
-    | ErrorProps ;
-    footer: FooterProps ;
-};
-
-declare type HeaderProps  = {
-    title: string;//(userName)
-};
-
-declare type LandingProps = {
-    landingPage: SigninForm | SignupForm;
-};
-
-declare type SigninFormProps = {
-    signinForm: FormProps;
-};
-declare type SignupFormProps = {
-    signupForm: FormProps;
-};
-
-declare type FormProps = {
-    inputs: Array<{ inputId: string; inputType: string; inputLabel: string }>;//(typeof)
-    url: string;//url
-};
-
-declare type UserHomeProps = {
-    myWatchedArtists: TableProps;
-    myLikedWorks: TableProps;
-};
-
-declare type TableZoomProps = {
-    fields: Array<string>;//QueryResult keyof
-    rows: Array<Array<Cell>>;//QueryResult keyof
-};
-
-declare type CellProps = {
-    value: number | string,//QueryResult keyof
-    url?: string//QueryResult keyof
-}
-declare type ArtistHomeProps = {
-    myWatchers: TableProps;
-    myWorks: TableProps;
-    myBannedUser: TableProps;
-    myWatchedArtists: TableProps;
-    myLikedWorks: TableProps;
-};
-
-declare type EntityZoomProps = {
-    entity:  Record<string, number | string>;
-};
-
-declare type Entity =
-
-declare type ErrorPage = {
-    error: string;
-};
-
-declare type Footer = {
-    startTime: string;
-    signedinAs: string;
-};
 
 
+export type {TypedSession,TypedRequest,EjsView, FlowingConcept};
 
-
-export type {TypedSession,TypedRequest,IndexPage, Header, LandingPage, SigninForm, SignupForm, FormPage, Form, UserHomePage, Table, ArtistHomePage, TablePage, EntityPage, Entity, ErrorPage, Footer };
