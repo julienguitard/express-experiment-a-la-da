@@ -1,7 +1,7 @@
 import { EjsView, FlowingConcept, ejsViewsProps } from 'types';
 
 
-const ejsViewsProps: Record<EjsView, Array<FlowingConcept>> =
+const ejsViewsPropsKeys: Record<EjsView, Array<FlowingConcept>> =
 {
     'Index': ['startTime'],
     'Signin': ['startTime'],
@@ -22,4 +22,4 @@ const ejsViewsProps: Record<EjsView, Array<FlowingConcept>> =
     'Error': ['startTime', 'userName']
 };
 
-export {ejsViewsProps};
+export {ejsViewsPropsKeys};

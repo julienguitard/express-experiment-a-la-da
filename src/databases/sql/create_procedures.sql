@@ -410,7 +410,13 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION check_login_from_req (TEXT,TEXT) RETURNS users
 AS
 $$
-SELECT * FROM users WHERE user_name=$1 AND pwd = $2;
+SELECT t0.user_id,
+       COALESCE(t1.artist_id,'undefined') AS artist_id
+FROM (SELECT user_id
+      FROM users_without_deleted
+      WHERE user_name = 'jake'
+      AND   pwd = 'pwd') t0
+  LEFT JOIN (SELECT artist_id, user_id FROM artists_without_deleted) t1 ON t0.user_id = t1.user_id;
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION see_my_watched_artists_from_req (TEXT) RETURNS artists
@@ -469,5 +475,55 @@ FROM (SELECT *
         AND   key_ = 'ban'
         AND   value = 0) t1 USING (artist_id)
 ORDER BY RANDOM() LIMIT 10;
+
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION insert_into_requests_logs (TEXT,TEXT,TEXT) RETURNS requests_logs
+AS
+$$
+INSERT INTO requests_logs
+(
+  SELECT*FROM generate_requests_logs_event($1,$2,$3)
+);
+
+SELECT *
+FROM generate_requests_logs_event ($1,$2,$3);
+
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION insert_into_responses_logs (TEXT,TEXT,TEXT,TEXT) RETURNS responses_logs
+AS
+$$
+INSERT INTO responses_logs
+(
+  SELECT*FROM generate_responses_logs_event($1,$2,$3,$4)
+);
+
+SELECT *
+FROM generate_responses_logs_event ($1,$2,$3,$4);
+
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION insert_into_errors_logs (TEXT,TEXT,TEXT,TEXT) RETURNS errors_logs
+AS
+$$
+INSERT INTO errors_logs
+(
+  SELECT*FROM generate_errors_logs_event($1,$2,$3,$4)
+);
+
+SELECT *
+FROM generate_errors_logs_event ($1,$2,$3,$4);
+
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION select_full_logs () RETURNS full_logs
+AS
+$$
+
+
+SELECT *
+FROM full_logs LIMIT 100;
 
 $$ LANGUAGE SQL;

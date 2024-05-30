@@ -1,10 +1,12 @@
 
-import dotenv_,{DotenvConfigOutput} from 'dotenv';
-import  pg, {PoolConfig,Pool,QueryResult} from 'pg';
-import errorConsoleLog  from '../utils/errorConsoleLog.js';
+import dotenv_, { DotenvConfigOutput } from 'dotenv';
+import pg, { PoolConfig, Pool, QueryResult } from 'pg';
+import { DBProcedure } from '../types.js';
+import errorConsoleLog from '../utils/errorConsoleLog.js';
+import { convertToSql } from './factory.js';
 
-const dotenv:DotenvConfigOutput= dotenv_.config();
-const poolConfig:PoolConfig = {
+const dotenv: DotenvConfigOutput = dotenv_.config();
+const poolConfig: PoolConfig = {
   database: process.env.DATABASE,
   user: 'express_000',//TO DO
   password: process.env.PASSWORD,
@@ -17,12 +19,17 @@ const poolConfig:PoolConfig = {
   maxUses: 7500, // close (and replace) a connection after it has been used 7500 times (see below for discussion)
 };
 
-const pool:Pool = new pg.Pool(poolConfig);
+const pool: Pool = new pg.Pool(poolConfig);
 
-async function queryPool(po:Pool, sql:string, params:Array<string>):Promise<QueryResult<any>> {
+async function queryPool(po: Pool, sql: string, params: Array<string>): Promise<QueryResult<any>> {
   ;
   const res = await po.query(sql, params);
   return res;
 }
 
-export { pool, queryPool };
+async function queryPoolFromProcedure(po: Pool, pro: DBProcedure, params: Array<string>): Promise<QueryResult<any>> {
+  const sql = convertToSql(pro);
+  return queryPool(po, sql, params);
+}
+
+export { pool, queryPool, queryPoolFromProcedure};

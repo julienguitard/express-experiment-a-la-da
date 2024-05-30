@@ -1,141 +1,266 @@
-import { pool, queryPool } from '../databases/index.js';
-import {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs,select_full_logs } from '../databases/procedures.js';
-import {Request,Response,NextFunction} from 'express';
-import errorConsoleLog from '../utils/errorConsoleLog.js';
-import { Session, SessionData} from 'express-session';
-import{getTime,parseSQLOutput} from './handlers.js';
+import { Request, Response, NextFunction } from "express";
+import { QueryResult } from "pg";
+import {Session, SessionData} from '../express-session';
+import {
+  pool,
+  queryPool,
+  queryPoolFromProcedure,
+} from "../databases/index.js";
+import { procedures} from "../databases/procedures.js";
+import { getTime, parseSQLOutput } from "./handlers.js";
+import { hash } from '../utils/hash';
+import { rawListeners } from "process";
 
+const getIndexProps = (session: SessionData) => {
+  return {
+    header: {
+      title: "Jus sandbox",
+    },
+    footer: {
+      signedinAs: session.userId || "none",
+      startTime: session.startTime || getTime(),
+    },
+  };
+};
 
-
-
-const getIndexProps = (session:SessionData) => {return {
-  header:{
-    title:'Jus sandbox'
-  },
-  footer:{
-    signedinAs : session.userId||'none',
-    startTime : session.startTime||getTime()
-  }
-}};
-
-const renderControler = function (req:Request, res:Response, next:NextFunction) {
-  console.log('renderControler');
+const renderControler = function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  console.log("renderControler");
   try {
     //res.render('index', {footer:{ views: req.session.views, userName: 'self' }});
 
-    const  indexProps = {
-      header:{
-        title:'Jus sandbox'
+    const indexProps = {
+      header: {
+        title: "Jus sandbox",
       },
-      footer:{
-        signedinAs : 'Ju',
-        startTime : '2024-05-20 00:00:00'
-      }
-    }
-    res.render('LegacyIndex',{indexProps:indexProps});
-  }
-  catch (e) {
+      footer: {
+        signedinAs: "Ju",
+        startTime: "2024-05-20 00:00:00",
+      },
+    };
+    res.render("LegacyIndex", { indexProps: indexProps });
+  } catch (e) {
     console.log(e);
-  }
-  finally {
+  } finally {
     next();
   }
 };
 
-const dataControler = function (req:Request, res:Response, next:NextFunction) {
+const dataControler = function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     res.send(res.json);
-  }
-  catch (e) {
+  } catch (e) {
     console.log(e);
-  }
-  finally {
+  } finally {
     next();
   }
 };
 
-const viewControler = function (req:Request, res:Response, next:NextFunction) {
-  console.log('viewControler');
+const viewControler = function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  console.log("viewControler");
   if (req.session) {
-    if (!('views' in req.session)) {
+    if (!("views" in Object.keys(req.session))) {
       req.session.views = 0;
+    } else {
+      req.session.views = req.session.views + 1;
     }
-    else {
-      ++req.session.views;
-    }
-  }
-  else {
+  } else {
     //TO DO
-    req.session.views = 0;
+    throw(Error('Session not initialized'));
   }
   next();
-}
-
-const consoleControler = function (req:Request, res:Response, next:NextFunction) {
-  console.log(Object.entries(req.route.methods).filter(([k, v]) => v).map(([k, v]) => k) + ' ' + req.route.path);
-}
-
-const clockControler = function (req:Request, res:Response, next:NextFunction) {
-  const data_ = queryPool(pool, 'SELECT NOW() AS time_, $1 AS check_,', req.params);
-  data_.then(data => res.status(200).send(data)).catch(err => res.status(50).send(err));
 };
 
-const logToPostgresControler = function (req:Request, res:Response, next:NextFunction) {
-  const meths = Object.entries(req.route.methods).filter(([k, v]) => v).map(([k, v]) => k).join(',');
+const consoleControler = function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  console.log(
+    Object.entries(req.route.methods)
+      .filter(([k, v]) => v)
+      .map(([k, v]) => k) +
+    " " +
+    req.route.path
+  );
+};
+
+const clockControler = function
+  (req: Request,
+    res: Response,
+    next: NextFunction): void {
+  const data_ = queryPool(
+    pool,
+    "SELECT NOW() AS time_, $1 AS check_,",
+    []
+  );
+  data_
+    .then((data) => res.status(200).send(data))
+    .catch((err) => res.status(50).send(err));
+};
+
+const logToPostgresControler = function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const meths = Object.entries(req.route.methods)
+    .filter(([k, v]) => v)
+    .map(([k, v]) => k)
+    .join(",");
   const now_ = getTime();
-  const reqData = queryPool(pool, insert_into_requests_logs, [now_, req.route.path, meths]);
-  const nextVoid = reqData.then((r) => {next()});
-  const errVoid = nextVoid.catch(err => {
+  const reqData = queryPoolFromProcedure(pool, 'insert_into_requests_logs', [
+    now_,
+    req.route.path,
+    meths,
+  ]);
+  const nextVoid = reqData.then((r) => {
+    next();
+  });
+  const errVoid = nextVoid.catch((err) => {
     let no = getTime();
-    return queryPool(pool, insert_into_errors_logs, [now_, no, req.route.path, err]);
+    return queryPoolFromProcedure(pool, 'insert_into_errors_logs', [
+      now_,
+      no,
+      req.route.path,
+      err,
+    ]);
   });
-  const resData =  errVoid.finally(() => {
+  const resData = errVoid.finally(() => {
     let no = getTime();
-    return queryPool(pool, insert_into_responses_logs, [now_, no, req.route.path, res.statusCode])
+    return queryPoolFromProcedure(pool, 'insert_into_responses_logs', [
+      now_,
+      no,
+      req.route.path,
+      res.statusCode,
+    ]);
   });
-}
+};
 
-const showLogsControler = function (req,res,next) {
-  const resData = queryPool(pool,select_full_logs,[]).then(data=>{console.log(data.fields,data.rows);
-    res.json({"data":parseSQLOutput(data[0])})
+const showLogsControler = function (req: Request,
+  res: Response,
+  next: NextFunction): void {
+  const resData = queryPoolFromProcedure(pool, 'select_full_logs', []).then((data) => {
+    console.log(data.fields, data.rows);
+    res.json({ data: parseSQLOutput(data) });
   });
-}
+};
 
-const showLogsTableControler = function (req,res,next) {
-  const resData = queryPool(pool,select_full_logs,[]).then(data=>{
+const showLogsTableControler = function (req: Request,
+  res: Response,
+  next: NextFunction): void {
+  const resData = queryPoolFromProcedure(pool, 'select_full_logs', []).then((data) => {
     console.log(parseSQLOutput(data));
-    const props = {footer:{views: req.session.views, userName: 'self' },data:parseSQLOutput(data)};
-    res.render('tableIndex.ejs',props);
-  })
-}
+    const props = {
+      footer: { views: req.session.views, userName: "self" },
+      data: parseSQLOutput(data),
+    };
+    res.render("tableIndex.ejs", props);
+  });
+};
 
-const landingControler = function(req:Request,res:Response,next:NextFunction):void {
-
-  if (req.session.userId) {
-    res.redirect('/home');
-  } else {
-    res.redirect('/landing/signin/');
-  }
-}
-
-const mockSessionControler = function (req:Request,res:Response,next:NextFunction):void {
-    req.session.userName = "Ju";
-    req.session.startTime = "2024-04-23 09:07:12";
-    next()
-}
-
-const pageNotFoundControler = function (req:Request,res:Response,next:NextFunction):void {
-  next(Error("404"));
-}
-
-const mockErrorControler = function (err:Error,req:Request,res:Response,next:NextFunction):void {
-  res.render('./static/Error');
-}
-
-const errorControler = function (err:Error,req:Request,res:Response,next:NextFunction):void {
-  res.render('Error', {error:err});
+const mockSessionControler = function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  req.session.userName = "Ju";
+  req.session.startTime = "2024-04-23 09:07:12";
   next();
-}
+};
 
+const pageNotFoundControler = function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  next(Error("404"));
+};
 
-export {renderControler, viewControler, consoleControler, logToPostgresControler, showLogsControler, showLogsTableControler, mockSessionControler, pageNotFoundControler, errorControler, mockErrorControler};
+const mockErrorControler = function (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  res.render("./static/Error");
+};
+
+const errorControler = function (
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  res.render("Error", { error: err });
+  next();
+};
+
+const checkAnswer = function (
+  req: Request,
+  res: Response,
+  data: QueryResult<any>
+): void {
+  if (data.rows.length === 1) {
+    req.session.userId = data.rows[0].userId;
+    req.session.artistId =
+      data.rows[0].artistId === "undefined" ? undefined : data.rows[0].artistId;
+    res.redirect("/parametrized/home");
+  } else {
+    res.redirect("/parametrized");
+  }
+};
+const signinSubmitControler = function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  const sqlOutput = queryPoolFromProcedure(pool, "check_signin_from_req", [
+    req.body.userName,
+    hash(req.body.pwd),
+  ]).then(data => checkAnswer(req, res, data));
+  next();
+};
+
+const signupSubmitControler = function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  if (req.body.pwd === req.body.confirmedPwd) {
+    const sqlOutput = queryPoolFromProcedure(
+      pool,
+      "insert_user_event_from_req",
+      [req.body.userName, hash(req.body.pwd), "create"]
+    ).then(data => checkAnswer(req, res, data));
+  } else {
+    res.redirect("/parametrized");
+  }
+  next();
+};
+
+export {
+  renderControler,
+  viewControler,
+  consoleControler,
+  logToPostgresControler,
+  showLogsControler,
+  showLogsTableControler,
+  mockSessionControler,
+  pageNotFoundControler,
+  errorControler,
+  mockErrorControler,
+  signinSubmitControler,
+  signupSubmitControler
+};

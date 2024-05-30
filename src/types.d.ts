@@ -1,21 +1,19 @@
 
 import { StringifyOptions } from 'querystring';
 import { Request, Reponse, Error, NextFunction } from 'express';
-import { Session, SessionData } from 'express-session';
-import { SessionData } from "./middlewares/handlers";
-import { Pool } from 'pg';
+import { Pool, QueryResult } from 'pg';
+import {Session, SessionData} from './express-session';
 
 declare OneMore<T> = T|Array<T>;
 
-
-declare interface SqlOutput {
-    watches?:string,
-    likes?:string,
-    watchers?:string,
-    liked?:string,
-    moreUsers?:string,
-    moreArtists?:string,
-    moreWorks?:string
+declare interface ProcedureOutput<T> {
+    watches?:T,
+    likes?:T ,
+    watchers?:T ,
+    liked?:T ,
+    moreUsers?:T ,
+    moreArtists?:T ,
+    moreWorks?:T
 }
 
 declare interface PhantomData {
@@ -25,23 +23,10 @@ declare interface PhantomData {
     'userArtistId' :string,
     'userWorkId' :string,
     'time' :string,
-    'key'}
+    'key':string}
 
-declare interface TypedSession extends Session {
-    startTime?:string,
-    reqTime?:string,
-    userId?:string,
-    userName?:string,
-    artistId?:string,
-    sqlOutput?:string
-}
 
-declare interface TypedRequest<T> extends Request
-{
-    session:T
-}
-
-type FlowingConcept = keyof SqlOutput |keyof TypedSession |keyof PhantomData 
+type FlowingConcept = keyof ProcedureOutput |keyof SessionData |keyof PhantomData 
 
 
 declare TypedRoutes = Array<TypedRoute>;
@@ -106,9 +91,13 @@ declare type DBProcedure = 'generate_user_from_req' |
     'insert_user_artist_event_from_req' |
     'insert_user_work_from_req' |
     'insert_user_work_event_from_req' |
-    'check_login_from_req' |
+    'check_signin_from_req' |
     'see_my_watched_artists_from_req' |
-    'see_more_artists_from_req';
+    'see_more_artists_from_req'|
+    'insert_into_requests_logs'|
+    'insert_into_responses_logs'|
+    'insert_into_errors_logs'|
+    'select_full_logs';
 
 declare interface DBProcedureParams {
     args:Record<FlowingConcept,Source>
@@ -169,6 +158,10 @@ declare type EjsView =
     'Delete'|
     'Error';
 
+declare interface CellProps {
+    value:any,
+    link?:string
+}
 
-export type {TypedSession,TypedRequest,EjsView, FlowingConcept};
+export type {EjsView, FlowingConcept, DBProcedure, ProcedureOutput, CellProps};
 

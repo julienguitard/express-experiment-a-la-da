@@ -1,10 +1,6 @@
-const insert_into_requests_logs:string = 'INSERT INTO requests_logs (SELECT * FROM generate_requests_logs_event($1,$2,$3))';
-const insert_into_errors_logs:string = 'INSERT INTO errors_logs (SELECT * FROM generate_errors_logs_event($1,$2,$3,$4))';
-const insert_into_responses_logs:string = 'INSERT INTO responses_logs (SELECT * FROM generate_responses_logs_event($1,$2,$3,$4))';
-const select_full_logs:string = 'SELECT * FROM full_logs LIMIT 50;SELECT * FROM full_logs LIMIT 50;';
+import { DBProcedure, FlowingConcept} from "../types";
 
-
-const procedures:Record<DBProcedure,Array<Concept>> = {generate_user_from_req:['userId','time','userName','pwd'],
+const procedures:Record<DBProcedure,Array<FlowingConcept>> = {generate_user_from_req:['userId','time','userName','pwd'],
 generate_user_event_from_req:['userId','time','key'],
 generate_artist_from_req:['artistId','time','userId'],
 generate_artist_event_from_req:['artistId','time','key'],
@@ -23,9 +19,13 @@ insert_user_artist_from_req:['userArtistId','userId','artistId','time'],
 insert_user_artist_event_from_req:['userArtistId','time','key'],
 insert_user_work_from_req:['userWorkId','userId','workId','time'],
 insert_user_work_event_from_req:['userWorkId','time','key'],
-check_login_from_req : ['userName','pwd'],
+check_signin_from_req : ['userName','pwd'],
 see_my_watched_artists_from_req:['userId'],
-see_more_artists_from_req:['userId']}
+see_more_artists_from_req:['userId'],
+insert_into_requests_logs:['time','path','methods'],
+insert_into_responses_logs:['time','path','methods','error'],
+insert_into_errors_logs:['time','path','methods','error'],
+select_full_logs:[]}
 
 const proceduresArgs:Record<Concept,Array<Source>> =  {
     userId:['session','params'],
@@ -40,4 +40,4 @@ const proceduresArgs:Record<Concept,Array<Source>> =  {
     userWorkId:['params'],
 }
 
-export {insert_into_requests_logs,insert_into_errors_logs,insert_into_responses_logs,select_full_logs, procedures,proceduresArgs };
+export {procedures,proceduresArgs };
