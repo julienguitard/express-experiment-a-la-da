@@ -419,64 +419,87 @@ FROM (SELECT user_id
   LEFT JOIN (SELECT artist_id, user_id FROM artists_without_deleted) t1 ON t0.user_id = t1.user_id;
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION see_my_watchers_from_req (TEXT) RETURNS artists
+AS
+$$
+SELECT $1
+ORDER BY RANDOM() LIMIT 10;
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION see_more_users_from_req (TEXT) RETURNS artists
+AS
+$$
+SELECT $1
+ORDER BY RANDOM() LIMIT 10;
+$$ LANGUAGE SQL;
+
+
+
+CREATE OR REPLACE FUNCTION see_my_works_from_req (TEXT) RETURNS artists
+AS
+$$
+SELECT $1
+ORDER BY RANDOM() LIMIT 10;
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION see_more_of_my_works_from_req (TEXT) RETURNS artists
+AS
+$$
+SELECT $1
+ORDER BY RANDOM() LIMIT 10;
+$$ LANGUAGE SQL;
+
 CREATE OR REPLACE FUNCTION see_my_watched_artists_from_req (TEXT) RETURNS artists
 AS
 $$
-SELECT t0.id,
-       t0.artist_id,
-       t0.user_id,
-       t0.creation_time,
-       t0.key_,
-       t0.value
-FROM artists t0
-  JOIN (SELECT t10.artist_id
-        FROM (SELECT DISTINCT artist_id
-              FROM users_artists
-              WHERE user_id = $1
-              AND   key_ = 'watch'
-              AND   value = 1) t10
-          JOIN (SELECT DISTINCT artist_id
-                FROM users_artists
-                WHERE user_id = $1
-                AND   key_ = 'ban'
-                AND   value = 0) t11 USING(artist_id)) t1 USING(artist_id)
+SELECT t0.artist_id,
+       t1.user_name,
+       t0.value AS watch
+FROM (SELECT *
+      FROM users_artists_without_banned
+      WHERE user_id = $1 AND key_ = 'watch') t0
+  JOIN (SELECT DISTINCT user_id, user_name FROM users_without_deleted) t1 USING (user_id)
 ORDER BY RANDOM() LIMIT 10;
-
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION see_more_artists_from_req (TEXT) RETURNS artists
 AS
 $$
-
-SELECT t0.id,
-       t0.artist_id,
-       t0.user_id,
-       t0.creation_time,
-       t0.key_,
-       t0.value
-FROM (SELECT *
-      FROM (SELECT t00.id,
-                   t00.artist_id,
-                   t00.user_id,
-                   t00.creation_time,
-                   t00.key_,
-                   t00.value,
-                   t01.artist_id AS artist_id_
-            FROM artists t00
-              LEFT JOIN (SELECT DISTINCT artist_id
-                         FROM users_artists
-                         WHERE user_id = $1
-                         AND   key_ = 'watch'
-                         AND   value = 1) t01 USING (artist_id))
-      WHERE artist_id_ IS NULL) t0
-  JOIN (SELECT DISTINCT artist_id
-        FROM users_artists
-        WHERE user_id = $1
-        AND   key_ = 'ban'
-        AND   value = 0) t1 USING (artist_id)
+SELECT artist_id,
+       user_id,
+       O AS watch
+FROM (SELECT t0.artist_id,
+             t0.user_id,
+             t1.artist_id AS artist_id_
+      FROM (SELECT t00.artist_id,
+                   t01.user_name
+            FROM (SELECT DISTINCT artist_id,
+                         user_içd
+                  FROM artists_without_deleted) t00
+              JOIN (SELECT DISTINCT user_id, user_name FROM users_without_deleted) t01 USING (user_id)) t0
+        LEFT JOIN (SELECT artist_id
+                   FROM users_artists_without_banned
+                   WHERE user_id = $1
+                   AND   key_ = 'watch') t1 USING (artist_id))
+WHERE artist_id IS NULL
 ORDER BY RANDOM() LIMIT 10;
-
 $$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION see_my_liked_works_from_req (TEXT) RETURNS artists
+AS
+$$
+SELECT $1
+ORDER BY RANDOM() LIMIT 10;
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION see_more_works_from_req (TEXT) RETURNS artists
+AS
+$$
+SELECT $1
+ORDER BY RANDOM() LIMIT 10;
+$$ LANGUAGE SQL;
+
 
 CREATE OR REPLACE FUNCTION insert_into_requests_logs (TEXT,TEXT,TEXT) RETURNS requests_logs
 AS
@@ -524,6 +547,6 @@ $$
 
 
 SELECT *
-FROM full_logs LIMIT 100;
+FROM full_logs ORDER BY time_ DESC LIMIT 100;
 
 $$ LANGUAGE SQL;

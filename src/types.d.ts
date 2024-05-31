@@ -92,8 +92,21 @@ declare type DBProcedure = 'generate_user_from_req' |
     'insert_user_work_from_req' |
     'insert_user_work_event_from_req' |
     'check_signin_from_req' |
+    'see_my_watchers_from_req' |
+    'see_more_users_from_req'|
+    'see_my_works_from_req' |
+    'see_more_of_my_works_from_req'|
     'see_my_watched_artists_from_req' |
     'see_more_artists_from_req'|
+    'see_my_liked_works_from_req' |
+    'see_more_works_from_req'|
+    'ban_watcher'|
+    'submit_work'|
+    'withdraw_work'|
+    'watch_artist'|
+    'unwatch_artist'|
+    'like_work'|
+    'unlike_work'|
     'insert_into_requests_logs'|
     'insert_into_responses_logs'|
     'insert_into_errors_logs'|

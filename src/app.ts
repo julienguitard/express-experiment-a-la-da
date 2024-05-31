@@ -5,7 +5,7 @@ import helmet from "helmet";
 import path from "path";
 import bodyParser from "body-parser";
 import { router } from "./routes/index.js";
-import morgan from 'morgan';
+import morgan from "morgan";
 import {
   errorControler,
   mockErrorControler,
@@ -24,13 +24,21 @@ const sessionMiddleware: RequestHandler = session(sessionOptions);
 app.set("views", "./views");
 app.set("view engine", "ejs");
 
-app.use(express.static("public"));
-app.use(cors());
-app.use(helmet());
-app.use(sessionMiddleware);
-app.use(bodyParser.urlencoded({ extended: false }));
+const preRouterUsables:Array<RequestHandler> = [
+  express.static("public"),
+  cors(),
+  helmet(),
+  sessionMiddleware,
+  bodyParser.urlencoded({ extended: false }),
+];
+
+const postRouterUsables:Array<RequestHandler>  = [
+  pageNotFoundControler,
+  mockErrorControler
+]
+
+preRouterUsables.map((u) => app.use(u));
 app.use("/", router);
-app.use(pageNotFoundControler);
-app.use(mockErrorControler);
+postRouterUsables.map((u) => app.use(u));
 
 export { app, port };

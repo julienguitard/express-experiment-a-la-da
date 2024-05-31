@@ -7,7 +7,7 @@ declare module 'express-session' {
     import {QueryResults} from "pg";
     import ProcedureOuput from "./types"
     declare interface SessionData {
-      userId?: string;
+      userId?: string,
       startTime?:string,
       reqTime?:string,
       userId?:string,
