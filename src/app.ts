@@ -1,4 +1,4 @@
-import express, { Application, RequestHandler } from "express";
+import express, { Application, RequestHandler, ErrorRequestHandler} from "express";
 import session, { SessionOptions } from "express-session";
 import cors from "cors";
 import helmet from "helmet";
@@ -32,7 +32,7 @@ const preRouterUsables:Array<RequestHandler> = [
   bodyParser.urlencoded({ extended: false }),
 ];
 
-const postRouterUsables:Array<RequestHandler>  = [
+const postRouterUsables:Array<RequestHandler|ErrorRequestHandler>  = [
   pageNotFoundControler,
   mockErrorControler
 ]

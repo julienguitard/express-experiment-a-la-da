@@ -246,7 +246,7 @@ const signinSubmitControler = function (
   res: Response,
   next: NextFunction
 ): void {
-  const sqlOutput = queryPoolFromProcedure(pool, "check_signin_from_req", [
+  const sqlOutput = queryPoolFromProcedure(pool, "check_signin", [
     req.body.userName,
     hash(req.body.pwd),
   ])
@@ -270,10 +270,11 @@ const signupSubmitControler = function (
 ): void {
   checkConfirmedPwd(req)
     .then((req) =>
-      queryPoolFromProcedure(pool, "insert_user_event_from_req", [
+      queryPoolFromProcedure(pool, "insert_user", [
+        hash(req.body.userName),
+        getTime(),
         req.body.userName,
         hash(req.body.pwd),
-        "create",
       ])
     )
     .then((data) => checkAnswer(req, res, data))
@@ -283,13 +284,21 @@ const signupSubmitControler = function (
 
 async function getReqData(
   req: Request
-): Promise<Record<FlowingConcept, string | undefined>> {
-  return {
-    startTime: req.session.startTime,
-    userId: req.session.userId,
-    userName: req.session.userName,
-    artistId: req.session.artistId,
-  };
+): Promise<Record<FlowingConcept, string>> {
+  const reqData = {};
+  if (req.session.startTime) {
+    Object.defineProperty(reqData,'startTime',req.session.startTime)
+  }
+  if (req.session.userId) {
+    Object.defineProperty(reqData,'userId',req.session.userId)
+  }
+  if (req.session.userName) {
+    Object.defineProperty(reqData,'userName',req.session.userName)
+  }
+  if (req.session.artistId) {
+    Object.defineProperty(reqData,'artistId',req.session.artistId)
+  }
+  return reqData;
 }
 
 const getHomeControler = function (
@@ -302,32 +311,33 @@ const getHomeControler = function (
       return {
         startTime: reqData.startTime,
         userName: reqData.userName,
+        artistId: reqData.artistId,
         myWatchers:
           reqData.artistId === undefined
             ? undefined
-            : queryPoolFromProcedure(pool, "see_my_watchers_from_req", [
-                req.session.artistId,
+            : queryPoolFromProcedure(pool, "see_my_watchers", [
+              reqData.artistId 
               ]),
         myWorks:
           reqData.artistId === undefined
             ? undefined
-            : queryPoolFromProcedure(pool, "see_my_works_from_req", [
-                req.session.artistId,
+            : queryPoolFromProcedure(pool, "see_my_works", [
+              reqData.artistId ,
               ]),
         myWatchedArtists: queryPoolFromProcedure(
           pool,
-          "see_my_watched_artists_from_req",
-          [req.session.userId]
+          "see_my_watched_artists",
+          (req.session.userId)?[req.session.userId]:undefined
         ),
         myLikedWorks: queryPoolFromProcedure(
           pool,
-          "see_my_liked_works_from_req",
-          [req.session.userId]
+          "see_my_liked_works",
+          (req.session.userId)?[req.session.userId]:undefined
         ),
       };
     })
     .then((ou) =>
-      reqData.artistId === undefined
+      ou.artistId === undefined
         ? res.render("./parametrized/UserHome", ou)
         : res.render("./parametrized/ArtistHome", ou)
     )

@@ -72,34 +72,39 @@ declare interface DBHandlerParams {
     procedures: Array<DBProcedure>
 }
 
-declare type DBProcedure = 'generate_user_from_req' |
-    'generate_user_event_from_req' |
-    'generate_artist_from_req' |
-    'generate_artist_event_from_req' |
-    'generate_work_from_req' |
-    'generate_work_event_from_req' |
-    'generate_user_artist_from_req' |
-    'generate_user_artist_event_from_req' |
-    'generate_user_work_from_req' |
-    'generate_user_work_event_from_req' |
-    'insert_user_event_from_req' |
-    'insert_artist_from_req' |
-    'insert_artist_event_from_req' |
-    'insert_work_from_req' |
-    'insert_work_event_from_req' |
-    'insert_user_artist_from_req' |
-    'insert_user_artist_event_from_req' |
-    'insert_user_work_from_req' |
-    'insert_user_work_event_from_req' |
-    'check_signin_from_req' |
-    'see_my_watchers_from_req' |
-    'see_more_users_from_req'|
-    'see_my_works_from_req' |
-    'see_more_of_my_works_from_req'|
-    'see_my_watched_artists_from_req' |
-    'see_more_artists_from_req'|
-    'see_my_liked_works_from_req' |
-    'see_more_works_from_req'|
+declare type DBProcedure = 'generate_user' |
+    'generate_user_event' |
+    'generate_artist' |
+    'generate_artist_event' |
+    'generate_work' |
+    'generate_work_event' |
+    'generate_user_artist' |
+    'generate_user_artist_event' |
+    'generate_user_work' |
+    'generate_user_work_event' |
+    'insert_user' |
+    'insert_user_event' |
+    'insert_artist' |
+    'insert_artist_event' |
+    'insert_work' |
+    'insert_work_event' |
+    'insert_user_artist' |
+    'insert_user_artist_event' |
+    'insert_user_work' |
+    'insert_user_work_event' |
+    'check_signin' |
+    'see_my_watchers' |
+    'see_more_users'|
+    'see_my_works' |
+    'see_more_of_my_works'|
+    'see_my_watched_artists' |
+    'see_more_artists'|
+    'see_my_liked_works' |
+    'see_more_works'|
+    'view_user'|
+    'view_artist'|
+    'view_works_of_artists'|
+    'see_work'|
     'ban_watcher'|
     'submit_work'|
     'withdraw_work'|

@@ -46,7 +46,7 @@ user_name       VARCHAR(256) NULL,
 pwd             VARCHAR(256) NULL
 );
 
-CREATE OR REPLACE FUNCTION generate_user_from_req (TEXT,TEXT,TEXT,TEXT) RETURNS users_core
+CREATE OR REPLACE FUNCTION generate_user (TEXT,TEXT,TEXT,TEXT) RETURNS users_core
 AS
 $$
 SELECT $1,
@@ -63,7 +63,7 @@ key_      VARCHAR(256),
 value     INT
 );
 
-CREATE OR REPLACE FUNCTION generate_user_event_from_req (TEXT,TEXT,TEXT) RETURNS users_events
+CREATE OR REPLACE FUNCTION generate_user_event (TEXT,TEXT,TEXT) RETURNS users_events
 AS
 $$
 SELECT MD5($1||$2||$3),
@@ -108,7 +108,7 @@ creation_time   TIMESTAMP
 );
 
 
-CREATE OR REPLACE FUNCTION generate_artist_from_req (TEXT,TEXT,TEXT) RETURNS artists_core
+CREATE OR REPLACE FUNCTION generate_artist (TEXT,TEXT,TEXT) RETURNS artists_core
 AS
 $$
 SELECT $1,
@@ -124,7 +124,7 @@ key_        VARCHAR(256),
 value       INT
 );
 
-CREATE OR REPLACE FUNCTION generate_artist_event_from_req (TEXT,TEXT,TEXT) RETURNS artists_events
+CREATE OR REPLACE FUNCTION generate_artist_event (TEXT,TEXT,TEXT) RETURNS artists_events
 AS
 $$
 SELECT MD5($1||$2||$3),
@@ -165,7 +165,7 @@ creation_time   TIMESTAMP,
 work_name       VARCHAR(256)
 );
 
-CREATE OR REPLACE FUNCTION generate_work_from_req (TEXT,TEXT,TEXT,TEXT) RETURNS works_core
+CREATE OR REPLACE FUNCTION generate_work (TEXT,TEXT,TEXT,TEXT) RETURNS works_core
 AS
 $$
 SELECT $1,
@@ -182,7 +182,7 @@ key_      VARCHAR(256),
 value     INT
 );
 
-CREATE OR REPLACE FUNCTION generate_work_event_from_req (TEXT,TEXT,TEXT) RETURNS works_events
+CREATE OR REPLACE FUNCTION generate_work_event (TEXT,TEXT,TEXT) RETURNS works_events
 AS
 $$
 SELECT MD5($1||$2||$3),
@@ -239,7 +239,7 @@ artist_id       VARCHAR(256) REFERENCES artists_core (id),
 creation_time   TIMESTAMP
 );
 
-CREATE OR REPLACE FUNCTION generate_user_artist_from_req (TEXT,TEXT,TEXT,TEXT) RETURNS users_artists_core
+CREATE OR REPLACE FUNCTION generate_user_artist (TEXT,TEXT,TEXT,TEXT) RETURNS users_artists_core
 AS
 $$
 SELECT $1,
@@ -256,7 +256,7 @@ key_             VARCHAR(256),
 value            INT
 );
 
-CREATE OR REPLACE FUNCTION generate_user_artist_event_from_req (TEXT,TEXT,TEXT) RETURNS users_artists_events
+CREATE OR REPLACE FUNCTION generate_user_artist_event (TEXT,TEXT,TEXT) RETURNS users_artists_events
 AS
 $$
 SELECT MD5($1||$2||$3),
@@ -311,7 +311,7 @@ work_id         VARCHAR(256) REFERENCES works_core (id),
 creation_time   TIMESTAMP
 );
 
-CREATE OR REPLACE FUNCTION generate_user_work_from_req (TEXT,TEXT,TEXT,TEXT) RETURNS users_works_core
+CREATE OR REPLACE FUNCTION generate_user_work (TEXT,TEXT,TEXT,TEXT) RETURNS users_works_core
 AS
 $$
 SELECT $1,
@@ -328,7 +328,7 @@ key_           VARCHAR(256),
 value          INT
 );
 
-CREATE OR REPLACE FUNCTION generate_user_work_event_from_req(TEXT,TEXT,TEXT) RETURNS users_works_events
+CREATE OR REPLACE FUNCTION generate_user_work_event(TEXT,TEXT,TEXT) RETURNS users_works_events
 AS
 $$
 SELECT MD5($1||$2||$3),
@@ -426,80 +426,80 @@ FROM users_core LIMIT 1);
 
 
 SELECT *
-FROM generate_user_from_req ('bc4c3ea077d95736a64b34a222c6eb0e','1715750000','ju','pwd');
+FROM generate_user ('bc4c3ea077d95736a64b34a222c6eb0e','1715750000','ju','pwd');
 
 SELECT *
-FROM generate_user_from_req ('58a9fce14954d73241cce675d68d378a','1715751000','jo','pwd');
+FROM generate_user ('58a9fce14954d73241cce675d68d378a','1715751000','jo','pwd');
 
 SELECT *
-FROM generate_user_from_req ('69d8c607e3aebfc7dfca444df0cce5b6','1715752000','jake','pwd');
+FROM generate_user ('69d8c607e3aebfc7dfca444df0cce5b6','1715752000','jake','pwd');
 
 SELECT *
-FROM generate_user_event_from_req ('58a9fce14954d73241cce675d68d378a','1715753000','delete');
+FROM generate_user_event ('58a9fce14954d73241cce675d68d378a','1715753000','delete');
 
 SELECT *
-FROM generate_user_from_req ('455bb199857541d35e424cef5a5f5f4b','1715754000','gil','pwd');
+FROM generate_user ('455bb199857541d35e424cef5a5f5f4b','1715754000','gil','pwd');
 
 SELECT *
-FROM generate_user_from_req ('a6772d17a88788fc111d1e2637977401','1715754500','kyle','pwd');
+FROM generate_user ('a6772d17a88788fc111d1e2637977401','1715754500','kyle','pwd');
 
 SELECT *
-FROM generate_artist_from_req ('1e0bb3ab006e8f93efdfc385c1e13722','455bb199857541d35e424cef5a5f5f4b','1715755000');
+FROM generate_artist ('1e0bb3ab006e8f93efdfc385c1e13722','455bb199857541d35e424cef5a5f5f4b','1715755000');
 
 SELECT *
-FROM generate_artist_from_req ('61d6184592315a39b8f8bb9553700436','a6772d17a88788fc111d1e2637977401','1715755500');
+FROM generate_artist ('61d6184592315a39b8f8bb9553700436','a6772d17a88788fc111d1e2637977401','1715755500');
 
 SELECT *
-FROM generate_artist_event_from_req ('1e0bb3ab006e8f93efdfc385c1e13722','1715756000','be');
+FROM generate_artist_event ('1e0bb3ab006e8f93efdfc385c1e13722','1715756000','be');
 
 SELECT *
-FROM generate_work_from_req ('37f04ec184a353752e2bda51abd7b45e','1e0bb3ab006e8f93efdfc385c1e13722','1715757000','first_draft');
+FROM generate_work ('37f04ec184a353752e2bda51abd7b45e','1e0bb3ab006e8f93efdfc385c1e13722','1715757000','first_draft');
 
 SELECT *
-FROM generate_work_from_req ('2f0ae6871c0924a605169ad43fcf15a5','1e0bb3ab006e8f93efdfc385c1e13722','1715758000','second_draft');
+FROM generate_work ('2f0ae6871c0924a605169ad43fcf15a5','1e0bb3ab006e8f93efdfc385c1e13722','1715758000','second_draft');
 
 SELECT *
-FROM generate_work_from_req ('408661a97a79ce10a01ff23f5cc64b1a','1e0bb3ab006e8f93efdfc385c1e13722','1715759000','good_version');
+FROM generate_work ('408661a97a79ce10a01ff23f5cc64b1a','1e0bb3ab006e8f93efdfc385c1e13722','1715759000','good_version');
 
 SELECT *
-FROM generate_work_from_req ('aad8a727b09600707339c4a4531208b8','61d6184592315a39b8f8bb9553700436','1715759500','experiment');
+FROM generate_work ('aad8a727b09600707339c4a4531208b8','61d6184592315a39b8f8bb9553700436','1715759500','experiment');
 
 SELECT *
-FROM generate_work_event_from_req ('2f0ae6871c0924a605169ad43fcf15a5','1715760000','withdraw');
+FROM generate_work_event ('2f0ae6871c0924a605169ad43fcf15a5','1715760000','withdraw');
 
 SELECT *
-FROM generate_user_artist_from_req ('095a719c0b977dafed9eff3e5efdfc54','bc4c3ea077d95736a64b34a222c6eb0e','1e0bb3ab006e8f93efdfc385c1e13722','1715761000');
+FROM generate_user_artist ('095a719c0b977dafed9eff3e5efdfc54','bc4c3ea077d95736a64b34a222c6eb0e','1e0bb3ab006e8f93efdfc385c1e13722','1715761000');
 
 SELECT *
-FROM generate_user_artist_event_from_req ('095a719c0b977dafed9eff3e5efdfc54','1715762000','watch');
+FROM generate_user_artist_event ('095a719c0b977dafed9eff3e5efdfc54','1715762000','watch');
 
 SELECT *
-FROM generate_user_artist_event_from_req ('095a719c0b977dafed9eff3e5efdfc54','1715763000','unwatch');
+FROM generate_user_artist_event ('095a719c0b977dafed9eff3e5efdfc54','1715763000','unwatch');
 
 SELECT *
-FROM generate_user_artist_from_req ('7cfda70b457f9b97f79c54e36388d6a2','69d8c607e3aebfc7dfca444df0cce5b6','1e0bb3ab006e8f93efdfc385c1e13722','1715764000');
+FROM generate_user_artist ('7cfda70b457f9b97f79c54e36388d6a2','69d8c607e3aebfc7dfca444df0cce5b6','1e0bb3ab006e8f93efdfc385c1e13722','1715764000');
 
 SELECT *
-FROM generate_user_artist_event_from_req ('7cfda70b457f9b97f79c54e36388d6a2','1715765000','watch');
+FROM generate_user_artist_event ('7cfda70b457f9b97f79c54e36388d6a2','1715765000','watch');
 
 SELECT *
-FROM generate_user_work_from_req ('290203d452028cf5e3f36a708bb2279b','bc4c3ea077d95736a64b34a222c6eb0e','408661a97a79ce10a01ff23f5cc64b1a','1715766000');
+FROM generate_user_work ('290203d452028cf5e3f36a708bb2279b','bc4c3ea077d95736a64b34a222c6eb0e','408661a97a79ce10a01ff23f5cc64b1a','1715766000');
 
 SELECT *
-FROM generate_user_work_event_from_req ('290203d452028cf5e3f36a708bb2279b','1715767000','view');
+FROM generate_user_work_event ('290203d452028cf5e3f36a708bb2279b','1715767000','view');
 
 SELECT *
-FROM generate_user_work_event_from_req ('290203d452028cf5e3f36a708bb2279b','1715768000','like');
+FROM generate_user_work_event ('290203d452028cf5e3f36a708bb2279b','1715768000','like');
 
-CREATE OR REPLACE FUNCTION insert_user_from_req (TEXT,TEXT,TEXT,TEXT) RETURNS users_core
+CREATE OR REPLACE FUNCTION insert_user (TEXT,TEXT,TEXT,TEXT) RETURNS users_core
 AS
 $$
 
 DELETE FROM users_core_buffer;
 DELETE FROM users_events_buffer;
 
-INSERT INTO users_core_buffer SELECT * FROM generate_user_from_req ($1,$2,$3,$4);
-INSERT INTO users_events_buffer SELECT * FROM generate_user_event_from_req ($1,$2,'create');
+INSERT INTO users_core_buffer SELECT * FROM generate_user ($1,$2,$3,$4);
+INSERT INTO users_events_buffer SELECT * FROM generate_user_event ($1,$2,'create');
 
 MERGE INTO users_core_buffer cb
 USING users_core c
@@ -527,13 +527,13 @@ SELECT * FROM users_core_buffer
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_user_event_from_req (TEXT,TEXT,TEXT) RETURNS users_events
+CREATE OR REPLACE FUNCTION insert_user_event (TEXT,TEXT,TEXT) RETURNS users_events
 AS
 $$
 
 DELETE FROM users_events_buffer;
 
-INSERT INTO users_events_buffer SELECT * FROM generate_user_event_from_req ($1,$2,$3);
+INSERT INTO users_events_buffer SELECT * FROM generate_user_event ($1,$2,$3);
 
 MERGE INTO users_events_buffer  eb
 USING users_events e
@@ -548,15 +548,15 @@ SELECT * FROM users_events_buffer
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION insert_artist_from_req (TEXT,TEXT,TEXT) RETURNS artists_core
+CREATE OR REPLACE FUNCTION insert_artist (TEXT,TEXT,TEXT) RETURNS artists_core
 AS
 $$
 
 DELETE FROM artists_core_buffer;
 DELETE FROM artists_events_buffer;
 
-INSERT INTO artists_core_buffer SELECT * FROM generate_artist_from_req ($1,$2,$3);
-INSERT INTO artists_events_buffer SELECT * FROM generate_artist_event_from_req ($1,$3,'create');
+INSERT INTO artists_core_buffer SELECT * FROM generate_artist ($1,$2,$3);
+INSERT INTO artists_events_buffer SELECT * FROM generate_artist_event ($1,$3,'create');
 
 MERGE INTO artists_core_buffer cb
 USING artists_core c
@@ -584,13 +584,13 @@ SELECT * FROM artists_core_buffer
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_artist_event_from_req (TEXT,TEXT,TEXT) RETURNS artists_events
+CREATE OR REPLACE FUNCTION insert_artist_event (TEXT,TEXT,TEXT) RETURNS artists_events
 AS
 $$
 
 DELETE FROM artists_events_buffer;
 
-INSERT INTO artists_events_buffer SELECT * FROM generate_artist_event_from_req ($1,$2,$3);
+INSERT INTO artists_events_buffer SELECT * FROM generate_artist_event ($1,$2,$3);
 
 MERGE INTO artists_events_buffer  eb
 USING artists_events e
@@ -604,14 +604,14 @@ SELECT * FROM artists_events_buffer
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_work_from_req (TEXT,TEXT,TEXT,TEXT) RETURNS works_core
+CREATE OR REPLACE FUNCTION insert_work (TEXT,TEXT,TEXT,TEXT) RETURNS works_core
 AS
 $$
 DELETE FROM works_core_buffer;
 DELETE FROM works_events_buffer;
 
-INSERT INTO works_core_buffer SELECT * FROM generate_work_from_req ($1,$2,$3,$4);
-INSERT INTO works_events_buffer SELECT * FROM generate_work_event_from_req ($1,$3,'submit');
+INSERT INTO works_core_buffer SELECT * FROM generate_work ($1,$2,$3,$4);
+INSERT INTO works_events_buffer SELECT * FROM generate_work_event ($1,$3,'submit');
 
 MERGE INTO works_core_buffer cb
 USING works_core c
@@ -639,13 +639,13 @@ SELECT * FROM works_core_buffer
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_work_event_from_req (TEXT,TEXT,TEXT) RETURNS works_events
+CREATE OR REPLACE FUNCTION insert_work_event (TEXT,TEXT,TEXT) RETURNS works_events
 AS
 $$
 
 DELETE FROM works_events_buffer;
 
-INSERT INTO works_events_buffer SELECT * FROM generate_work_event_from_req ($1,$2,$3);
+INSERT INTO works_events_buffer SELECT * FROM generate_work_event ($1,$2,$3);
 
 MERGE INTO works_events_buffer  eb
 USING works_events e
@@ -659,15 +659,15 @@ SELECT * FROM works_events_buffer
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_user_artist_from_req (TEXT,TEXT,TEXT,TEXT) RETURNS users_artists_core
+CREATE OR REPLACE FUNCTION insert_user_artist (TEXT,TEXT,TEXT,TEXT) RETURNS users_artists_core
 AS
 $$
 
 DELETE FROM users_artists_core_buffer;
 DELETE FROM users_artists_events_buffer;
 
-INSERT INTO users_artists_core_buffer SELECT * FROM generate_user_artist_from_req ($1,$2,$3,$4);
-INSERT INTO users_artists_events_buffer SELECT * FROM generate_user_artist_event_from_req ($1,$4,'create');
+INSERT INTO users_artists_core_buffer SELECT * FROM generate_user_artist ($1,$2,$3,$4);
+INSERT INTO users_artists_events_buffer SELECT * FROM generate_user_artist_event ($1,$4,'create');
 
 MERGE INTO users_artists_core_buffer cb
 USING users_artists_core c
@@ -695,15 +695,15 @@ SELECT * FROM users_artists_core_buffer
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_user_artist_event_from_req (TEXT,TEXT,TEXT,TEXT,TEXT) RETURNS users_artists_events
+CREATE OR REPLACE FUNCTION insert_user_artist_event (TEXT,TEXT,TEXT,TEXT,TEXT) RETURNS users_artists_events
 AS
 $$
 
 DELETE FROM users_artists_core_buffer;
 DELETE FROM users_artists_events_buffer;
 
-INSERT INTO users_artists_core_buffer SELECT * FROM generate_user_artist_from_req ($1,$2,$3,$4);
-INSERT INTO users_artists_events_buffer SELECT * FROM generate_user_artist_event_from_req ($1,$4,$5);
+INSERT INTO users_artists_core_buffer SELECT * FROM generate_user_artist ($1,$2,$3,$4);
+INSERT INTO users_artists_events_buffer SELECT * FROM generate_user_artist_event ($1,$4,$5);
 
 MERGE INTO users_artists_core_buffer cb
 USING users_artists_core c
@@ -724,15 +724,15 @@ SELECT * FROM users_artists_events_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_user_work_from_req (TEXT,TEXT,TEXT,TEXT) RETURNS users_works_core
+CREATE OR REPLACE FUNCTION insert_user_work (TEXT,TEXT,TEXT,TEXT) RETURNS users_works_core
 AS
 $$
 
 DELETE FROM users_works_core_buffer;
 DELETE FROM users_works_events_buffer;
 
-INSERT INTO users_works_core_buffer SELECT * FROM generate_user_work_from_req ($1,$2,$3,$4);
-INSERT INTO users_works_events_buffer SELECT * FROM generate_user_work_event_from_req ($1,$4,'create');
+INSERT INTO users_works_core_buffer SELECT * FROM generate_user_work ($1,$2,$3,$4);
+INSERT INTO users_works_events_buffer SELECT * FROM generate_user_work_event ($1,$4,'create');
 
 MERGE INTO users_works_core_buffer cb
 USING users_works_core c
@@ -760,14 +760,14 @@ SELECT * FROM users_works_core_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_user_work_event_from_req (TEXT,TEXT,TEXT,TEXT,TEXT) RETURNS users_works_events
+CREATE OR REPLACE FUNCTION insert_user_work_event (TEXT,TEXT,TEXT,TEXT,TEXT) RETURNS users_works_events
 AS
 $$
 
 DELETE FROM users_works_events_buffer;
 
-INSERT INTO users_works_core_buffer SELECT * FROM generate_user_work_from_req ($1,$2,$3,$4);
-INSERT INTO users_works_events_buffer SELECT * FROM generate_user_work_event_from_req ($1,$4,$5);
+INSERT INTO users_works_core_buffer SELECT * FROM generate_user_work ($1,$2,$3,$4);
+INSERT INTO users_works_events_buffer SELECT * FROM generate_user_work_event ($1,$4,$5);
 
 MERGE INTO users_works_core_buffer cb
 USING users_works_core c
@@ -788,13 +788,13 @@ SELECT * FROM users_works_events_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION check_login_from_req (TEXT,TEXT) RETURNS users
+CREATE OR REPLACE FUNCTION check_login (TEXT,TEXT) RETURNS users
 AS
 $$
 SELECT * FROM users WHERE user_name=$1 AND pwd = $2;
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_my_watched_artists_from_req (TEXT) RETURNS artists
+CREATE OR REPLACE FUNCTION see_my_watched_artists (TEXT) RETURNS artists
 AS
 $$
 SELECT t0.id,
@@ -819,7 +819,7 @@ ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_more_artists_from_req (TEXT) RETURNS artists
+CREATE OR REPLACE FUNCTION see_more_artists (TEXT) RETURNS artists
 AS
 $$
 
@@ -855,73 +855,73 @@ $$ LANGUAGE SQL;
 
 
 SELECT *
-FROM insert_user_from_req ('bc4c3ea077d95736a64b34a222c6eb0e','1715750000','ju','pwd');
+FROM insert_user ('bc4c3ea077d95736a64b34a222c6eb0e','1715750000','ju','pwd');
 
 SELECT *
-FROM insert_user_from_req ('58a9fce14954d73241cce675d68d378a','1715751000','jo','pwd');
+FROM insert_user ('58a9fce14954d73241cce675d68d378a','1715751000','jo','pwd');
 
 SELECT *
-FROM insert_user_from_req ('69d8c607e3aebfc7dfca444df0cce5b6','1715752000','jake','pwd');
+FROM insert_user ('69d8c607e3aebfc7dfca444df0cce5b6','1715752000','jake','pwd');
 
 SELECT *
-FROM insert_user_event_from_req ('58a9fce14954d73241cce675d68d378a','1715753000','delete');
+FROM insert_user_event ('58a9fce14954d73241cce675d68d378a','1715753000','delete');
 
 SELECT *
-FROM insert_user_from_req ('455bb199857541d35e424cef5a5f5f4b','1715754000','gil','pwd');
+FROM insert_user ('455bb199857541d35e424cef5a5f5f4b','1715754000','gil','pwd');
 
 SELECT *
-FROM insert_user_from_req ('a6772d17a88788fc111d1e2637977401','1715754500','kyle','pwd');
+FROM insert_user ('a6772d17a88788fc111d1e2637977401','1715754500','kyle','pwd');
 
 SELECT *
-FROM insert_artist_from_req ('1e0bb3ab006e8f93efdfc385c1e13722','455bb199857541d35e424cef5a5f5f4b','1715755000');
+FROM insert_artist ('1e0bb3ab006e8f93efdfc385c1e13722','455bb199857541d35e424cef5a5f5f4b','1715755000');
 
 SELECT *
-FROM insert_artist_from_req ('61d6184592315a39b8f8bb9553700436','a6772d17a88788fc111d1e2637977401','1715755500');
+FROM insert_artist ('61d6184592315a39b8f8bb9553700436','a6772d17a88788fc111d1e2637977401','1715755500');
 
 SELECT *
-FROM insert_artist_event_from_req ('1e0bb3ab006e8f93efdfc385c1e13722','1715756000','be');
+FROM insert_artist_event ('1e0bb3ab006e8f93efdfc385c1e13722','1715756000','be');
 
 SELECT *
-FROM insert_work_from_req ('37f04ec184a353752e2bda51abd7b45e','1e0bb3ab006e8f93efdfc385c1e13722','1715757000','first_draft');
+FROM insert_work ('37f04ec184a353752e2bda51abd7b45e','1e0bb3ab006e8f93efdfc385c1e13722','1715757000','first_draft');
 
 SELECT *
-FROM insert_work_from_req ('2f0ae6871c0924a605169ad43fcf15a5','1e0bb3ab006e8f93efdfc385c1e13722','1715758000','second_draft');
+FROM insert_work ('2f0ae6871c0924a605169ad43fcf15a5','1e0bb3ab006e8f93efdfc385c1e13722','1715758000','second_draft');
 
 SELECT *
-FROM insert_work_from_req ('408661a97a79ce10a01ff23f5cc64b1a','1e0bb3ab006e8f93efdfc385c1e13722','1715759000','good_version');
+FROM insert_work ('408661a97a79ce10a01ff23f5cc64b1a','1e0bb3ab006e8f93efdfc385c1e13722','1715759000','good_version');
 
 SELECT *
-FROM insert_work_from_req ('aad8a727b09600707339c4a4531208b8','61d6184592315a39b8f8bb9553700436','1715759500','experiment');
+FROM insert_work ('aad8a727b09600707339c4a4531208b8','61d6184592315a39b8f8bb9553700436','1715759500','experiment');
 
 SELECT *
-FROM insert_work_event_from_req ('2f0ae6871c0924a605169ad43fcf15a5','1715760000','withdraw');
-
-
-SELECT *
-FROM insert_user_artist_from_req ('095a719c0b977dafed9eff3e5efdfc54','bc4c3ea077d95736a64b34a222c6eb0e','1e0bb3ab006e8f93efdfc385c1e13722','1715761000');
-
-SELECT *
-FROM insert_user_artist_event_from_req ('095a719c0b977dafed9eff3e5efdfc54','bc4c3ea077d95736a64b34a222c6eb0e','1e0bb3ab006e8f93efdfc385c1e13722','1715762000','watch');
-
-SELECT *
-FROM insert_user_artist_event_from_req ('095a719c0b977dafed9eff3e5efdfc54','bc4c3ea077d95736a64b34a222c6eb0e','1e0bb3ab006e8f93efdfc385c1e13722','1715763000','unwatch');
-
-SELECT *
-FROM insert_user_artist_from_req ('7cfda70b457f9b97f79c54e36388d6a2','69d8c607e3aebfc7dfca444df0cce5b6','1e0bb3ab006e8f93efdfc385c1e13722','1715764000');
-
-SELECT *
-FROM insert_user_artist_event_from_req ('7cfda70b457f9b97f79c54e36388d6a2','69d8c607e3aebfc7dfca444df0cce5b6','1e0bb3ab006e8f93efdfc385c1e13722','1715765000','watch');
-
+FROM insert_work_event ('2f0ae6871c0924a605169ad43fcf15a5','1715760000','withdraw');
 
 
 SELECT *
-FROM insert_user_work_from_req ('290203d452028cf5e3f36a708bb2279b','bc4c3ea077d95736a64b34a222c6eb0e','408661a97a79ce10a01ff23f5cc64b1a','1715766000');
+FROM insert_user_artist ('095a719c0b977dafed9eff3e5efdfc54','bc4c3ea077d95736a64b34a222c6eb0e','1e0bb3ab006e8f93efdfc385c1e13722','1715761000');
 
 SELECT *
-FROM insert_user_work_event_from_req ('290203d452028cf5e3f36a708bb2279b','bc4c3ea077d95736a64b34a222c6eb0e','408661a97a79ce10a01ff23f5cc64b1a','1715767000','view');
+FROM insert_user_artist_event ('095a719c0b977dafed9eff3e5efdfc54','bc4c3ea077d95736a64b34a222c6eb0e','1e0bb3ab006e8f93efdfc385c1e13722','1715762000','watch');
 
 SELECT *
-FROM insert_user_work_event_from_req ('290203d452028cf5e3f36a708bb2279b','bc4c3ea077d95736a64b34a222c6eb0e','408661a97a79ce10a01ff23f5cc64b1a','1715768000','like');
+FROM insert_user_artist_event ('095a719c0b977dafed9eff3e5efdfc54','bc4c3ea077d95736a64b34a222c6eb0e','1e0bb3ab006e8f93efdfc385c1e13722','1715763000','unwatch');
+
+SELECT *
+FROM insert_user_artist ('7cfda70b457f9b97f79c54e36388d6a2','69d8c607e3aebfc7dfca444df0cce5b6','1e0bb3ab006e8f93efdfc385c1e13722','1715764000');
+
+SELECT *
+FROM insert_user_artist_event ('7cfda70b457f9b97f79c54e36388d6a2','69d8c607e3aebfc7dfca444df0cce5b6','1e0bb3ab006e8f93efdfc385c1e13722','1715765000','watch');
+
+
+
+SELECT *
+FROM insert_user_work ('290203d452028cf5e3f36a708bb2279b','bc4c3ea077d95736a64b34a222c6eb0e','408661a97a79ce10a01ff23f5cc64b1a','1715766000');
+
+SELECT *
+FROM insert_user_work_event ('290203d452028cf5e3f36a708bb2279b','bc4c3ea077d95736a64b34a222c6eb0e','408661a97a79ce10a01ff23f5cc64b1a','1715767000','view');
+
+SELECT *
+FROM insert_user_work_event ('290203d452028cf5e3f36a708bb2279b','bc4c3ea077d95736a64b34a222c6eb0e','408661a97a79ce10a01ff23f5cc64b1a','1715768000','like');
 
 SELECT CAST(EXTRACT(EPOCH FROM NOW()) AS VARCHAR(256));
 

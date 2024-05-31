@@ -21,13 +21,16 @@ const poolConfig: PoolConfig = {
 
 const pool: Pool = new pg.Pool(poolConfig);
 
-async function queryPool(po: Pool, sql: string, params: Array<string>): Promise<QueryResult<any>> {
-  ;
-  const res = await po.query(sql, params);
+async function queryPool(po: Pool, sql: string, params: Array<string>|undefined): Promise<QueryResult<any>|undefined> {
+  
+  let res = undefined;
+  if (params){
+    res = await po.query(sql, params);
+  }
   return res;
 }
 
-async function queryPoolFromProcedure(po: Pool, pro: DBProcedure, params: Array<string>): Promise<QueryResult<any>> {
+async function queryPoolFromProcedure(po: Pool, pro: DBProcedure, params: Array<string>|undefined): Promise<QueryResult<any>|undefined> {
   const sql = convertToSql(pro);
   return queryPool(po, sql, params);
 }

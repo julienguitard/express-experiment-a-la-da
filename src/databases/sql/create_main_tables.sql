@@ -356,6 +356,29 @@ FROM (SELECT t0.id,
   JOIN users_artists_without_banned USING (user_id,artist_id)
 );
 
+-- Views for reading data for render
+
+/*CREATE OR REPLACE VIEWS more_artists AS
+(
+SELECT artist_id,
+       user_id,
+       O AS watch
+FROM (SELECT t0.artist_id,
+             t0.user_id,
+             t1.artist_id AS artist_id_,
+             t1.user
+      FROM (SELECT t00.artist_id,
+                   t01.user_name
+            FROM (SELECT DISTINCT artist_id,
+                         user_id
+                  FROM artists_without_deleted) t00
+              JOIN (SELECT DISTINCT user_id, user_name FROM users_without_deleted) t01 USING (user_id, key_)) t0
+        LEFT JOIN (SELECT DISTINCT user_id, artist_id
+                   FROM users_artists_without_banned
+                   AND   key_ = 'watch') t1 USING (artist_id))
+WHERE artist_id_ IS NULL
+);*/
+
 --Buffers for procedure
 
 CREATE TABLE IF NOT EXISTS users_works_events_buffer
