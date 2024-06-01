@@ -1,65 +1,65 @@
-import { logToPostgresControler,renderControler, showLogsControler, showLogsTableControler,mockSessionControler } from '../middlewares/index.js';
+import { consoleControler, sessionFirstUpdateControler, logToPostgresControler,renderControler, showLogsControler, showLogsTableControler,mockSessionControler } from '../middlewares/index.js';
 
-import { buildMockControler, buildParametrizedMockControler } from "../middlewares/factory.js";
+import { buildControler, buildParametrizedControler } from "../middlewares/factory.js";
 
-const mockRoutesParams = {
-  "/mock": {
+const routesParams = {
+  "/": {
     render: "./static/Index",
   },
-  "/mock/landing/signin": {
+  "/landing/signin": {
     render: "./static/Signin"
   },
-  "/mock/landing/signup": {
+  "/landing/signup": {
     render: "./static/Signup"
   },
-  "/mock/landing/signin/submit": {
-    redirect: "/mock/home"
+  "/landing/signin/submit": {
+    redirect: "/home"
   },
-  "/mock/landing/signup/submit": {
-    redirect: "/mock/home"
+  "/landing/signup/submit": {
+    redirect: "/home"
   },
-  "/mock/home": {
+  "/home": {
     render: "./static/ArtistHome"
   },
-  "/mock/profile/works/work": {
+  "/profile/works/work": {
     render: "./static/Work"
   },
-  "/mock/profile/artists/artist": {
+  "/profile/artists/artist": {
     render: "./static/Artist"
   },
-  "/mock/profile/users/user/ban": {
-    redirect: "/mock/home"
+  "/profile/users/user/ban": {
+    redirect: "/home"
   },
-  "/mock/profile/artists/artist/unwatch": {
-    redirect: "/mock/home"
+  "/profile/artists/artist/unwatch": {
+    redirect: "/home"
   },
-  "/mock/profile/works/work/unlike": {
-    redirect: "/mock/home"
+  "/profile/works/work/unlike": {
+    redirect: "/home"
   },
-  "/mock/home/users/more": {
+  "/home/users/more": {
     render: "./static/MoreUsers"
   },
-  "/mock/home/artists/more": {
+  "/home/artists/more": {
     render: "./static/MoreArtists"
   },
-  "/mock/home/works/more": {
+  "/home/works/more": {
     render: "./static/MoreWorks"
   },
-  "/mock/signout": {
+  "/signout": {
     render: "./static/Signout"
   },
-  "/mock/signout/submit": {
-    redirect: "/mock"
+  "/signout/submit": {
+    redirect: "/"
   },
-  "/mock/delete": {
+  "/delete": {
     render: "./static/Delete"
   },
-  "/mock/delete/submit": {
-    redirect: "/mock"
+  "/delete/submit": {
+    redirect: "/"
   }
 };
 
-const mockParametrizedRoutesParams = {
+const parametrizedRoutesParams = {
   "/parametrized": {
     render: "./parametrized/Index",
   },
@@ -105,6 +105,12 @@ const mockParametrizedRoutesParams = {
   "/parametrized/home/works/more": {
     render: "./parametrized/MoreWorks"
   },
+  "/parametrized/home/works/submit": {
+    render: "./parametrized/NewWork"
+  },
+  "/parametrized/home/works/submit/submit": {
+    render: "./parametrized/home"
+  },
   "/parametrized/signout": {
     render: "./parametrized/Signout"
   },
@@ -119,20 +125,20 @@ const mockParametrizedRoutesParams = {
   }
 };
 
-const mockRoutes = Object.entries(mockRoutesParams).map(
+const routes = Object.entries(routesParams).map(
   ([k,v]) => {return {
      route: k,
      method: 'get',
-     controlers:[logToPostgresControler, buildMockControler(v)]
+     controlers:[consoleControler ,logToPostgresControler, buildControler(v)]
    }}
 );
 
-const mockParametrizedRoutes = Object.entries(mockParametrizedRoutesParams).map(
+const parametrizedRoutes = Object.entries(parametrizedRoutesParams).map(
   ([k,v]) => {return {
      route: k,
      method: 'get',
-     controlers:[logToPostgresControler, mockSessionControler, buildParametrizedMockControler(v)]
+     controlers:[consoleControler, sessionFirstUpdateControler,logToPostgresControler, mockSessionControler, buildParametrizedControler(v)]
    }}
 )
 
-export { mockRoutes,mockParametrizedRoutes};
+export { routes,parametrizedRoutes};

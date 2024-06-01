@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="/css/index.css">
+  <title><%= userName %> sand box</title>
+</head>
+
+<form action="/parametrized/home/works/submit/submit" method="post">
+  <label for="workName">Work Name:</label><br>
+  <input id="workName"" type="text" name="workName"><br>
+  <input type="submit" value="Submit">
+</form>
+
+<a href="/parametrized/home"> Home </a>
+
+<p> Signed as <%= userName %> </p>
+<p> Started browsing at <%= startTime %> </p>
+
+
+</html>

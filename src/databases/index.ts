@@ -27,11 +27,12 @@ async function queryPool(po: Pool, sql: string, params: Array<string>|undefined)
   if (params){
     res = await po.query(sql, params);
   }
+  console.log(res);
   return res;
 }
 
 async function queryPoolFromProcedure(po: Pool, pro: DBProcedure, params: Array<string>|undefined): Promise<QueryResult<any>|undefined> {
-  const sql = convertToSql(pro);
+  const sql = convertToSql(pro,params);
   return queryPool(po, sql, params);
 }
 

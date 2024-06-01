@@ -8,6 +8,7 @@ import { router } from "./routes/index.js";
 import morgan from "morgan";
 import {
   errorControler,
+  logToPostgresControler,
   mockErrorControler,
   pageNotFoundControler,
 } from "./middlewares/index.js";
@@ -29,12 +30,12 @@ const preRouterUsables:Array<RequestHandler> = [
   cors(),
   helmet(),
   sessionMiddleware,
-  bodyParser.urlencoded({ extended: false }),
+  bodyParser.urlencoded({ extended: false })
 ];
 
 const postRouterUsables:Array<RequestHandler|ErrorRequestHandler>  = [
   pageNotFoundControler,
-  mockErrorControler
+  errorControler
 ]
 
 preRouterUsables.map((u) => app.use(u));

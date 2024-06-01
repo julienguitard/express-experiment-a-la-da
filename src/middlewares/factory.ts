@@ -1,9 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
+import { copyFile } from 'fs';
 import pg, { PoolConfig, Pool, QueryResult } from 'pg';
 import {TypedRequest, TypedSession} from 'types';
 
 
-function buildControler(reqParamsHandler: (route: TypedRequest<TypedSession>["route"], session: TypedRequest<TypedSession>["session"], params: TypedRequest<TypedSession>["params"]) => Record<string, any>,
+/*function buildControler(reqParamsHandler: (route: TypedRequest<TypedSession>["route"], session: TypedRequest<TypedSession>["session"], params: TypedRequest<TypedSession>["params"]) => Record<string, any>,
     dbHandler: (params: Record<string, any>) => Promise<QueryResult<any>>,
     propsBuilder: (r: QueryResult<any>) => any,
     outputCallback: (res: Response, props: any) => void) {
@@ -15,9 +16,9 @@ function buildControler(reqParamsHandler: (route: TypedRequest<TypedSession>["ro
         next();
     }
     return mdw;
-}
+}*/
 
-function buildMockControler(data: Record<string,string>): (req: TypedRequest<TypedSession>, res: Response, next: NextFunction) => void {
+function buildControler(data: Record<string,string>): (req: Request, res: Response, next: NextFunction) => void {
     function mdw(req: Request, res: Response, next: NextFunction) {
         if (data.redirect!==undefined) {
             res.redirect(data.redirect);
@@ -33,12 +34,13 @@ function buildMockControler(data: Record<string,string>): (req: TypedRequest<Typ
     return mdw;
 }
 
-function buildParametrizedMockControler(data: Record<string,string>): (req: TypedRequest<TypedSession>, res: Response, next: NextFunction) => void {
+function buildParametrizedControler(data: Record<string,string>): (req: Request, res: Response, next: NextFunction) => void {
     function mdw(req: Request, res: Response, next: NextFunction) {
         if (data.redirect!==undefined) {
             res.redirect(data.redirect);
         }
         else if (data.render!==undefined){
+            console.log(data.render,req.session);
             res.render(data.render,req.session);
         }
         else {
@@ -50,4 +52,4 @@ function buildParametrizedMockControler(data: Record<string,string>): (req: Type
 }
 
 
-export { buildControler,buildMockControler, buildParametrizedMockControler}
+export { buildControler,buildParametrizedControler}

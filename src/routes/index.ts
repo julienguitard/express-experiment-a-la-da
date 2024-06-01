@@ -1,14 +1,10 @@
 import express, {Router} from 'express';
 import  {logToPostgresControler,viewControler} from '../middlewares/index.js';
 import {setRouteMethod} from './factory.js';
-import {routes,mockRoutes,mockParametrizedRoutes} from './routes.js';
+import {routes,parametrizedRoutes} from './routes.js';
 const router:Router = express.Router();
 
-//routes.map((r) => setRouteMethod(router, r.method, r.route, r.controlers));
-mockRoutes.map((r)=>setRouteMethod(router, r.method, r.route,r.controlers));
-mockParametrizedRoutes.map((r)=>setRouteMethod(router, r.method, r.route,r.controlers));
-
-
-console.log(router.stack.map((l=>l.route)));
+routes.map((r)=>setRouteMethod(router, r.method, r.route,r.controlers));
+parametrizedRoutes.map((r)=>setRouteMethod(router, r.method, r.route,r.controlers));
 
 export  {router};

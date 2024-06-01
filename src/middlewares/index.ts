@@ -7,18 +7,7 @@ import { getTime, parseSQLOutput } from "./handlers.js";
 import { hash } from "../utils/hash";
 import { rawListeners } from "process";
 import { FlowingConcept } from "../types";
-
-const getIndexProps = (session: SessionData) => {
-  return {
-    header: {
-      title: "Jus sandbox",
-    },
-    footer: {
-      signedinAs: session.userId || "none",
-      startTime: session.startTime || getTime(),
-    },
-  };
-};
+import session from "express-session";
 
 const renderControler = function (
   req: Request,
@@ -60,25 +49,6 @@ const dataControler = function (
   }
 };
 
-const viewControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  console.log("viewControler");
-  if (req.session) {
-    if (!("views" in Object.keys(req.session))) {
-      req.session.views = 0;
-    } else {
-      req.session.views = req.session.views + 1;
-    }
-  } else {
-    //TO DO
-    throw Error("Session not initialized");
-  }
-  next();
-};
-
 const consoleControler = function (
   req: Request,
   res: Response,
@@ -88,9 +58,43 @@ const consoleControler = function (
     Object.entries(req.route.methods)
       .filter(([k, v]) => v)
       .map(([k, v]) => k) +
-      " " +
-      req.route.path
+    " " +
+    req.route.path
   );
+  next();
+};
+
+function updateSessionInitially(session: SessionData, req: Request): 
+void
+{
+  session.reqTime = getTime();
+  session.startTime = session.startTime ?? getTime();
+  session.userId = session.userId ?? 'Admin';
+  session.userName = session.userName ?? 'Admin';
+  session.artistId = session.artistId ?? 'Admin';
+  session.views = (session.views ?? 0) + 1;
+
+  if (req.route) {
+    session.path = req.route.path ;
+  }
+  else {
+    session.path= 'Unknown route';
+  }
+}
+
+
+const sessionFirstUpdateControler = function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  if (req.session) {
+    updateSessionInitially(req.session, req);
+  }
+  else {
+    throw Error("Session not initialized");
+  }
+  next();
 };
 
 const clockControler = function (
@@ -113,31 +117,21 @@ const logToPostgresControler = function (
     .filter(([k, v]) => v)
     .map(([k, v]) => k)
     .join(",");
-  const now_ = getTime();
   const reqData = queryPoolFromProcedure(pool, "insert_into_requests_logs", [
-    now_,
-    req.route.path,
+    req.session.reqTime ,
+    req.session.path,
     meths,
   ]);
   const nextVoid = reqData.then((r) => {
     next();
   });
-  const errVoid = nextVoid.catch((err) => {
-    let no = getTime();
-    return queryPoolFromProcedure(pool, "insert_into_errors_logs", [
-      now_,
-      no,
-      req.route.path,
-      err,
-    ]);
-  });
-  const resData = errVoid.finally(() => {
+  const resData = nextVoid.then(() => {
     let no = getTime();
     return queryPoolFromProcedure(pool, "insert_into_responses_logs", [
-      now_,
+      req.session.reqTime??'',
       no,
-      req.route.path,
-      res.statusCode,
+      req.session.path??'unknown route path',
+      res.statusCode.toString(),
     ]);
   });
 };
@@ -205,8 +199,17 @@ const errorControler = function (
   res: Response,
   next: NextFunction
 ): void {
-  res.render("Error", { error: err });
-  next();
+  const no = getTime();
+
+  if (req.session.reqTime && req.session.path){
+  const resQuery = queryPoolFromProcedure(pool, "insert_into_errors_logs", [
+      req.session.reqTime,
+      no,
+      req.session.path,
+      err.message,
+    ])
+  }
+  res.render("./parametrized/Error", { userName:'Ju', startTime:Date.now(),error: err.message });
 };
 
 async function checkAnswer(
@@ -287,16 +290,16 @@ async function getReqData(
 ): Promise<Record<FlowingConcept, string>> {
   const reqData = {};
   if (req.session.startTime) {
-    Object.defineProperty(reqData,'startTime',req.session.startTime)
+    Object.defineProperty(reqData, 'startTime', req.session.startTime)
   }
   if (req.session.userId) {
-    Object.defineProperty(reqData,'userId',req.session.userId)
+    Object.defineProperty(reqData, 'userId', req.session.userId)
   }
   if (req.session.userName) {
-    Object.defineProperty(reqData,'userName',req.session.userName)
+    Object.defineProperty(reqData, 'userName', req.session.userName)
   }
   if (req.session.artistId) {
-    Object.defineProperty(reqData,'artistId',req.session.artistId)
+    Object.defineProperty(reqData, 'artistId', req.session.artistId)
   }
   return reqData;
 }
@@ -316,23 +319,23 @@ const getHomeControler = function (
           reqData.artistId === undefined
             ? undefined
             : queryPoolFromProcedure(pool, "see_my_watchers", [
-              reqData.artistId 
-              ]),
+              reqData.artistId
+            ]),
         myWorks:
           reqData.artistId === undefined
             ? undefined
             : queryPoolFromProcedure(pool, "see_my_works", [
-              reqData.artistId ,
-              ]),
+              reqData.artistId,
+            ]),
         myWatchedArtists: queryPoolFromProcedure(
           pool,
           "see_my_watched_artists",
-          (req.session.userId)?[req.session.userId]:undefined
+          (req.session.userId) ? [req.session.userId] : undefined
         ),
         myLikedWorks: queryPoolFromProcedure(
           pool,
           "see_my_liked_works",
-          (req.session.userId)?[req.session.userId]:undefined
+          (req.session.userId) ? [req.session.userId] : undefined
         ),
       };
     })
@@ -465,7 +468,7 @@ const unlikeControler = function (
 
 export {
   renderControler,
-  viewControler,
+  sessionFirstUpdateControler,
   consoleControler,
   logToPostgresControler,
   showLogsControler,

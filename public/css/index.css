@@ -37,4 +37,10 @@ table {
 	border: 2px solid rgb(140 140 140);
 	font-family: sans-serif;
 	letter-spacing: 1px;
+	width:100%;
+  }
+
+th, td {
+	padding: 15px;
+	text-align: left;
   }

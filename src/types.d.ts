@@ -93,6 +93,7 @@ declare type DBProcedure = 'generate_user' |
     'insert_user_work' |
     'insert_user_work_event' |
     'check_signin' |
+    'check_signup'|
     'see_my_watchers' |
     'see_more_users'|
     'see_my_works' |
@@ -104,10 +105,11 @@ declare type DBProcedure = 'generate_user' |
     'view_user'|
     'view_artist'|
     'view_works_of_artists'|
-    'see_work'|
+    'view_work'|
     'ban_watcher'|
     'submit_work'|
     'withdraw_work'|
+    'submit_first_work'|
     'watch_artist'|
     'unwatch_artist'|
     'like_work'|
