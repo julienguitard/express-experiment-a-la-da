@@ -3,7 +3,7 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="node_modules/modern-normalize/modern-normalize.css">
   <title><%= userName %> sand box</title>
 </head>
 
@@ -19,7 +19,17 @@
 
 <a href="/parametrized/landing/signin"> Sign up </a>
 
-<p> Not signed in </p>
-<p> Started browsing now </p>
+<%  if (userName) {  %>
+  <p> Signed as <%= userName %> </p>
+  <%  }
+  else { %>
+  <p> Not signed in </p>
+  <%}
+  if (startTime) { %>
+  <p> Started browsing at <%= startTime  %> </p>
+  <%  }
+  else { %>
+  <p> Started browsing now </p>
+  <%  } %>
 
 </html>

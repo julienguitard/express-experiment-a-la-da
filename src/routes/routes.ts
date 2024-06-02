@@ -1,62 +1,73 @@
-import { consoleControler, sessionFirstUpdateControler, logToPostgresControler,renderControler, showLogsControler, showLogsTableControler,mockSessionControler } from '../middlewares/index.js';
+import {
+  consoleControler,
+  sessionFirstUpdateControler,
+  logToPostgresControler,
+  renderControler,
+  showLogsControler,
+  showLogsTableControler,
+  mockSessionControler,
+} from "../middlewares/index.js";
 
-import { buildControler, buildParametrizedControler } from "../middlewares/factory.js";
+import {
+  buildControler,
+  buildParametrizedControler,
+} from "../middlewares/factory.js";
 
 const routesParams = {
   "/": {
     render: "./static/Index",
   },
   "/landing/signin": {
-    render: "./static/Signin"
+    render: "./static/Signin",
   },
   "/landing/signup": {
-    render: "./static/Signup"
+    render: "./static/Signup",
   },
   "/landing/signin/submit": {
-    redirect: "/home"
+    redirect: "/home",
   },
   "/landing/signup/submit": {
-    redirect: "/home"
+    redirect: "/home",
   },
   "/home": {
-    render: "./static/ArtistHome"
+    render: "./static/ArtistHome",
   },
   "/profile/works/work": {
-    render: "./static/Work"
+    render: "./static/Work",
   },
   "/profile/artists/artist": {
-    render: "./static/Artist"
+    render: "./static/Artist",
   },
   "/profile/users/user/ban": {
-    redirect: "/home"
+    redirect: "/home",
   },
   "/profile/artists/artist/unwatch": {
-    redirect: "/home"
+    redirect: "/home",
   },
   "/profile/works/work/unlike": {
-    redirect: "/home"
+    redirect: "/home",
   },
   "/home/users/more": {
-    render: "./static/MoreUsers"
+    render: "./static/MoreUsers",
   },
   "/home/artists/more": {
-    render: "./static/MoreArtists"
+    render: "./static/MoreArtists",
   },
   "/home/works/more": {
-    render: "./static/MoreWorks"
+    render: "./static/MoreWorks",
   },
   "/signout": {
-    render: "./static/Signout"
+    render: "./static/Signout",
   },
   "/signout/submit": {
-    redirect: "/"
+    redirect: "/",
   },
   "/delete": {
-    render: "./static/Delete"
+    render: "./static/Delete",
   },
   "/delete/submit": {
-    redirect: "/"
-  }
+    redirect: "/",
+  },
 };
 
 const parametrizedRoutesParams = {
@@ -64,81 +75,93 @@ const parametrizedRoutesParams = {
     render: "./parametrized/Index",
   },
   "/parametrized/landing/signin": {
-    render: "./parametrized/Signin"
+    render: "./parametrized/Signin",
   },
   "/parametrized/landing/signup": {
-    render: "./parametrized/Signup"
+    render: "./parametrized/Signup",
   },
   "/parametrized/landing/signin/submit": {
-    redirect: "/parametrized/home"
+    redirect: "/parametrized/home",
   },
   "/parametrized/landing/signup/submit": {
-    redirect: "/parametrized/home"
+    redirect: "/parametrized/home",
   },
   "/parametrized/home": {
-    render: "./parametrized/ArtistHome"
+    render: "./parametrized/ArtistHome",
   },
   "/parametrized/profile/works/work:workId": {
-    render: "./parametrized/Work"
+    render: "./parametrized/Work",
   },
   "/parametrized/profile/artists/artist:artistId": {
-    render: "./parametrized/Artist"
+    render: "./parametrized/Artist",
   },
   "/parametrized/profile/artists/user:userId": {
-    render: "./parametrized/Artist"
+    render: "./parametrized/Artist",
   },
   "/parametrized/profile/users/user:userId/ban": {
-    redirect: "/parametrized/home"
+    redirect: "/parametrized/home",
   },
   "/parametrized/profile/artists/artist:artistId/unwatch": {
-    redirect: "/parametrized/home"
+    redirect: "/parametrized/home",
   },
   "/parametrized/profile/works/work:workId/unlike": {
-    redirect: "/parametrized/home"
+    redirect: "/parametrized/home",
   },
   "/parametrized/home/users/more": {
-    render: "./parametrized/MoreUsers"
+    render: "./parametrized/MoreUsers",
   },
   "/parametrized/home/artists/more": {
-    render: "./parametrized/MoreArtists"
+    render: "./parametrized/MoreArtists",
   },
   "/parametrized/home/works/more": {
-    render: "./parametrized/MoreWorks"
+    render: "./parametrized/MoreWorks",
   },
   "/parametrized/home/works/submit": {
-    render: "./parametrized/NewWork"
+    render: "./parametrized/Submit",
   },
   "/parametrized/home/works/submit/submit": {
-    render: "./parametrized/home"
+    render: "./parametrized/home",
   },
   "/parametrized/signout": {
-    render: "./parametrized/Signout"
+    render: "./parametrized/Signout",
   },
   "/parametrized/signout/submit": {
-    redirect: "/parametrized"
+    redirect: "/parametrized",
   },
   "/parametrized/delete": {
-    render: "./parametrized/Delete"
+    render: "./parametrized/Delete",
   },
   "/parametrized/delete/submit": {
-    redirect: "/parametrized"
-  }
+    redirect: "/parametrized",
+  },
 };
 
-const routes = Object.entries(routesParams).map(
-  ([k,v]) => {return {
-     route: k,
-     method: 'get',
-     controlers:[consoleControler ,logToPostgresControler, buildControler(v)]
-   }}
-);
+const routes = Object.entries(routesParams).map(([k, v]) => {
+  return {
+    route: k,
+    method: "get",
+    controlers: [
+      consoleControler,
+      sessionFirstUpdateControler,
+      logToPostgresControler,
+      buildControler(v),
+    ],
+  };
+});
 
 const parametrizedRoutes = Object.entries(parametrizedRoutesParams).map(
-  ([k,v]) => {return {
-     route: k,
-     method: 'get',
-     controlers:[consoleControler, sessionFirstUpdateControler,logToPostgresControler, mockSessionControler, buildParametrizedControler(v)]
-   }}
-)
+  ([k, v]) => {
+    return {
+      route: k,
+      method: "get",
+      controlers: [
+        consoleControler,
+        sessionFirstUpdateControler,
+        logToPostgresControler,
+        buildParametrizedControler(v),
+      ],
+    };
+  }
+);
 
-export { routes,parametrizedRoutes};
+export { routes, parametrizedRoutes };

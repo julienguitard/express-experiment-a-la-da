@@ -26,7 +26,7 @@ declare interface PhantomData {
     'key':string}
 
 
-type FlowingConcept = keyof ProcedureOutput |keyof SessionData |keyof PhantomData 
+type UbiquitousConcept = keyof ProcedureOutput |keyof SessionData |keyof PhantomData 
 
 
 declare TypedRoutes = Array<TypedRoute>;
@@ -51,13 +51,13 @@ declare interface ControlerCallbacks {
 
 declare function buildControler(cbs: ControlerCallbacks): Controler;
 
-declare type ProcedureProps = Record<FlowingConcept,string>;
+declare type ProcedureProps = Record<UbiquitousConcept,string>;
 
-declare function requestParamsHandlerSourcer(req:Response,c:FlowingConcept,s:Source):string;
+declare function requestParamsHandlerSourcer(req:Response,c:UbiquitousConcept,s:Source):string;
 
 declare function requestParamsHandlerBuilder(
-    sourcer:(req:Response,c:FlowingConcept,s:Source) => string,
-    concepts:Record<FlowingConcept,Source>
+    sourcer:(req:Response,c:UbiquitousConcept,s:Source) => string,
+    concepts:Record<UbiquitousConcept,Source>
     )    
 declare type Source =
     'unit' |
@@ -120,7 +120,7 @@ declare type DBProcedure = 'generate_user' |
     'select_full_logs';
 
 declare interface DBProcedureParams {
-    args:Record<FlowingConcept,Source>
+    args:Record<UbiquitousConcept,Source>
 }
 
 declare dBProcedureParams:DBProcedureParams;
@@ -183,5 +183,5 @@ declare interface CellProps {
     link?:string
 }
 
-export type {EjsView, FlowingConcept, DBProcedure, ProcedureOutput, CellProps};
+export type {EjsView, UbiquitousConcept, DBProcedure, ProcedureOutput, CellProps};
 

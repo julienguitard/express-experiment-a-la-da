@@ -6,34 +6,7 @@ import { procedures } from "../databases/procedures.js";
 import { getTime, parseSQLOutput } from "./handlers.js";
 import { hash } from "../utils/hash";
 import { rawListeners } from "process";
-import { FlowingConcept } from "../types";
-import session from "express-session";
-
-const renderControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  console.log("renderControler");
-  try {
-    //res.render('index', {footer:{ views: req.session.views, userName: 'self' }});
-
-    const indexProps = {
-      header: {
-        title: "Jus sandbox",
-      },
-      footer: {
-        signedinAs: "Ju",
-        startTime: "2024-05-20 00:00:00",
-      },
-    };
-    res.render("LegacyIndex", { indexProps: indexProps });
-  } catch (e) {
-    console.log(e);
-  } finally {
-    next();
-  }
-};
+import { UbiquitousConcept } from "../types";
 
 const dataControler = function (
   req: Request,
@@ -88,8 +61,10 @@ const sessionFirstUpdateControler = function (
   res: Response,
   next: NextFunction
 ) {
+  console.log("*** sessionFirstUpdateControler ***")
   if (req.session) {
     updateSessionInitially(req.session, req);
+    console.log(req.session)
   }
   else {
     throw Error("Session not initialized");
@@ -287,7 +262,7 @@ const signupSubmitControler = function (
 
 async function getReqData(
   req: Request
-): Promise<Record<FlowingConcept, string>> {
+): Promise<Record<UbiquitousConcept, string>> {
   const reqData = {};
   if (req.session.startTime) {
     Object.defineProperty(reqData, 'startTime', req.session.startTime)
@@ -467,7 +442,6 @@ const unlikeControler = function (
 };
 
 export {
-  renderControler,
   sessionFirstUpdateControler,
   consoleControler,
   logToPostgresControler,

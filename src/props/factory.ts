@@ -1,7 +1,7 @@
-import { EjsView, FlowingConcept, ejsViewsProps } from 'types';
+import { EjsView, UbiquitousConcept, ejsViewsProps } from 'types';
 
 
-const ejsViewsPropsKeys: Record<EjsView, Array<FlowingConcept>> =
+const ejsViewsPropsKeys: Record<EjsView, Array<UbiquitousConcept>> =
 {
     'Index': ['startTime'],
     'Signin': ['startTime'],

@@ -20,7 +20,7 @@ import type {
   ErrorPage,
   Footer,
 } from "types";
-import { FlowingConcept, CellProps } from "../types.js";
+import { UbiquitousConcept, CellProps } from "../types.js";
 
 function getTitle(): string {
   return "Jus page";

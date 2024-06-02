@@ -27,7 +27,6 @@ async function queryPool(po: Pool, sql: string, params: Array<string>|undefined)
   if (params){
     res = await po.query(sql, params);
   }
-  console.log(res);
   return res;
 }
 

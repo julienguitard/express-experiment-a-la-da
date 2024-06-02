@@ -1,7 +1,7 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="node_modules/modern-normalize/modern-normalize.css">
   <title><%= userName%> sand box</title>
 </head>
 
@@ -15,8 +15,17 @@
 </table>
 <a href="/parametrized/home"> Get back </a>
 
-
-<p> Signed as <%= userName %> </p>
-<p> Started browsing at <%= startTime  %> </p>
+<%  if (userName) {  %>
+  <p> Signed as <%= userName %> </p>
+  <%  }
+  else { %>
+  <p> Not signed in </p>
+  <%}
+  if (startTime) { %>
+  <p> Started browsing at <%= startTime  %> </p>
+  <%  }
+  else { %>
+  <p> Started browsing now </p>
+  <%  } %>
 
 </html>

@@ -1,6 +1,6 @@
-import { DBProcedure, FlowingConcept} from "../types";
+import { DBProcedure, UbiquitousConcept} from "../types";
 
-const proceduresFlowingConcepts:Record<DBProcedure,Array<FlowingConcept>> = {
+const proceduresUbiquitousConcepts:Record<DBProcedure,Array<UbiquitousConcept>> = {
 generate_user:['userId','time','userName','pwd'],
 generate_user_event:['userId','time','key'],
 generate_artist:['artistId','time','userId'],
@@ -48,7 +48,7 @@ insert_into_responses_logs:['time','path','methods','error'],
 insert_into_errors_logs:['time','path','methods','error'],
 select_full_logs:[]}
 
-const flowingConceptSource:Record<FlowingConcept,Array<string>> =  {
+const flowingConceptSource:Record<UbiquitousConcept,Array<string>> =  {
     userId:['session','params'],
     time:['unit'],
     userName:['params'],
@@ -61,4 +61,4 @@ const flowingConceptSource:Record<FlowingConcept,Array<string>> =  {
     userWorkId:['params'],
 }
 
-export {proceduresFlowingConcepts,flowingConceptSource };
+export {proceduresUbiquitousConcepts,flowingConceptSource };
