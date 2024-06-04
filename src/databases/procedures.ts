@@ -1,16 +1,6 @@
 import { DBProcedure, UbiquitousConcept} from "../types";
 
 const proceduresUbiquitousConcepts:Record<DBProcedure,Array<UbiquitousConcept>> = {
-generate_user:['userId','time','userName','pwd'],
-generate_user_event:['userId','time','key'],
-generate_artist:['artistId','time','userId'],
-generate_artist_event:['artistId','time','key'],
-generate_work:['workId','artistId','time','workName'],
-generate_work_event:['workId','time','key'],
-generate_user_artist:['userArtistId','userId','artistId','time'],
-generate_user_artist_event:['userArtistId','time','key'],
-generate_user_work:['userWorkId','userId','workId','time'],
-generate_user_work_event:['userWorkId','time','key'],
 insert_user_event:['userId','time','key'],
 insert_artist:['artistId','time','userId'],
 insert_artist_event:['artistId','time','key'],

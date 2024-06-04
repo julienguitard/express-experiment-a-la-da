@@ -34,12 +34,12 @@ const preRouterUsables:Array<RequestHandler> = [
 ];
 
 const postRouterUsables:Array<RequestHandler|ErrorRequestHandler>  = [
-  pageNotFoundControler,
   errorControler
 ]
 
 preRouterUsables.map((u) => app.use(u));
 app.use("/", router);
 postRouterUsables.map((u) => app.use(u));
+
 
 export { app, port };

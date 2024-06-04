@@ -7,6 +7,7 @@ import { getTime, parseSQLOutput } from "./handlers.js";
 import { hash } from "../utils/hash";
 import { rawListeners } from "process";
 import { UbiquitousConcept } from "../types";
+import { copyFile } from "fs";
 
 const dataControler = function (
   req: Request,
@@ -156,7 +157,10 @@ const pageNotFoundControler = function (
   res: Response,
   next: NextFunction
 ): void {
-  next(Error("404"));
+  res.status(404).json({
+		error: 404,
+		message: "Route not found."
+	});
 };
 
 const mockErrorControler = function (
@@ -175,6 +179,7 @@ const errorControler = function (
   next: NextFunction
 ): void {
   const no = getTime();
+  console.log('errorControler: ' + err.message);
 
   if (req.session.reqTime && req.session.path){
   const resQuery = queryPoolFromProcedure(pool, "insert_into_errors_logs", [
@@ -183,8 +188,16 @@ const errorControler = function (
       req.session.path,
       err.message,
     ])
+    res.render("./parametrized/Error", { userName:'Ju', startTime:Date.now(),error: err.message })
   }
-  res.render("./parametrized/Error", { userName:'Ju', startTime:Date.now(),error: err.message });
+  else {
+    res.status(404).json({
+      error: 404,
+      message: "Route not found."
+    });
+
+  }
+;
 };
 
 async function checkAnswer(

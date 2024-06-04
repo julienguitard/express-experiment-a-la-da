@@ -2,7 +2,6 @@ import {
   consoleControler,
   sessionFirstUpdateControler,
   logToPostgresControler,
-  renderControler,
   showLogsControler,
   showLogsTableControler,
   mockSessionControler,
@@ -81,10 +80,10 @@ const parametrizedRoutesParams = {
     render: "./parametrized/Signup",
   },
   "/parametrized/landing/signin/submit": {
-    redirect: "/parametrized/home",
+    redirect: "/parametrized/home", method: "post"
   },
   "/parametrized/landing/signup/submit": {
-    redirect: "/parametrized/home",
+    redirect: "/parametrized/home", method: "post"
   },
   "/parametrized/home": {
     render: "./parametrized/ArtistHome",
@@ -99,13 +98,13 @@ const parametrizedRoutesParams = {
     render: "./parametrized/Artist",
   },
   "/parametrized/profile/users/user:userId/ban": {
-    redirect: "/parametrized/home",
+    redirect: "/parametrized/home", method: "post"
   },
   "/parametrized/profile/artists/artist:artistId/unwatch": {
-    redirect: "/parametrized/home",
+    redirect: "/parametrized/home", method: "post"
   },
   "/parametrized/profile/works/work:workId/unlike": {
-    redirect: "/parametrized/home",
+    redirect: "/parametrized/home", method: "post"
   },
   "/parametrized/home/users/more": {
     render: "./parametrized/MoreUsers",
@@ -120,26 +119,26 @@ const parametrizedRoutesParams = {
     render: "./parametrized/Submit",
   },
   "/parametrized/home/works/submit/submit": {
-    render: "./parametrized/home",
+    render: "./parametrized/home", method: "post"
   },
   "/parametrized/signout": {
     render: "./parametrized/Signout",
   },
   "/parametrized/signout/submit": {
-    redirect: "/parametrized",
+    redirect: "/parametrized", method: "post"
   },
   "/parametrized/delete": {
     render: "./parametrized/Delete",
   },
   "/parametrized/delete/submit": {
-    redirect: "/parametrized",
+    redirect: "/parametrized", method: "post"
   },
 };
 
 const routes = Object.entries(routesParams).map(([k, v]) => {
   return {
     route: k,
-    method: "get",
+    method:  "get" ,
     controlers: [
       consoleControler,
       sessionFirstUpdateControler,
@@ -153,7 +152,7 @@ const parametrizedRoutes = Object.entries(parametrizedRoutesParams).map(
   ([k, v]) => {
     return {
       route: k,
-      method: "get",
+      method: (v.method === undefined) ? "get" : v.method,
       controlers: [
         consoleControler,
         sessionFirstUpdateControler,

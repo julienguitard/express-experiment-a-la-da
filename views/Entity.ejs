@@ -1,6 +1,6 @@
 <table>
-  <th> <% for (c of ['Columns,Value']) { %>
-  <td> <%= c %> </td> <% } %> </th>
+  <tr> <% for (c of ['Columns,Value']) { %>
+  <td> <%= c %> </td> <% } %> </tr>
   <% for (kv of Object.entries(entity)) { %> <tr>
     <td> kv[0] </td>
     <td> kv[1] </td>

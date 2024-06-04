@@ -1,6 +1,6 @@
 <table>
-  <th> <% for (c of fields) { %>
-  <td> <%= c %> </td> <% } %> </th>
+  <tr> <% for (c of fields) { %>
+  <td> <%= c %> </td> <% } %> </tr>
   <% for (r of rows) { %> <tr> <% for (rr of r) { let cell = rr %>
     <td> <%- include('Cell.js',cell) %> </td> <% } %>
   </tr> <% } %>

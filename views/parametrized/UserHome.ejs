@@ -3,17 +3,17 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="node_modules/modern-normalize/modern-normalize.css">
-  <title><%= userName %> sand box</title>
+  <link href="/css/aigenerated.css" rel="stylesheet" type="text/css">
+  <title>Sand box</title>
 </head>
 
 <div>
-  <p>My watched artists</p>
+    <h1>My watched artists</h1>
   <table>
-    <th>
-    <td>Artist name</td>
-    <td>Watch/Unwatch</td>
-    </th>
+    <tr>
+    <th>Artist name</th>
+    <th>Watch/Unwatch</th>
+    </tr>
     <tr>
       <td><a href="/parametrized/profile/artists/artist?artistId=1e0bb3ab006e8f93efdfc385c1e13722"> Jill </a></td>
       <td><a href="/parametrized/profile/artists/artist?artistId=1e0bb3ab006e8f93efdfc385c1e13722/unwatch"> Unwatch </a></td>
@@ -23,31 +23,31 @@
       <td><a href="/parametrized/profile/artists/artist?artistId=61d6184592315a39b8f8bb9553700436/unwatch"> Unwatch </a></td>
     </tr>
   </table>
-  <a href="/parametrized/home"> Reshuffle </a>
-  <a href="/parametrized/home/artists/more"> See more </a>
+  <a href="/parametrized/home"> <button> Reshuffle </button> </a> 
+  <a href="/parametrized/home/artists/more"> <button> See more </button> </a>
 </div>
 
 <div>
-  <p>My liked works</p>
+    <h1>My liked works</h1>
   <table>
-    <th>
-    <td>Work name</td>
-    <td>Artist name</td>
-    <td>Like/Unlike</td>
-    </th>
     <tr>
-      <td><a href="/parametrized/profile/works/work?workID=aad8a727b09600707339c4a4531208b8"> Jill debut </a></td>
-      <td><a href="/parametrized/profile/artists/artist?artistID=1e0bb3ab006e8f93efdfc385c1e13722"> Jill </a></td>
-      <td><a href="/parametrized/profile/works/work?workID=aad8a727b09600707339c4a4531208b8/unlike"> Unlike </a></td>
+    <td>Work name</td>
+    <th>Artist name</th>
+    <th>Like/Unlike</th>
+    </tr>
+    <tr>
+      <td><a href="/parametrized/profile/works/work?workId=aad8a727b09600707339c4a4531208b8"> Jill debut </a></td>
+      <td><a href="/parametrized/profile/artists/artist?artistId=1e0bb3ab006e8f93efdfc385c1e13722"> Jill </a></td>
+      <td><a href="/parametrized/profile/works/work?workId=aad8a727b09600707339c4a4531208b8/unlike"> Unlike </a></td>
     </tr>
     <tr>
       <td><a href="/parametrized/profile/works/work"> Joan masterpiece </a></td>
-      <td><a href="/parametrized/profile/artists/artist?artistID=61d6184592315a39b8f8bb9553700436"> Joan </a></td>
-      <td><a href="/parametrized/profile/works/work?workID=aad8a727b09600707339c4a4531208b8/unlike"> Unlike </a></td>
+      <td><a href="/parametrized/profile/artists/artist?artistId=61d6184592315a39b8f8bb9553700436"> Joan </a></td>
+      <td><a href="/parametrized/profile/works/work?workId=aad8a727b09600707339c4a4531208b8/unlike"> Unlike </a></td>
     </tr>
   </table>
-  <a href="/parametrized/home"> Reshuffle </a>
-  <a href="/parametrized/home/works/more"> See more </a>
+  <a href="/parametrized/home"> <button> Reshuffle </button> </a> 
+  <a href="/parametrized/home/works/more"> <button> See more </button> </a>
 </div>
 
 <a href="/parametrized/home/works/submit"> Submit my first work </a>
