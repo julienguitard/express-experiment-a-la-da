@@ -1,3 +1,5 @@
+import {RoutePath,RoutePathParams,RoutesData} from "../types"
+
 import {
   consoleControler,
   sessionFirstUpdateControler,
@@ -12,7 +14,9 @@ import {
   buildParametrizedControler,
 } from "../middlewares/factory.js";
 
-const routesParams = {
+
+
+const routesParams:any = {
   "/": {
     render: "./static/Index",
   },
@@ -69,15 +73,15 @@ const routesParams = {
   },
 };
 
-const parametrizedRoutesParams = {
+const parametrizedRoutesParams: RoutePathParams = {
   "/parametrized": {
-    render: "./parametrized/Index",
+    render: "Index",
   },
   "/parametrized/landing/signin": {
-    render: "./parametrized/Signin",
+    render: "Signin",
   },
   "/parametrized/landing/signup": {
-    render: "./parametrized/Signup",
+    render: "Signup",
   },
   "/parametrized/landing/signin/submit": {
     redirect: "/parametrized/home", method: "post"
@@ -86,56 +90,56 @@ const parametrizedRoutesParams = {
     redirect: "/parametrized/home", method: "post"
   },
   "/parametrized/home": {
-    render: "./parametrized/ArtistHome",
+    render: "ArtistHome",
   },
-  "/parametrized/profile/works/work:workId": {
-    render: "./parametrized/Work",
+  "/parametrized/profile/works/work/:workId": {
+    render: "Work",
   },
-  "/parametrized/profile/artists/artist:artistId": {
-    render: "./parametrized/Artist",
+  "/parametrized/profile/artists/artist/:artistId": {
+    render: "Artist",
   },
-  "/parametrized/profile/artists/user:userId": {
-    render: "./parametrized/Artist",
+  "/parametrized/profile/artists/user/:userId": {
+    render: "User",
   },
-  "/parametrized/profile/users/user:userId/ban": {
+  "/parametrized/profile/users/user/:userId/ban": {
     redirect: "/parametrized/home", method: "post"
   },
-  "/parametrized/profile/artists/artist:artistId/unwatch": {
+  "/parametrized/profile/artists/artist/:artistId/unwatch": {
     redirect: "/parametrized/home", method: "post"
   },
-  "/parametrized/profile/works/work:workId/unlike": {
+  "/parametrized/profile/works/work/:workId/unlike": {
     redirect: "/parametrized/home", method: "post"
   },
   "/parametrized/home/users/more": {
-    render: "./parametrized/MoreUsers",
+    render: "MoreUsers",
   },
   "/parametrized/home/artists/more": {
-    render: "./parametrized/MoreArtists",
+    render: "MoreArtists",
   },
   "/parametrized/home/works/more": {
-    render: "./parametrized/MoreWorks",
+    render: "MoreWorks",
   },
   "/parametrized/home/works/submit": {
-    render: "./parametrized/Submit",
+    render: "Submit",
   },
   "/parametrized/home/works/submit/submit": {
-    render: "./parametrized/home", method: "post"
+    render: "home", method: "post"
   },
   "/parametrized/signout": {
-    render: "./parametrized/Signout",
+    render: "Signout",
   },
   "/parametrized/signout/submit": {
     redirect: "/parametrized", method: "post"
   },
   "/parametrized/delete": {
-    render: "./parametrized/Delete",
+    render: "Delete",
   },
   "/parametrized/delete/submit": {
     redirect: "/parametrized", method: "post"
   },
 };
 
-const routes = Object.entries(routesParams).map(([k, v]) => {
+const routes:any = Object.entries(routesParams).map(([k, v]) => {
   return {
     route: k,
     method:  "get" ,
@@ -148,7 +152,7 @@ const routes = Object.entries(routesParams).map(([k, v]) => {
   };
 });
 
-const parametrizedRoutes = Object.entries(parametrizedRoutesParams).map(
+const parametrizedRoutes:RoutesData = Object.entries(parametrizedRoutesParams).map(
   ([k, v]) => {
     return {
       route: k,
@@ -162,5 +166,8 @@ const parametrizedRoutes = Object.entries(parametrizedRoutesParams).map(
     };
   }
 );
+
+
+console.log(Object.entries(parametrizedRoutesParams).filter(kv=>kv[1].render).map(kv=>kv[1].render).join(':{},\n'));
 
 export { routes, parametrizedRoutes };

@@ -8,8 +8,6 @@ import { router } from "./routes/index.js";
 import morgan from "morgan";
 import {
   errorControler,
-  logToPostgresControler,
-  mockErrorControler,
   pageNotFoundControler,
 } from "./middlewares/index.js";
 
@@ -34,6 +32,7 @@ const preRouterUsables:Array<RequestHandler> = [
 ];
 
 const postRouterUsables:Array<RequestHandler|ErrorRequestHandler>  = [
+  pageNotFoundControler,
   errorControler
 ]
 

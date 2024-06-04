@@ -1,3 +1,4 @@
+import createError from "http-errors";
 import { Request, Response, NextFunction } from "express";
 import { QueryResult } from "pg";
 import { Session, SessionData } from "../express-session";
@@ -157,10 +158,7 @@ const pageNotFoundControler = function (
   res: Response,
   next: NextFunction
 ): void {
-  res.status(404).json({
-		error: 404,
-		message: "Route not found."
-	});
+  next(createError(404));
 };
 
 const mockErrorControler = function (
@@ -180,7 +178,7 @@ const errorControler = function (
 ): void {
   const no = getTime();
   console.log('errorControler: ' + err.message);
-
+  try{
   if (req.session.reqTime && req.session.path){
   const resQuery = queryPoolFromProcedure(pool, "insert_into_errors_logs", [
       req.session.reqTime,
@@ -196,6 +194,9 @@ const errorControler = function (
       message: "Route not found."
     });
 
+  }}
+  catch(secondErr){
+    console.log('Error in error');
   }
 ;
 };

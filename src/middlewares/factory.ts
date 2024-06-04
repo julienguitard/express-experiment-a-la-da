@@ -42,7 +42,7 @@ function buildParametrizedControler(data: Record<string,string>): (req: Request,
         else if (data.render!==undefined){
             console.log(data.render,req.session);
             try {
-                res.render(data.render,req.session);
+                res.render('./parametrized/'+data.render,req.session);
             }
             catch (error) {
                 next(error);
