@@ -1,4 +1,4 @@
-import {RoutePath,RoutePathParams,RoutesData} from "../types"
+import {RoutePath,RoutePathParams,RouteData} from "../types"
 
 import {
   consoleControler,
@@ -98,10 +98,13 @@ const parametrizedRoutesParams: RoutePathParams = {
   "/parametrized/profile/artists/artist/:artistId": {
     render: "Artist",
   },
-  "/parametrized/profile/artists/user/:userId": {
+  "/parametrized/profile/users/user/:userId": {
     render: "User",
   },
   "/parametrized/profile/users/user/:userId/ban": {
+    render: "Ban"
+  },
+  "/parametrized/profile/users/user/:userId/ban/submit": {
     redirect: "/parametrized/home", method: "post"
   },
   "/parametrized/profile/artists/artist/:artistId/unwatch": {
@@ -123,7 +126,7 @@ const parametrizedRoutesParams: RoutePathParams = {
     render: "Submit",
   },
   "/parametrized/home/works/submit/submit": {
-    render: "home", method: "post"
+    redirect: "/parametrized/home", method: "post"
   },
   "/parametrized/signout": {
     render: "Signout",
@@ -152,7 +155,7 @@ const routes:any = Object.entries(routesParams).map(([k, v]) => {
   };
 });
 
-const parametrizedRoutes:RoutesData = Object.entries(parametrizedRoutesParams).map(
+const parametrizedRoutes:Array<RouteData> = Object.entries(parametrizedRoutesParams).map(
   ([k, v]) => {
     return {
       route: k,
@@ -167,7 +170,5 @@ const parametrizedRoutes:RoutesData = Object.entries(parametrizedRoutesParams).m
   }
 );
 
-
-console.log(Object.entries(parametrizedRoutesParams).filter(kv=>kv[1].render).map(kv=>kv[1].render).join(':{},\n'));
 
 export { routes, parametrizedRoutes };

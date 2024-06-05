@@ -1,0 +1,362 @@
+--Basic views
+
+CREATE OR REPLACE VIEW users AS (
+SELECT MD5(user_id||key_) AS id,
+       user_id,
+       creation_time,
+       user_name,
+       pwd,
+       key_,
+       MAX(value) AS value
+FROM (SELECT t0.id AS user_id,
+             t0.creation_time,
+             t0.user_name,
+             t0.pwd,
+             t1.key_,
+             t1.value
+      FROM users_core t0
+        JOIN users_events t1 ON t0.id = t1.user_id)
+GROUP BY user_id,
+         creation_time,
+         user_name,
+         pwd,
+         key_
+);
+
+CREATE OR REPLACE VIEW artists AS (
+SELECT MD5(artist_id||key_) AS id,
+       artist_id,
+       user_id,
+       creation_time,
+       key_,
+       MAX(value) AS value
+FROM (SELECT t0.id AS artist_id,
+             t0.user_id,
+             t0.creation_time,
+             t1.key_,
+             t1.value
+      FROM artists_core t0
+        JOIN artists_events t1 ON t0.id = t1.artist_id)
+GROUP BY artist_id,
+         user_id,
+         creation_time,
+         key_
+);
+
+CREATE OR REPLACE VIEW works AS (
+SELECT MD5(work_id||key_) AS id,
+       work_id,
+       artist_id,
+       creation_time,
+       work_name,
+       key_,
+       SUM(value) AS value
+FROM (SELECT t0.id AS work_id,
+             t0.artist_id,
+             t0.creation_time,
+             t0.work_name,
+             t1.key_,
+             t1.value
+      FROM works_core t0
+        JOIN works_events t1 ON t0.id = t1.work_id)
+GROUP BY work_id,
+         artist_id,
+         creation_time,
+         work_name,
+         key_
+);
+
+CREATE OR REPLACE VIEW users_artists AS (
+SELECT MD5(user_artist_id||key_) AS id,
+       user_artist_id,
+       user_id,
+       artist_id,
+       creation_time,
+       key_,
+       CASE
+         WHEN key_ = 'ban' THEN MAX(value)
+         ELSE SUM(value)
+       END AS value
+FROM (SELECT t0.id AS user_artist_id,
+             t0.user_id,
+             t0.artist_id,
+             t0.creation_time,
+             t1.key_,
+             t1.value
+      FROM users_artists_core t0
+        JOIN users_artists_events t1 ON t0.id = t1.user_artist_id)
+GROUP BY user_artist_id,
+         user_id,
+         artist_id,
+         creation_time,
+         key_
+);
+
+CREATE OR REPLACE VIEW users_works AS (
+SELECT MD5(user_work_id||key_) AS id,
+       user_work_id,
+       user_id,
+       work_id,
+       creation_time,
+       key_,
+       SUM(value) AS value
+FROM (SELECT t0.id AS user_work_id,
+             t0.user_id,
+             t0.work_id,
+             t0.creation_time,
+             t1.key_,
+             t1.value
+      FROM users_works_core t0
+        JOIN users_works_events t1 ON t0.id = t1.user_work_id)
+GROUP BY user_work_id,
+         user_id,
+         work_id,
+         creation_time,
+         key_
+);
+
+--Views to propagate user deletion, work withdrawal and user ban
+
+
+CREATE OR REPLACE VIEW non_deleted_users_ids AS (
+SELECT user_id
+FROM (SELECT t0.user_id,
+             CAST(t1.user_id IS NULL AS INT) AS non_deleted
+      FROM (SELECT DISTINCT user_id FROM users) t0
+        LEFT JOIN (SELECT DISTINCT user_id
+                   FROM users
+                   WHERE key_ = 'delete'
+                   AND   value = 1) t1 USING (user_id))
+WHERE non_deleted = 1
+);
+
+
+CREATE OR REPLACE VIEW users_without_deleted AS(
+SELECT *
+FROM users
+  JOIN non_deleted_users_ids USING (user_id)
+);
+
+CREATE OR REPLACE VIEW artists_without_deleted AS
+(
+SELECT *
+FROM artists
+  JOIN non_deleted_users_ids USING (user_id)
+);
+
+CREATE OR REPLACE VIEW non_deleted_artists_ids AS
+(
+SELECT DISTINCT artist_id
+FROM artists_without_deleted
+);
+
+CREATE OR REPLACE VIEW works_without_deleted AS
+(SELECT *
+FROM works
+  JOIN non_deleted_artists_ids USING (artist_id)
+);
+
+CREATE OR REPLACE VIEW non_deleted_works_ids AS
+(
+SELECT DISTINCT work_id
+FROM works_without_deleted
+);
+
+CREATE OR REPLACE VIEW users_artists_without_deleted AS
+(
+SELECT *
+FROM (SELECT *
+      FROM users_artists
+        JOIN non_deleted_users_ids USING (user_id))
+  JOIN non_deleted_artists_ids USING (artist_id)
+);
+
+
+CREATE OR REPLACE VIEW users_works_without_deleted AS
+(
+SELECT *
+FROM (SELECT *
+      FROM users_works
+        JOIN non_deleted_users_ids USING (user_id))
+  JOIN non_deleted_works_ids USING (artist_id)
+);
+
+
+CREATE OR REPLACE VIEW non_withdrawn_works_ids AS (
+SELECT work_id
+FROM (SELECT t0.work_id,
+             CAST(t1.work_id IS NULL AS INT) AS non_withdrawn
+      FROM (SELECT DISTINCT work_id FROM works_without_deleted) t0
+        LEFT JOIN (SELECT DISTINCT work_id
+                   FROM works_without_deleted
+                   WHERE key_ = 'submit'
+                   AND   value = 0) t1 USING (work_id))
+WHERE non_withdrawn = 1
+);
+
+CREATE OR REPLACE VIEW works_without_withdrawn AS
+(
+SELECT *
+FROM works_without_deleted
+  JOIN non_withdrawn_works_ids USING (work_id)
+);
+
+
+CREATE OR REPLACE VIEW users_works_without_withdrawn AS
+(
+SELECT *
+FROM users_works_without_deleted
+  JOIN non_withdrawn_works_ids USING (work_id)
+);
+
+CREATE OR REPLACE VIEW non_banned_users_artists_ids AS (
+SELECT user_artist_id, 
+       user_id,
+       artist_id
+FROM (SELECT t0.user_artist_id,
+             t0.user_id,
+             t0.artist_id,
+             CAST(t1.user_artist_id IS NULL AS INT) AS non_banned
+      FROM (SELECT DISTINCT users_artists FROM users_artists_without_deleted) t0
+        LEFT JOIN (SELECT DISTINCT user_artist_id
+                   FROM users_artists_without_deleted
+                   WHERE key_ = 'ban'
+                   AND   value = 1) t1 USING (user_artist_id))
+WHERE non_withdrawn = 1
+);
+
+CREATE OR REPLACE VIEW users_artists_without_banned AS
+(
+SELECT *
+FROM users_artists_without_deletde
+  JOIN non_banned_users_artists_ids USING (user_artist_id)
+);
+
+CREATE OR REPLACE VIEW users_works_without_banned AS
+(
+SELECT id,
+       user_work_id,
+       user_id,
+       work_id,
+       creation_time,
+       key_,
+FROM (SELECT t0.id,
+             t0.user_work_id,
+             t0.user_id,
+             t0.work_id,
+             t0.creation_time,
+            t0.key_,
+            t1.artist_id
+      FROM users_works_without_withdrawn t0
+        JOIN non_withdrawn_works_ids t1 USING (work_id))
+  JOIN users_artists_without_banned USING (user_id,artist_id)
+);
+
+-- View for procedures
+
+CREATE OR REPLACE VIEW checkable_signins AS (
+SELECT t0.user_id,
+       user_name,
+       pwd,
+       artist_id
+FROM (SELECT DISTINCT user_id,
+             user_name,
+             pwd
+      FROM users_without_deleted) t0
+  LEFT JOIN (SELECT DISTINCT artist_id,
+                    user_id
+             FROM artists_without_deleted) t1 USING (user_id)
+);
+
+CREATE OR REPLACE VIEW checkable_signups AS (
+SELECT DISTINCT user_id,
+       user_name
+FROM users_without_deleted
+);
+
+CREATE OR REPLACE VIEW seeable_watchers AS (
+SELECT include_ref('user_name',user_name,'user_id',user_id) AS user,
+       user_artist_id AS ban,
+       artist_id
+FROM (SELECT user_artist_id,
+             user_id,
+             artist_id,
+             user_name
+      FROM (SELECT user_artist_id,
+                   artist_id,
+                   user_id
+            FROM users_artists_without_banned
+            WHERE KEY = 'watch'
+            AND   value = 1) t0
+        JOIN (SELECT DISTINCT user_id,
+                     user_name
+              FROM users_without_deleted) t1 USING (user_id))
+);
+
+CREATE OR REPLACE VIEW more_seeable_watchers AS (
+SELECT include_ref('user_name',user_name,'user_id',user_id) AS user_id,
+       artist_id
+FROM (SELECT CASE
+               WHEN t2.user_artist_id IS NULL THEN 1
+               ELSE 0
+             END AS non_watcher,
+             t0.user_id,
+             t0.user_name,
+             t1.artist_id
+      FROM (SELECT DISTINCT user_id,
+                   user_name
+            FROM artists_without_deleted) t0
+        CROSS JOIN (SELECT DISTINCT artist_id, FROM artists_without_deleted) t1
+        LEFT JOIN (SELECT user_artist_id,
+                          artist_id,
+                          user_id
+                   FROM users_artists_without_banned
+                   WHERE KEY = 'watch'
+                   AND   value = 1) t2 USING (user_id,artist_id))
+WHERE non_watcher = 1
+);
+
+CREATE OR REPLACE VIEW my_seeable_works AS (
+SELECT include_ref('work_name',work_name,'work_id',work_id),
+       artist_id
+FROM (SELECT work_id,
+             artist_id,
+             work_name
+      FROM works_without_withdrawn)
+)
+
+CREATE OR REPLACE VIEW more_of_my_seeable_works AS (
+SELECT include_ref('work_name',work_name,'work_id',work_id),
+       artist_id
+FROM (SELECT work_id,
+             artist_id,
+             work_name
+      FROM works_without_withdrawn)
+ORDER BY RANDOM()
+);
+
+CREATE OR REPLACE VIEW seeable_artists AS (
+SELECT include_ref('user_name',user_name,'artist_id',user_id) AS USER,
+       user_artist_id AS unwatch,
+       user_id
+FROM (SELECT user_artist_id,
+             user_id,
+             artist_id,
+             user_name
+      FROM (SELECT user_artist_id,
+                   artist_id,
+                   user_id
+            FROM users_artists_without_banned
+            WHERE KEY = 'watch'
+            AND   value = 1) t0
+        JOIN (SELECT artist_id,
+                     user_name
+              FROM (SELECT DISTINCT artist_id,
+                           user_id
+                    FROM artists_without_deleted) t10
+                JOIN (SELECT DISTINCT user_id, user_name FROM user_without_deleted) t11 USING (user_id)) t1 USING (artist_id))
+);
+
+CREATE OR REPLACE VIEW more_seeable_watchers AS (
+SELECT 0
+);

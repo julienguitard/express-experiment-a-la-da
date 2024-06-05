@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { copyFile } from 'fs';
 import pg, { PoolConfig, Pool, QueryResult } from 'pg';
 import {TypedRequest, TypedSession} from 'types';
+import { RoutesData } from '../types';
 
 
 /*function buildControler(reqParamsHandler: (route: TypedRequest<TypedSession>["route"], session: TypedRequest<TypedSession>["session"], params: TypedRequest<TypedSession>["params"]) => Record<string, any>,
@@ -34,7 +35,7 @@ function buildControler(data: Record<string,string>): (req: Request, res: Respon
     return mdw;
 }
 
-function buildParametrizedControler(data: Record<string,string>): (req: Request, res: Response, next: NextFunction) => void {
+function buildParametrizedControler(data: RoutesData): (req: Request, res: Response, next: NextFunction) => void {
     function mdw(req: Request, res: Response, next: NextFunction) {
         if (data.redirect!==undefined) {
             res.redirect(data.redirect);

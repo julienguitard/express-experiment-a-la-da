@@ -6,8 +6,8 @@ function convertToSql(pro:DBProcedure,params:Array<string>|undefined):string {
     if (params) {
         argsString='('+params.map((_,i)=>`$${i+1}`).join(',')+')'
     }
-    console.log(`SELECT * FROM ${pro}${argsString} ;`);
-    return  `SELECT * FROM ${pro}${argsString} ;`
+    console.log(`SELECT * FROM ${pro}${argsString} LIMIT 10;`);
+    return  `SELECT * FROM ${pro}${argsString} LIMIT 10 ;`
 }
 
 export {convertToSql}

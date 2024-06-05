@@ -52,7 +52,6 @@ FROM (SELECT $1 AS request_time,$2 AS time_, $3 AS route, $4 AS status_code) $$ 
 
 CREATE VIEW full_logs 
 AS
-
 (
   SELECT req.id,
   req.time_,

@@ -1,2 +1,4 @@
 #!/usr/bin/zsh
-git ls-files | grep '\.sql' | xargs wc -l
+extension=$1
+echo "extension:$extension"
+git ls-files | grep "\.$extension" | xargs wc -l
