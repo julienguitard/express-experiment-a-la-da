@@ -266,12 +266,14 @@ FROM (SELECT DISTINCT user_id,
   LEFT JOIN (SELECT DISTINCT artist_id,
                     user_id
              FROM artists_without_deleted) t1 USING (user_id)
+--WHERE user_name=$1 AND pwd=$2
 );
 
 CREATE OR REPLACE VIEW checkable_signups AS (
 SELECT DISTINCT user_id,
        user_name
 FROM users_without_deleted
+--WHERE user_name=$1 
 );
 
 CREATE OR REPLACE VIEW seeable_watchers AS (
@@ -282,7 +284,7 @@ FROM (SELECT user_artist_id,
              user_id,
              artist_id,
              user_name
-      FROM (SELECT user_artist_id,
+      FROM (SELECT  DISTINCT user_artist_id,
                    artist_id,
                    user_id
             FROM users_artists_without_banned
@@ -291,6 +293,7 @@ FROM (SELECT user_artist_id,
         JOIN (SELECT DISTINCT user_id,
                      user_name
               FROM users_without_deleted) t1 USING (user_id))
+--WHERE artist_id=$1 
 );
 
 CREATE OR REPLACE VIEW more_seeable_watchers AS (
@@ -307,45 +310,48 @@ FROM (SELECT CASE
                    user_name
             FROM artists_without_deleted) t0
         CROSS JOIN (SELECT DISTINCT artist_id, FROM artists_without_deleted) t1
-        LEFT JOIN (SELECT user_artist_id,
+        LEFT JOIN (SELECT DISTINCT user_artist_id,
                           artist_id,
                           user_id
                    FROM users_artists_without_banned
                    WHERE KEY = 'watch'
                    AND   value = 1) t2 USING (user_id,artist_id))
 WHERE non_watcher = 1
+--WHERE artist_id=$1 
 );
 
 CREATE OR REPLACE VIEW my_seeable_works AS (
 SELECT include_ref('work_name',work_name,'work_id',work_id),
        artist_id
-FROM (SELECT work_id,
+FROM (SELECT DISTINCT work_id,
              artist_id,
              work_name
       FROM works_without_withdrawn)
+--WHERE artist_id=$1 
 )
 
 CREATE OR REPLACE VIEW more_of_my_seeable_works AS (
 SELECT include_ref('work_name',work_name,'work_id',work_id),
        artist_id
-FROM (SELECT work_id,
+FROM (SELECT DISTINCT work_id,
              artist_id,
              work_name
       FROM works_without_withdrawn)
 ORDER BY RANDOM()
+--WHERE artist_id=$1 
 );
 
 CREATE OR REPLACE VIEW seeable_artists AS (
-SELECT include_ref('user_name',user_name,'artist_id',user_id) AS USER,
+SELECT include_ref('user_name',user_name,'artist_id',artist_id) AS artist,
        user_artist_id AS unwatch,
        user_id
 FROM (SELECT user_artist_id,
              user_id,
              artist_id,
              user_name
-      FROM (SELECT user_artist_id,
-                   artist_id,
+      FROM (SELECT DISTINCT user_artist_id,
                    user_id
+                   artist_id,           
             FROM users_artists_without_banned
             WHERE KEY = 'watch'
             AND   value = 1) t0
@@ -355,8 +361,104 @@ FROM (SELECT user_artist_id,
                            user_id
                     FROM artists_without_deleted) t10
                 JOIN (SELECT DISTINCT user_id, user_name FROM user_without_deleted) t11 USING (user_id)) t1 USING (artist_id))
+--WHERE user_id=$1 
 );
 
 CREATE OR REPLACE VIEW more_seeable_watchers AS (
-SELECT 0
+SELECT include_ref('user_name',user_name,'artist_id',artist_id) AS artist,
+       user_artist_id AS watch,
+       user_id
+FROM (SELECT CASE
+               WHEN user_artist_id IS NULL THEN 1
+               ELSE 0
+             END AS not_watched,
+             artist_id,
+             user_name,
+             user_id
+      FROM (SELECT DISTINCT user_id FROM users_without_deleted) t0
+        CROSS JOIN (SELECT artist_id,
+                           user_name
+                    FROM (SELECT DISTINCT artist_id,
+                                 user_id
+                          FROM artists_without_deleted)
+                      JOIN (SELECT DISTINCT user_id, user_name FROM user_without_deleted) USING (user_id)) t1
+        LEFT JOIN (SELECT DISTINCT user_artist_id,
+                          user_id,
+                          artist_id
+                   FROM users_artists_without_banned
+                   WHERE KEY = 'watch'
+                   AND   value = 1) t2 USING (user_id,artist_id))
+WHERE not_watched = 1
+--WHERE user_id=$1 
+);
+
+CREATE OR REPLACE VIEW seeable_works AS (
+SELECT include_ref('work_name',work_name,'work_id',work_id) AS work,
+       user_work_id AS unlike,
+       user_id
+FROM (SELECT user_work_id,
+             user_id,
+             work_id,
+            work_name
+      FROM (SELECT DISTINCT user_works_id,
+                   works_id,
+                   user_id
+            FROM users_works_without_banned
+            WHERE KEY = 'like'
+            AND   value = 1) t0
+        JOIN (SELECT DISTINCT work_id, work_name FROM works_without_withdrawn) t1 USING (work_id))
+--WHERE user_id=$1 
+);
+
+CREATE OR REPLACE VIEW more_seeable_works AS (
+SELECT include_ref('work_name',work_name,'work_id',work_id) AS WORK,
+       user_work_id AS like_,
+       user_id
+FROM (SELECT CASE
+               WHEN user_work_id IS NULL THEN 1
+               ELSE 0
+             END AS not_like,
+             work_id,
+             work_name,
+             user_id
+      FROM (SELECT DISTINCT user_id FROM users_without_deleted) t0
+        CROSS JOIN (SELECT DISTINCT work_id,
+                           workname user_name
+                    FROM works_without_withdrawn) t1
+        LEFT JOIN (SELECT DISTINCT user_work_id,
+                          user_id,
+                          work_id
+                   FROM users_works_without_banned
+                   WHERE KEY = 'like'
+                   AND   value = 1) t2 USING (user_id,work_id))
+WHERE not_liked = 1
+--WHERE user_id=$1 
+);
+
+CREATE OR REPLACE VIEW viewable_users 
+(
+  SELECT include_ref('user_name',user_name,'user_id',user_id) AS USER,
+       user_artist_id AS ban,
+       artist_id
+FROM (SELECT user_id,
+             user_name,
+             user_artist_id
+      FROM (SELECT DISTINCT user_id, user_name FROM users_without_deleted)
+        LEFT JOIN (SELECT DISTINCT user_artist_id, user_id, artist_id) USING (user_id))
+--WHERE artist_id=$1
+);
+
+CREATE OR REPLACE VIEW viewable_artists 
+(
+  SELECT include_ref('user_name',user_name,'artist_id',artist_id) AS artist,
+       user_artist_id AS watch,
+       user_id
+FROM (SELECT artist_id,
+             user_name
+      FROM (SELECT DISTINCT artist_id,
+                   user_id
+            FROM artists_without_deleted)
+        JOIN (SELECT DISTINCT user_id, user_name FROM user_without_deleted) USING (user_id))
+  LEFT JOIN (SELECT DISTINCT user_artist_id, user_id, artist_id) USING (artist_id)
+--WHERE user_id=$1
 );

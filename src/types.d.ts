@@ -185,13 +185,13 @@ declare type DBProcedureResultsMappingType = {
         { artistId: { userName: string; artistId: string }, unwatch: string }
     ];
     see_more_artists: [
-        { artistId: { userName: string; artistId: string } }
+        { artistId: { userName: string; artistId: string } , watch:string}
     ];
     see_my_liked_works: [
         { workId: { workName: string; workId: string }, unlike: string }
     ];
     see_more_works: [
-        { workId: { workName: string; workId: string } }
+        { workId: { workName: string; workId: string }, like:string }
     ];
     view_user: [{ userId: { userName: string; userId: string }; ban?: string }];
     view_artist: [
