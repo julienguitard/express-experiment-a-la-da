@@ -1,13 +1,18 @@
-# express_sandbox
+# Overview
 An express sandbox
 
-## Persona
+# Use case
+[TO DO]
+
+## Personas
 There are 3 personas:
 - User
 - Artist
 - Admin
 
-## List of database events
+
+## Events
+[TO DO]
 
 ### Read
 There are 15 events types and 9 events substypes:
@@ -37,7 +42,6 @@ There are 15 events types and 9 events substypes:
 - Read a given work
 
 ### Write
-
 There are 14 write events:
 - Create a user
 - Create self user
@@ -54,23 +58,31 @@ There are 14 write events:
 - Like a work
 - Unlike a work
 
-## List of views
+# Ontology
+[TO DO]
 
-### Stateless
+# Architecture
+[TO DO]
 
+## UX
+[TO DO]
+
+### List of views
+[TO DO]
+
+#### Stateless
 There are 3 stateless views:
 - Home
 - Logout
 - Login
 
-### Session-stateful
-
+#### Session-stateful
 There are 2 session-stateful views:
 - Personal home
 - Logout
 
-### Stateful
-
+#### Stateful
+[TO DO]
 There are 9 statefull views
 - User search form
 - Artist search form
@@ -82,26 +94,54 @@ There are 9 statefull views
 - Artist profile
 - Work profile
 
-## Views events
- 
- [TO DO]
+## App
+[TO DO]
 
- ## Views components
+## Overview
+[TO DO]
 
-### Body
+## Routes
+[TO DO]
 
- There are components:
- - Cell
- - Linked cell
- - Selectable cell
- - Row
- - Table header
- - Table
- - Paginated content
- - Singleton page
+## Middleware
+[TO DO]
 
- ### Footer
+## Database connectors
+[TO DO]
 
- There are 2 components:
- - Session infos
- - Login status
+## Other
+[TO DO]
+
+## Persistent layer
+Our perstistent layer consist of a Postgre database connected with app with a minimal interface build with Node PG module executing a minimal query encapsulating procedures written a singleton types in the app and SQL function in PostgreSQL.
+
+### Overview
+The persistent objects are:
+- Tables for the core logic;
+- Views:
+    - Views encapsulating what would be update/merge/delete in a crude database
+    - Views that will be used by the procedures called by the app
+- Procedures or function:
+    - Pure procedures generating rows of the table types;
+    - Insert procedures for these tables using this pure procedures and the first types of views above;
+    - View procedures uses by the app, possibly calling inserting procedures above
+
+### Tables
+[TO DO]
+
+### Views
+[TO DO]
+
+### Procedures
+[TO DO]
+
+# Implementation
+[TO DO]
+
+## Build
+[TO DO]
+
+## Run
+[TO DO]
+
+

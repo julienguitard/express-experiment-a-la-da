@@ -7,8 +7,14 @@
   <title>Sandbox</title>
 </head>
 
-<a href="/parametrized/landing/signin"> Sign in </a>
-<a href="/parametrized/landing/signup"> Sign up </a>
+<form action="/parametrized/landing/signin">
+  <input type="submit"  class="view" value="Sign in" />
+</form>
+
+<form action="/parametrized/landing/signup">
+  <input type="submit"  class="insert" value="Sign up" />
+</form>
+
 
 <%  if (userName) {  %>
 <p> Signed as <%= userName %> </p>

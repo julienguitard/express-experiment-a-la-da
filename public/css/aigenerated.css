@@ -1,132 +1,145 @@
-/* Base Styles */
+/* General Styles */
 body {
-    font-family: 'Georgia', serif;
-    font-size: 18px;
-    line-height: 1.6;
-    color: #333;
-    background-color: #f7f7f7;
-    margin: 0;
-    padding: 0;
+  font-family: 'Roboto', sans-serif;
+  font-size: 12;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f8f8f8;
+  margin: 0;
+  padding: 0;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Merriweather', serif;
-    margin: 1.5em 0 0.5em;
-    line-height: 1.2;
-}
-
-h1 {
-    font-size: 2.5em;
-}
-
-h2 {
-    font-size: 2em;
-}
-
-h3 {
-    font-size: 1.75em;
-}
-
-p {
-    margin: 0 0 1.5em;
-}
-
-/* Button Styles */
-button {
-    background-color: #394db5;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 14px;
-    cursor: pointer;
-    border-radius: 9px;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #166c14;
-}
-
-/* Form Styles */
-form {
-    margin: 20px 0;
-}
-
-input[type="text"], input[type="email"], input[type="password"], textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-input[type="submit"] {
-    background-color: #1a8917;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
-
-input[type="submit"]:hover {
-    background-color: #166c14;
+/* Footer Styles */
+footer {
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
 }
 
 /* Table Styles */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
 }
 
-table th, table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
-table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
+th {
+  background-color: #f2f2f2;
 }
 
-/* Utility Classes */
-.text-center {
-    text-align: center;
+tr:nth-child(even) {
+  background-color: #f2f2f2;
 }
 
-.mt-1 {
-    margin-top: 1em;
+tr:hover {
+  background-color: #e6e6e6;
 }
 
-.mt-2 {
-    margin-top: 2em;
+.table-container {
+  overflow-x: auto;
 }
 
-.mb-1 {
-    margin-bottom: 1em;
+/* Form Styles */
+form {
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-.mb-2 {
-    margin-bottom: 2em;
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 
-.p-1 {
-    padding: 1em;
+.insert {
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.p-2 {
-    padding: 2em;
+.insert:hover {
+  background-color: #45a049;
+
 }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1em;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.delete-update {
+  background-color: #f44336;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
+
+.delete-update:hover {
+  background-color: #d32f2f;
+}
+/* Table Container Styles */
+
+
+.view {
+  background-color: #2196f3;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.view:hover {
+  background-color: #1976d2;
+}
+
+
+.ban {
+  background-image: url('path/to/ban-icon.svg');
+}
+
+.delete {
+  background-image: url('/public/icons/delete.png');
+}
+
+.ban {
+  background-image: url('/public/icons/ban.png');
+}
+
+.like {
+  background-image: url('/public/icons/like.png');
+}
+
+.unlike {
+  background-image: url('/public/icons/unlike.png');
+}
+
+.submit {
+  background-image: url('/public/icons/submit.png');
+}
+
+.watch {
+  background-image: url('/public/icons/watch.png');
+}
+
+.unwatch {
+  background-image: url('/public/icons/unwatch.png');
+}
+

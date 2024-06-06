@@ -437,20 +437,23 @@ WHERE not_liked = 1
 
 CREATE OR REPLACE VIEW viewable_users 
 (
-  SELECT include_ref('user_name',user_name,'user_id',user_id) AS USER,
+SELECT include_ref('user_name',user_name,'user_id',user_id) AS USER,
        user_artist_id AS ban,
        artist_id
 FROM (SELECT user_id,
              user_name,
              user_artist_id
       FROM (SELECT DISTINCT user_id, user_name FROM users_without_deleted)
-        LEFT JOIN (SELECT DISTINCT user_artist_id, user_id, artist_id) USING (user_id))
+        LEFT JOIN (SELECT DISTINCT user_artist_id,
+                          user_id,
+                          artist_id
+                   FROM users_artists_without_banned) USING (user_id))
 --WHERE artist_id=$1
 );
 
 CREATE OR REPLACE VIEW viewable_artists 
 (
-  SELECT include_ref('user_name',user_name,'artist_id',artist_id) AS artist,
+SELECT include_ref('user_name',user_name,'artist_id',artist_id) AS artist,
        user_artist_id AS watch,
        user_id
 FROM (SELECT artist_id,
@@ -459,6 +462,33 @@ FROM (SELECT artist_id,
                    user_id
             FROM artists_without_deleted)
         JOIN (SELECT DISTINCT user_id, user_name FROM user_without_deleted) USING (user_id))
-  LEFT JOIN (SELECT DISTINCT user_artist_id, user_id, artist_id) USING (artist_id)
+  LEFT JOIN (SELECT DISTINCT user_artist_id,
+                    user_id,
+                    artist_id
+             FROM users_artists_without_banned) USING (artist_id)
+--WHERE user_id=$1
+);
+
+CREATE OR REPLACE VIEW viewable_works_of_artist 
+(
+SELECT include_ref('work_name',work_name,'work_id',work_id) AS WORK,
+       user_work_id AS like_,
+       user_id
+FROM (SELECT work_id,
+             work_name
+      FROM 
+           FROM (SELECT DISTINCT work_id,
+                        work_name
+                 FROM works_without_withdrawn)
+        JOIN (SELECT artist_id,
+                     user_name
+              FROM (SELECT DISTINCT artist_id,
+                           user_id
+                    FROM artists_without_deleted)
+                JOIN (SELECT DISTINCT user_id, user_name FROM user_without_deleted) USING (user_id)) USING (artist_id))
+  LEFT JOIN (SELECT DISTINCT user_artist_id,
+                    user_id,
+                    artist_id
+             FROM users_artists_without_banned) USING (artist_id)
 --WHERE user_id=$1
 );

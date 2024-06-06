@@ -1,4 +1,4 @@
-<table>
+<div class=table-container><table>
   <tr> <% for (c of ['Columns,Value']) { %>
   <td> <%= c %> </td> <% } %> </tr>
   <% for (kv of Object.entries(entity)) { %> <tr>
@@ -6,4 +6,4 @@
     <td> kv[1] </td>
   </tr> <% } %>
 
-</table>
+</table></div>
