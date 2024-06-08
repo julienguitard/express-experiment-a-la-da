@@ -32,8 +32,7 @@ const preRouterUsables:Array<RequestHandler> = [
 ];
 
 const postRouterUsables:Array<RequestHandler|ErrorRequestHandler>  = [
-  pageNotFoundControler,
-  errorControler
+  pageNotFoundControler
 ]
 
 preRouterUsables.map((u) => app.use(u));

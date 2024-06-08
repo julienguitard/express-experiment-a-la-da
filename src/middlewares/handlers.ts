@@ -416,40 +416,90 @@ function convertToCellProps(field: string, cell: any): CellProps {
     Object.defineProperty(
       props,
       "link",
-      `/parametrized/profile/users/user?${cell}`
+      `//profile/users/user?${cell}`
     );
   } else if (field === "artist_id") {
     Object.defineProperty(
       props,
       "link",
-      `/parametrized/profile/artists/artist?${cell}`
+      `//profile/artists/artist?${cell}`
     );
   } else if (field === "work_id") {
     Object.defineProperty(
       props,
       "link",
-      `/parametrized/profile/works/work?${cell}`
+      `//profile/works/work?${cell}`
     );
   } else if (field === "ban") {
     Object.defineProperty(
       props,
       "link",
-      `/parametrized/profile/users/user?${cell}/ban`
+      `//profile/users/user?${cell}/ban`
     );
   } else if (field === "withdraw") {
     Object.defineProperty(
       props,
       "link",
-      `/parametrized/profile/works/work?${cell}/withdraw`
+      `//profile/works/work?${cell}/withdraw`
     );
   } else if (field === "unlike") {
     Object.defineProperty(
       props,
       "link",
-      `/parametrized/profile/works/work?${cell}/unlike`
+      `//profile/works/work?${cell}/unlike`
     );
   }
   return props;
 }
 
-export { getTime, parseSQLOutput };
+
+const buildErrorHandler = function (
+  req: Request,
+  cb?: (err: Error) => void
+): (err: Error) => void {
+  function errorHandler(err: Error) {
+    const no = getTime();
+    if (req.session.reqTime && req.session.path) {
+      const resQuery = queryPoolFromProcedure(pool, "insert_into_errors_logs", [
+        req.session.reqTime,
+        no,
+        req.session.path,
+        err.message,
+      ]);
+      if (cb){
+        cb(err);
+      }
+    }
+  }
+  return errorHandler;
+};
+
+async function checkAnswer(
+  req: Request,
+  res: Response,
+  data: QueryResult<any>
+): Promise<void> {
+  if (data.rows.length === 1) {
+    req.session.userId = data.rows[0].userId;
+    req.session.userName = data.rows[0].userName;
+    req.session.artistId =
+      data.rows[0].artistId === "undefined" ? undefined : data.rows[0].artistId;
+    res.redirect("/home");
+  } else {
+    throw Error("Failed identification");
+  }
+}
+
+async function fallbackToIndex(
+  res: Response,
+): Promise<void> {
+  res.redirect("/");
+}
+
+async function fallbackToHome(
+  res: Response,
+): Promise<void> {
+  res.redirect("/home");
+}
+
+export { getTime, parseSQLOutput, checkAnswer, fallbackToIndex, fallbackToHome, buildErrorHandler };

@@ -1,9 +1,18 @@
-import express, { Request, Response, NextFunction } from 'express';
-import { copyFile } from 'fs';
-import pg, { PoolConfig, Pool, QueryResult } from 'pg';
-import {TypedRequest, TypedSession} from 'types';
-import { RoutesData } from '../types';
-
+import { Request, Response, NextFunction } from "express";
+import { Session } from "../express-session";
+import { copyFile } from "fs";
+import pg, { PoolConfig, Pool, QueryResult } from "pg";
+import { nextTick } from "process";
+import { pool, queryPool, queryPoolFromProcedure } from "../databases/index.js";
+import { RouteData, Controler, RoutePath, DBProcedure } from "../types";
+import {
+  parseSQLOutput,
+  checkAnswer,
+  fallbackToIndex,
+  fallbackToHome,
+  buildErrorHandler,
+} from "./handlers";
+import { request } from "http";
 
 /*function buildControler(reqParamsHandler: (route: TypedRequest<TypedSession>["route"], session: TypedRequest<TypedSession>["session"], params: TypedRequest<TypedSession>["params"]) => Record<string, any>,
     dbHandler: (params: Record<string, any>) => Promise<QueryResult<any>>,
@@ -19,43 +28,190 @@ import { RoutesData } from '../types';
     return mdw;
 }*/
 
-function buildControler(data: Record<string,string>): (req: Request, res: Response, next: NextFunction) => void {
-    function mdw(req: Request, res: Response, next: NextFunction) {
-        if (data.redirect!==undefined) {
-            res.redirect(data.redirect);
-        }
-        else if (data.render!==undefined){
-            res.render(data.render);
-        }
-        else {
-            next(Error("Unmatched case"));
-        }
-        next();
+function buildControler(
+  data: Record<string, string>
+): (req: Request, res: Response, next: NextFunction) => void {
+  function mdw(req: Request, res: Response, next: NextFunction) {
+    if (data.redirect !== undefined) {
+      res.redirect(data.redirect);
+    } else if (data.render !== undefined) {
+      res.render(data.render);
+    } else {
+      next(Error("Unmatched case"));
     }
-    return mdw;
+    next();
+  }
+  return mdw;
 }
 
-function buildParametrizedControler(data: RoutesData): (req: Request, res: Response, next: NextFunction) => void {
-    function mdw(req: Request, res: Response, next: NextFunction) {
-        if (data.redirect!==undefined) {
-            res.redirect(data.redirect);
-        }
-        else if (data.render!==undefined){
-            console.log(data.render,req.session);
-            try {
-                res.render('./parametrized/'+data.render,req.session);
-            }
-            catch (error) {
-                next(error);
-            }
-        }
-        else {
-            throw Error("Unmatched case");
-        }
-        next();
+function buildParametrizedControler(
+  data: RoutesData
+): (req: Request, res: Response, next: NextFunction) => void {
+  function mdw(req: Request, res: Response, next: NextFunction) {
+    if (data.redirect !== undefined) {
+      res.redirect(data.redirect);
+    } else if (data.render !== undefined) {
+      console.log(data.render, req.session);
+      try {
+        res.render("./" + data.render, req.session);
+      } catch (error) {
+        next(error);
+      }
+    } else {
+      throw Error("Unmatched case");
     }
-    return mdw;
+    next();
+  }
+  return mdw;
 }
 
+function builder(rou: RoutePath): Controler {
+  let mdw = async function (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {};
+  switch (rou) {
+    case "/":
+      mdw = async function (
+        req: Request,
+        res: Response,
+        next: NextFunction
+      ): Promise<void> {
+        res.render("Index", req.session);
+      };
+      break;
+    case "/landing/signin":
+      mdw = async function (
+        req: Request,
+        res: Response,
+        next: NextFunction
+      ): Promise<void> {
+        res.render("SignIn", req.session);
+      };
+      break;
+    case "/landing/signup":
+      mdw = async function (
+        req: Request,
+        res: Response,
+        next: NextFunction
+      ): Promise<void> {
+        res.render("Signup", req.session);
+      };
+      break;
+    case "/landing/signin/submit":
+      mdw = async function (
+        req: Request,
+        res: Response,
+        next: NextFunction
+      ): Promise<void> {
+        const procParams = await [req.body.userName, req.body.pwd];
+        const procResults = queryPoolFromProcedure(
+          pool,
+          "check_signin",
+          procParams
+        );
+        const updateReq = procResults
+          .then((r) => {
+            if (r.rows.length === 1) {
+              req.session.userId = r.rows[0]["user_id"];
+              req.session.artistId =
+                r.rows[0]["artist_id"] === "null"
+                  ? undefined
+                  : r.rows[0]["artist_id"];
+            }
+          })
+          .catch((err) => buildErrorHandler(err));
+        const updateRes = updateReq.then(() => {
+          if (req.session.userId) {
+            res.redirect("/home");
+          } else {
+            res.redirect("/");
+          }
+        });
+      };
+      break;
+    case "/landing/signup/submit":
+      mdw = async function (
+        req: Request,
+        res: Response,
+        next: NextFunction
+      ): Promise<void> {
+        const procParams = await [
+          req.body.userName,
+          req.body.pwd,
+          req.body.confirmedPwd,
+        ];
+        const procResults = queryPoolFromProcedure(
+          pool,
+          "check_signup",
+          procParams
+        );
+        const updateReq = procResults
+          .then((r) => {
+            if (r.rows.length === 1) {
+              req.session.userId = r.rows[0]["user_id"];
+              req.session.artistId = undefined;
+            }
+          })
+          .catch((err) => buildErrorHandler(err));
+        const updateRes = updateReq.then(() => {
+          if (req.session.userId) {
+            res.redirect("/home");
+          } else {
+            res.redirect("/");
+          }
+        });
+      };
+      break;
+    case "/home":
+      mdw = async function (
+        req: Request,
+        res: Response,
+        next: NextFunction
+      ): Promise<void> {
+        if (req.session.artistId && req.session.userId) {
+          const procParams: Record<DBProcedure, Array<string>> = {
+            see_my_watchers: [req.session.artistId],
+            see_my_works: [req.session.artistId],
+            see_my_watched_artists: [req.session.userId],
+            see_my_liked_works: [req.session.userId],
+          };
+          const procResults = Object.fromEntries(
+            Object.entries(procParams).map((kv) => [
+              kv[0],
+              queryPoolFromProcedure(pool, kv[0], kv[1]),
+            ])
+          );
+          const updateRes = res.render("ArtistHome", {
+            ...req.session,
+            ...procResults,
+          });
+        } else if (req.session.userId) {
+          const procParams: Record<DBProcedure, Array<string>> = {
+            see_my_watched_artists: [req.session.userId],
+            see_my_liked_works: [req.session.userId],
+          };
+          const procResults = Object.fromEntries(
+            Object.entries(procParams).map((kv) => [
+              kv[0],
+              queryPoolFromProcedure(pool, kv[0], kv[1]),
+            ]))
+          ;
+          const updateRes = res.render("UserHome", {
+            ...req.session,
+            ...procResults,
+          });
+        }
+      };
+      break;
 
-export { buildControler,buildParametrizedControler}
+    default:
+      mdw = function (req: Request, res: Response, next: NextFunction): void {
+        next();
+      };
+  }
+  return mdw;
+}
+
+export { buildControler, buildParametrizedControler };

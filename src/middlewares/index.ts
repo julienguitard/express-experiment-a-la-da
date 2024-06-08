@@ -3,26 +3,15 @@ import { Request, Response, NextFunction } from "express";
 import { QueryResult } from "pg";
 import { Session, SessionData } from "../express-session";
 import { pool, queryPool, queryPoolFromProcedure } from "../databases/index.js";
-import { procedures } from "../databases/procedures.js";
-import { getTime, parseSQLOutput } from "./handlers.js";
 import { hash } from "../utils/hash";
-import { rawListeners } from "process";
 import { UbiquitousConcept } from "../types";
-import { copyFile } from "fs";
-
-const dataControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    res.send(res.json);
-  } catch (e) {
-    console.log(e);
-  } finally {
-    next();
-  }
-};
+import {
+  parseSQLOutput,
+  checkAnswer,
+  fallbackToIndex,
+  fallbackToHome,
+  buildErrorHandler,
+} from "./handlers";
 
 const consoleControler = function (
   req: Request,
@@ -33,42 +22,36 @@ const consoleControler = function (
     Object.entries(req.route.methods)
       .filter(([k, v]) => v)
       .map(([k, v]) => k) +
-    " " +
-    req.route.path
+      " " +
+      req.route.path
   );
   next();
 };
 
-function updateSessionInitially(session: SessionData, req: Request): 
-void
-{
+function updateSessionInitially(session: SessionData, req: Request): void {
   session.reqTime = getTime();
   session.startTime = session.startTime ?? getTime();
-  session.userId = session.userId ?? 'Admin';
-  session.userName = session.userName ?? 'Admin';
-  session.artistId = session.artistId ?? 'Admin';
+  session.userId = session.userId ?? "Admin";
+  session.userName = session.userName ?? "Admin";
+  session.artistId = session.artistId ?? "Admin";
   session.views = (session.views ?? 0) + 1;
 
   if (req.route) {
-    session.path = req.route.path ;
-  }
-  else {
-    session.path= 'Unknown route';
+    session.path = req.route.path;
+  } else {
+    session.path = "Unknown route";
   }
 }
-
 
 const sessionFirstUpdateControler = function (
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  console.log("*** sessionFirstUpdateControler ***")
   if (req.session) {
     updateSessionInitially(req.session, req);
-    console.log(req.session)
-  }
-  else {
+    console.log(req.session);
+  } else {
     throw Error("Session not initialized");
   }
   next();
@@ -95,7 +78,7 @@ const logToPostgresControler = function (
     .map(([k, v]) => k)
     .join(",");
   const reqData = queryPoolFromProcedure(pool, "insert_into_requests_logs", [
-    req.session.reqTime ,
+    req.session.reqTime,
     req.session.path,
     meths,
   ]);
@@ -105,9 +88,9 @@ const logToPostgresControler = function (
   const resData = nextVoid.then(() => {
     let no = getTime();
     return queryPoolFromProcedure(pool, "insert_into_responses_logs", [
-      req.session.reqTime??'',
+      req.session.reqTime ?? "",
       no,
-      req.session.path??'unknown route path',
+      req.session.path ?? "unknown route path",
       res.statusCode.toString(),
     ]);
   });
@@ -143,16 +126,6 @@ const showLogsTableControler = function (
   );
 };
 
-const mockSessionControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  req.session.userName = "Ju";
-  req.session.startTime = "2024-04-23 09:07:12";
-  next();
-};
-
 const pageNotFoundControler = function (
   req: Request,
   res: Response,
@@ -161,77 +134,6 @@ const pageNotFoundControler = function (
   next(createError(404));
 };
 
-const mockErrorControler = function (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  res.render("./static/Error");
-};
-
-const errorControler = function (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  const no = getTime();
-  console.log('errorControler: ' + err.message);
-  try{
-  if (req.session.reqTime && req.session.path){
-  const resQuery = queryPoolFromProcedure(pool, "insert_into_errors_logs", [
-      req.session.reqTime,
-      no,
-      req.session.path,
-      err.message,
-    ])
-    res.render("./parametrized/Error", { userName:'Ju', startTime:Date.now(),error: err.message })
-  }
-  else {
-    res.status(404).json({
-      error: 404,
-      message: "Route not found."
-    });
-
-  }}
-  catch(secondErr){
-    console.log('Error in error');
-  }
-;
-};
-
-async function checkAnswer(
-  req: Request,
-  res: Response,
-  data: QueryResult<any>
-): Promise<void> {
-  if (data.rows.length === 1) {
-    req.session.userId = data.rows[0].userId;
-    req.session.userName = data.rows[0].userName;
-    req.session.artistId =
-      data.rows[0].artistId === "undefined" ? undefined : data.rows[0].artistId;
-    res.redirect("/parametrized/home");
-  } else {
-    throw Error("Failed identification");
-  }
-}
-
-async function fallbackToIndex(
-  req: Request,
-  res: Response,
-  err: Error
-): Promise<void> {
-  res.redirect("/parametrized");
-}
-
-async function fallbackToHome(
-  req: Request,
-  res: Response,
-  err: Error
-): Promise<void> {
-  res.redirect("/parametrized/home");
-}
 
 const signinSubmitControler = function (
   req: Request,
@@ -279,16 +181,16 @@ async function getReqData(
 ): Promise<Record<UbiquitousConcept, string>> {
   const reqData = {};
   if (req.session.startTime) {
-    Object.defineProperty(reqData, 'startTime', req.session.startTime)
+    Object.defineProperty(reqData, "startTime", req.session.startTime);
   }
   if (req.session.userId) {
-    Object.defineProperty(reqData, 'userId', req.session.userId)
+    Object.defineProperty(reqData, "userId", req.session.userId);
   }
   if (req.session.userName) {
-    Object.defineProperty(reqData, 'userName', req.session.userName)
+    Object.defineProperty(reqData, "userName", req.session.userName);
   }
   if (req.session.artistId) {
-    Object.defineProperty(reqData, 'artistId', req.session.artistId)
+    Object.defineProperty(reqData, "artistId", req.session.artistId);
   }
   return reqData;
 }
@@ -308,30 +210,28 @@ const getHomeControler = function (
           reqData.artistId === undefined
             ? undefined
             : queryPoolFromProcedure(pool, "see_my_watchers", [
-              reqData.artistId
-            ]),
+                reqData.artistId,
+              ]),
         myWorks:
           reqData.artistId === undefined
             ? undefined
-            : queryPoolFromProcedure(pool, "see_my_works", [
-              reqData.artistId,
-            ]),
+            : queryPoolFromProcedure(pool, "see_my_works", [reqData.artistId]),
         myWatchedArtists: queryPoolFromProcedure(
           pool,
           "see_my_watched_artists",
-          (req.session.userId) ? [req.session.userId] : undefined
+          req.session.userId ? [req.session.userId] : undefined
         ),
         myLikedWorks: queryPoolFromProcedure(
           pool,
           "see_my_liked_works",
-          (req.session.userId) ? [req.session.userId] : undefined
+          req.session.userId ? [req.session.userId] : undefined
         ),
       };
     })
     .then((ou) =>
       ou.artistId === undefined
-        ? res.render("./parametrized/UserHome", ou)
-        : res.render("./parametrized/ArtistHome", ou)
+        ? res.render("./UserHome", ou)
+        : res.render("./ArtistHome", ou)
     )
     .catch((err) => fallbackToIndex(req, res, err))
     .finally(next);
@@ -455,16 +355,14 @@ const unlikeControler = function (
     .finally(next);
 };
 
+
 export {
   sessionFirstUpdateControler,
   consoleControler,
   logToPostgresControler,
   showLogsControler,
   showLogsTableControler,
-  mockSessionControler,
   pageNotFoundControler,
-  errorControler,
-  mockErrorControler,
   signinSubmitControler,
   signupSubmitControler,
 };

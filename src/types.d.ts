@@ -4,7 +4,127 @@ import { Pool, QueryResult } from "pg";
 import { Session, SessionData } from "./express-session";
 
 declare;
-OneMore<T> = T | Array<T>;
+OneMore<T> = [T, Array<T>];
+
+
+declare type RoutePath =
+    | "/"
+    | "/landing/signin"
+    | "/landing/signup"
+    | "/landing/signin/submit"
+    | "/landing/signup/submit"
+    | "/home"
+    | "/profile/works/work/:workId"
+    | "/profile/artists/artist/:artistId"
+    | "/profile/users/user/:userId"
+    | "/profile/users/user/:userId/ban"
+    | "/profile/users/user/:userId/ban/submit"
+    | "/profile/artists/artist/:artistId/unwatch"
+    | "/profile/works/work/:workId/unlike"
+    | "/home/users/more"
+    | "/home/artists/more"
+    | "/home/works/more"
+    | "/home/works/submit"
+    | "/home/works/submit/submit"
+    | "/signout"
+    | "/signout/submit"
+    | "/delete"
+    | "/delete/submit";
+
+
+declare type Redirection = keyof RedirectionArgsMappingType;
+
+declare type RedirectionArgsMappingType = {
+    "/home": {};
+    "/": {};
+};
+
+declare type Verb = 'get' | 'post'
+declare type RoutePathParams = Record<
+    RoutePath,
+    { render: EjsView } | ({ redirect: Redirection } & { method?: Verb })
+>;
+
+declare type RouteData = {
+    route: RoutePath;
+    method: Verb;
+    controlers: Array<Controler>;
+};
+
+declare type EjsView = keyof EjsViewPropsMappingType;
+
+declare type EjsViewPropsMappingType = {
+    Index: { userName: string?; startTime: string };
+    Signin: { startTime: string };
+    Signup: { startTime: string };
+    UserHome: {
+        userName: string;
+        startTime: string;
+        myWatchedArtists: Array<{
+            artistId: { userName: string; artistId: string };
+            watch: string;
+        }>;
+        myLikedWorks: Array<{
+            workId: { workName: string; workId: string };
+            like: string;
+        }>;
+    };
+    ArtistHome: {
+        userName: string;
+        startTime: string;
+        myWatchers: Array<{
+            userId: { userName: string; userId: string };
+            ban: string;
+        }>;
+        myWorks: Array<{
+            workId: { workName: string; workId: string };
+            withdraw: string;
+        }>;
+        myWatchedArtists: Array<{
+            artistId: { userName: string; artistId: string };
+            watch: string;
+        }>;
+        myLikedWorks: Array<{
+            workId: { workName: string; workId: string };
+            like: string;
+        }>;
+    };
+    Ban: { userName: string; startTime: string; userId: string }; //TO DO
+    Submit: { userName: string; startTime: string };
+    Withdraw: { userName: string; startTime: string; workId: string };
+    Signout: { userName: string; startTime: string };
+    Delete: { userName: string; startTime: string };
+    Work: {
+        workId: { workName: string; workId: string };
+        withdraw: string;
+    };
+    Artist: {
+        artistId: { userName: string; artistId: string };
+        watch: string;
+        works: Array<{
+            workId: { workName: string; workId: string };
+            withdraw: string;
+        }>
+    };
+    User: {
+        userId: { userName: string; userId: string };
+        ban: string;
+    };
+    MoreUsers: Array<{
+        userId: { userName: string; userId: string };
+        ban: string;
+    }>;
+    MoreArtists: Array<{
+        artistId: { userName: string; artistId: string };
+        watch: string;
+    }>;
+    MoreWorks: Array<{
+        workId: { workName: string; workId: string };
+        like: string;
+    }>;
+};
+
+
 
 declare interface ProcedureOutput<T> {
     watches?: T;
@@ -185,13 +305,13 @@ declare type DBProcedureResultsMappingType = {
         { artistId: { userName: string; artistId: string }, unwatch: string }
     ];
     see_more_artists: [
-        { artistId: { userName: string; artistId: string } , watch:string}
+        { artistId: { userName: string; artistId: string }, watch: string }
     ];
     see_my_liked_works: [
         { workId: { workName: string; workId: string }, unlike: string }
     ];
     see_more_works: [
-        { workId: { workName: string; workId: string }, like:string }
+        { workId: { workName: string; workId: string }, like: string }
     ];
     view_user: [{ userId: { userName: string; userId: string }; ban?: string }];
     view_artist: [
@@ -241,131 +361,129 @@ declare type DBProcedureResultsMappingType = {
     ];
 };
 
-declare type EjsView = keyof EjsViewPropsMappingType;
-
-declare type EjsViewPropsMappingType = {
-    Index: { userName: string?; startTime: string?};
-    Signin: { startTime: string?};
-    Signup: { startTime: string?};
-    UserHome: {
-        userName: string;
-        startTime: string;
-        myWatchedArtists: Array<{
-            artistId: { userName: string; artistId: string };
-            watch: string;
-        }>;
-        myLikedWorks: Array<{
-            workId: { workName: string; workId: string };
-            like: string;
-        }>;
-    };
-    ArtistHome: {
-        yserName: string;
-        startTime: string;
-        myWatchers: Array<{
-            userId: { userName: string; userId: string };
-            ban: string;
-        }>;
-        myWorks: Array<{
-            workId: { workName: string; workId: string };
-            withdraw: string;
-        }>;
-        myWatchedArtists: Array<{
-            artistId: { userName: string; artistId: string };
-            watch: string;
-        }>;
-        myLikedWorks: Array<{
-            workId: { workName: string; workId: string };
-            like: string;
-        }>;
-    };
-    Ban: { userName: string; startTime: string; userId: string }; //TO DO
-    Unlike: { userName: string; startTime: string; workId: string };
-    Submit: { userName: string; startTime: string };
-    Withdraw: { userName: string; startTime: string; workId: string };
-    Unwatch: { userName: string; startTime: string; artistId: string };
-    Signout: { userName: string; startTime: string };
-    Delete: { userName: string; startTime: string };
-    Work: {
-        workId: { workName: string; workId: string };
-        withdraw: string;
-    };
-    Artist: {
-        artistId: { userName: string; artistId: string };
-        watch: string;
-        works: Array<{
-            workId: { workName: string; workId: string };
-            withdraw: string;
-        }>
-    };
-    User: {
-        userId: { userName: string; userId: string };
-        ban: string;
-    };
-    MoreUsers: Array<{
-        userId: { userName: string; userId: string };
-        ban: string;
-    }>;
-    MoreArtists: Array<{
-        artistId: { userName: string; artistId: string };
-        watch: string;
-    }>;
-    MoreWorks: Array<{
-        workId: { workName: string; workId: string };
-        like: string;
-    }>;
+declare type DBProcedureFormatedResultsMappingType = {
+    insert_user_event: [{ userId: string }, { time: string }, { key: string }];
+    insert_artist: [{ artistId: string }, { time: string }, { userId: string }];
+    insert_artist_event: [
+        { artistId: string },
+        { time: string },
+        { key: string }
+    ];
+    insert_work: [
+        { workId: string },
+        { artistId: string },
+        { time: string },
+        { workName: string }
+    ];
+    insert_user: [
+        { userId: string },
+        { time: string },
+        { userName: string },
+        { pwd: string }
+    ];
+    insert_work_event: [{ workId: string }, { time: string }, { key: string }];
+    insert_user_artist: [
+        { userArtistId: string },
+        { userId: string },
+        { artistId: string },
+        { time: string }
+    ];
+    insert_user_artist_event: [
+        { userArtistId: string },
+        { time: string },
+        { key: string }
+    ];
+    insert_user_work: [
+        { userWorkId: string },
+        { userId: string },
+        { workId: string },
+        { time: string }
+    ];
+    insert_user_work_event: [
+        { userWorkId: string },
+        { time: string },
+        { key: string }
+    ];
+    check_signin: [{ userId: string }, { userName: string }, { artistId: string?}];
+    check_signup: [{ userId: string }, { userName: string }];
+    see_my_watchers: [
+        { userId: { userName: string; userId: string }, ban: string }
+    ];
+    see_more_users: [
+        { userId: { userName: string; userId: string } }
+    ];
+    see_my_works: [
+        { workId: { workName: string; workId: string }, withdraw: string }
+    ];
+    see_more_of_my_works: [
+        { workId: { workName: string; workId: string }, withdraw: string }
+    ];
+    see_my_watched_artists: [
+        { artistId: { userName: string; artistId: string }, unwatch: string }
+    ];
+    see_more_artists: [
+        { artistId: { userName: string; artistId: string }, watch: string }
+    ];
+    see_my_liked_works: [
+        { workId: { workName: string; workId: string }, unlike: string }
+    ];
+    see_more_works: [
+        { workId: { workName: string; workId: string }, like: string }
+    ];
+    view_user: [{ userId: { userName: string; userId: string }; ban?: string }];
+    view_artist: [
+        { artistId: { userName: string; artistId: string }, watch: string }
+    ];
+    view_works_of_artists: [
+        { workId: { workName: string; workId: string }, like: string }
+    ];
+    view_work: [{ workId: { workName: string; workId: string }, like: string }];
+    ban_watcher: [{ userId: { userName: string; userId: string }; ban: string }];
+    submit_work: [{ workId: string }];
+    withdraw_work: [{ workId: string }];
+    submit_first_work: [{ artistId: string }, { workId: string }];
+    watch_artist: [{ artistId: string }];
+    unwatch_artist: [{ artistId: string }];
+    like_work: [{ workId: string }];
+    unlike_work: [{ workId: string }];
+    insert_into_requests_logs: [
+        { requestId: string },
+        { time: string },
+        { path: string },
+        { methods: Array<string> }
+    ];
+    insert_into_responses_logs: [
+        { reponseId: string },
+        { time: string },
+        { requestId: string },
+        { status: string }
+    ];
+    insert_into_errors_logs: [
+        { errorId: string },
+        { time: string },
+        { requestId: string },
+        { message: string }
+    ];
+    select_full_logs: [
+        { requestId: string },
+        { time: string },
+        { path: string },
+        { methods: Array<string> },
+        { errorId: string },
+        { time: string },
+        { message: string },
+        { reponseId: string },
+        { time: string },
+        { status: string }
+    ];
 };
 
-declare type Redirection = keyof RedirectionArgsMappingType;
-
-declare type RedirectionArgsMappingType = {
-    "/parametrized/home": {};
-    "/parametrized": {};
-};
-
-declare type RoutePath =
-    | "/parametrized"
-    | "/parametrized/landing/signin"
-    | "/parametrized/landing/signup"
-    | "/parametrized/landing/signin/submit"
-    | "/parametrized/landing/signup/submit"
-    | "/parametrized/home"
-    | "/parametrized/profile/works/work/:workId"
-    | "/parametrized/profile/artists/artist/:artistId"
-    | "/parametrized/profile/users/user/:userId"
-    | "/parametrized/profile/users/user/:userId/ban"
-    | "/parametrized/profile/users/user/:userId/ban/submit"
-    | "/parametrized/profile/artists/artist/:artistId/unwatch"
-    | "/parametrized/profile/works/work/:workId/unlike"
-    | "/parametrized/home/users/more"
-    | "/parametrized/home/artists/more"
-    | "/parametrized/home/works/more"
-    | "/parametrized/home/works/submit"
-    | "/parametrized/home/works/submit/submit"
-    | "/parametrized/signout"
-    | "/parametrized/signout/submit"
-    | "/parametrized/delete"
-    | "/parametrized/delete/submit";
-
-declare type RoutePathParams = Record<
-    RoutePath,
-    { render: EjsView } | ({ redirect: Redirection } & { method?: string })
->;
-
-declare type RouteData = {
-    route: RoutePath;
-    method: string;
-    controlers: Array<Controler>;
-};
-
-declare interface Controler {
-    controler: (
-        err?: Error,
+declare type Controler =
+    (
         req: Request,
         res: Response,
-        NextFunction?: NextFunction
+        next: NextFunction
     ) => void;
-}
 
 declare interface ControlerCallbacks {
     reqParamsHandler: (req: Response) => ProcedureProps;
@@ -428,4 +546,5 @@ export type {
     RoutePath,
     RoutePathParams,
     RouteData,
+    Controler
 };

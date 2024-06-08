@@ -1,12 +1,9 @@
-import {RoutePath,RoutePathParams,RouteData} from "../types"
+import {RoutePathParams,RouteData} from "../types"
 
 import {
   consoleControler,
   sessionFirstUpdateControler,
   logToPostgresControler,
-  showLogsControler,
-  showLogsTableControler,
-  mockSessionControler,
 } from "../middlewares/index.js";
 
 import {
@@ -15,147 +12,78 @@ import {
 } from "../middlewares/factory.js";
 
 
-
-const routesParams:any = {
+const routesParams: RoutePathParams = {
   "/": {
-    render: "./static/Index",
-  },
-  "/landing/signin": {
-    render: "./static/Signin",
-  },
-  "/landing/signup": {
-    render: "./static/Signup",
-  },
-  "/landing/signin/submit": {
-    redirect: "/home",
-  },
-  "/landing/signup/submit": {
-    redirect: "/home",
-  },
-  "/home": {
-    render: "./static/ArtistHome",
-  },
-  "/profile/works/work": {
-    render: "./static/Work",
-  },
-  "/profile/artists/artist": {
-    render: "./static/Artist",
-  },
-  "/profile/users/user/ban": {
-    redirect: "/home",
-  },
-  "/profile/artists/artist/unwatch": {
-    redirect: "/home",
-  },
-  "/profile/works/work/unlike": {
-    redirect: "/home",
-  },
-  "/home/users/more": {
-    render: "./static/MoreUsers",
-  },
-  "/home/artists/more": {
-    render: "./static/MoreArtists",
-  },
-  "/home/works/more": {
-    render: "./static/MoreWorks",
-  },
-  "/signout": {
-    render: "./static/Signout",
-  },
-  "/signout/submit": {
-    redirect: "/",
-  },
-  "/delete": {
-    render: "./static/Delete",
-  },
-  "/delete/submit": {
-    redirect: "/",
-  },
-};
-
-const parametrizedRoutesParams: RoutePathParams = {
-  "/parametrized": {
     render: "Index",
   },
-  "/parametrized/landing/signin": {
+  "/landing/signin": {
     render: "Signin",
   },
-  "/parametrized/landing/signup": {
+  "/landing/signup": {
     render: "Signup",
   },
-  "/parametrized/landing/signin/submit": {
-    redirect: "/parametrized/home", method: "post"
+  "/landing/signin/submit": {
+    redirect: "/home", method: "post"
   },
-  "/parametrized/landing/signup/submit": {
-    redirect: "/parametrized/home", method: "post"
+  "/landing/signup/submit": {
+    redirect: "/home", method: "post"
   },
-  "/parametrized/home": {
+  "/home": {
     render: "ArtistHome",
   },
-  "/parametrized/profile/works/work/:workId": {
+  "/profile/works/work/:workId": {
     render: "Work",
   },
-  "/parametrized/profile/artists/artist/:artistId": {
+  "/profile/artists/artist/:artistId": {
     render: "Artist",
   },
-  "/parametrized/profile/users/user/:userId": {
+  "/profile/users/user/:userId": {
     render: "User",
   },
-  "/parametrized/profile/users/user/:userId/ban": {
+  "/profile/users/user/:userId/ban": {
     render: "Ban"
   },
-  "/parametrized/profile/users/user/:userId/ban/submit": {
-    redirect: "/parametrized/home", method: "post"
+  "/profile/users/user/:userId/ban/submit": {
+    redirect: "/home", method: "post"
   },
-  "/parametrized/profile/artists/artist/:artistId/unwatch": {
-    redirect: "/parametrized/home", method: "post"
+  "/profile/artists/artist/:artistId/unwatch": {
+    redirect: "/home", method: "post"
   },
-  "/parametrized/profile/works/work/:workId/unlike": {
-    redirect: "/parametrized/home", method: "post"
+  "/profile/works/work/:workId/unlike": {
+    redirect: "/home", method: "post"
   },
-  "/parametrized/home/users/more": {
+  "/home/users/more": {
     render: "MoreUsers",
   },
-  "/parametrized/home/artists/more": {
+  "/home/artists/more": {
     render: "MoreArtists",
   },
-  "/parametrized/home/works/more": {
+  "/home/works/more": {
     render: "MoreWorks",
   },
-  "/parametrized/home/works/submit": {
+  "/home/works/submit": {
     render: "Submit",
   },
-  "/parametrized/home/works/submit/submit": {
-    redirect: "/parametrized/home", method: "post"
+  "/home/works/submit/submit": {
+    redirect: "/home", method: "post"
   },
-  "/parametrized/signout": {
+  "/signout": {
     render: "Signout",
   },
-  "/parametrized/signout/submit": {
-    redirect: "/parametrized", method: "post"
+  "/signout/submit": {
+    redirect: "/", method: "post"
   },
-  "/parametrized/delete": {
+  "/delete": {
     render: "Delete",
   },
-  "/parametrized/delete/submit": {
-    redirect: "/parametrized", method: "post"
+  "/delete/submit": {
+    redirect: "/", method: "post"
   },
 };
 
-const routes:any = Object.entries(routesParams).map(([k, v]) => {
-  return {
-    route: k,
-    method:  "get" ,
-    controlers: [
-      consoleControler,
-      sessionFirstUpdateControler,
-      logToPostgresControler,
-      buildControler(v),
-    ],
-  };
-});
 
-const parametrizedRoutes:Array<RouteData> = Object.entries(parametrizedRoutesParams).map(
+
+const routes:Array<RouteData> = Object.entries(routesParams).map(
   ([k, v]) => {
     return {
       route: k,
@@ -171,4 +99,4 @@ const parametrizedRoutes:Array<RouteData> = Object.entries(parametrizedRoutesPar
 );
 
 
-export { routes, parametrizedRoutes };
+export { routes };

@@ -1,14 +1,13 @@
-
-import dotenv_, { DotenvConfigOutput } from 'dotenv';
-import pg, { PoolConfig, Pool, QueryResult } from 'pg';
-import { DBProcedure } from '../types.js';
-import errorConsoleLog from '../utils/errorConsoleLog.js';
-import { convertToSql } from './factory.js';
+import dotenv_, { DotenvConfigOutput } from "dotenv";
+import pg, { PoolConfig, Pool, QueryResult } from "pg";
+import { DBProcedure } from "../types.js";
+import errorConsoleLog from "../utils/errorConsoleLog.js";
+import { convertToSql } from "./factory.js";
 
 const dotenv: DotenvConfigOutput = dotenv_.config();
 const poolConfig: PoolConfig = {
   database: process.env.DATABASE,
-  user: 'express_000',//TO DO
+  user: "express_000", //TO DO
   password: process.env.PASSWORD,
   host: process.env.HOST,
   port: Number(process.env.PORT),
@@ -21,18 +20,22 @@ const poolConfig: PoolConfig = {
 
 const pool: Pool = new pg.Pool(poolConfig);
 
-async function queryPool(po: Pool, sql: string, params: Array<string>): Promise<QueryResult<any>> {
-  
-  let res = undefined;
-  if (params){
-    res = await po.query(sql, params);
-  }
+async function queryPool(
+  po: Pool,
+  sql: string,
+  params: Array<string>
+): Promise<QueryResult<any>> {
+  const res = await po.query(sql, params);
   return res;
 }
 
-async function queryPoolFromProcedure(po: Pool, pro: DBProcedure, params: Array<string>): Promise<QueryResult<any>> {
-  const sql = convertToSql(pro,params);
+async function queryPoolFromProcedure(
+  po: Pool,
+  pro: DBProcedure,
+  params: Array<string>
+): Promise<QueryResult<any>> {
+  const sql = convertToSql(pro, params);
   return queryPool(po, sql, params);
 }
 
-export { pool, queryPool, queryPoolFromProcedure};
+export { pool, queryPool, queryPoolFromProcedure };

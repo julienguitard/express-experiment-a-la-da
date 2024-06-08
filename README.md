@@ -126,14 +126,36 @@ The persistent objects are:
     - Insert procedures for these tables using this pure procedures and the first types of views above;
     - View procedures uses by the app, possibly calling inserting procedures above
 
-### Tables
-[TO DO]
+The main tables in the schema are:
+
+- `users_core`: Stores core user information like ID, creation time, username, and password.
+- `users_events`: Stores events related to users, such as user ID, time, event key, and value.
+- `artists_core`: Stores core artist information like ID, user ID, and creation time.
+- `artists_events`: Stores events related to artists, such as artist ID, time, event key, and value.
+- `works_core`: Stores core work information like ID, artist ID, creation time, and work name.
+- `works_events`: Stores events related to works, such as work ID, time, event key, and value.
+- `users_artists_core`: Stores the relationship between users and artists, including user ID, artist ID, and creation time.
+- `users_artists_events`: Stores events related to the user-artist relationship, such as user-artist ID, time, event key, and value.
+- `users_works_core`: Stores the relationship between users and works, including user ID, work ID, and creation time.
+- `users_works_events`: Stores events related to the user-work relationship, such as user-work ID, time, event key, and value.
 
 ### Views
-[TO DO]
+The schema includes various views for encapsulating updates, merges, and deletes, as well as views to be used by the app's procedures. Some notable views are:
+
+- `users`, `artists`, `works`, `users_artists`, `users_works`: Basic views combining core data and events for each entity.
+- `non_deleted_users_ids`, `users_without_deleted`, `artists_without_deleted`, `works_without_deleted`, `users_artists_without_deleted`, `users_works_without_deleted`: Views filtering out deleted users, artists, works, and their relationships.
+- `non_withdrawn_works_ids`, `works_without_withdrawn`, `users_works_without_withdrawn`: Views filtering out withdrawn works and related user-work relationships.
+- `non_banned_users_artists_ids`, `users_artists_without_banned`, `users_works_without_banned`: Views filtering out banned user-artist relationships and related user-work relationships.
+- `checkable_signins`, `checkable_signups`, `seeable_watchers`, `more_seeable_watchers`, `my_seeable_works`, `more_of_my_seeable_works`, `seeable_artists`, `more_seeable_artists`, `seeable_works`, `more_seeable_works`, `viewable_users`, `viewable_artists`, `viewable_works_of_artist`: Views for various read operations related to users, artists, and works.
 
 ### Procedures
-[TO DO]
+The schema includes several procedures for generating and inserting data into the tables, as well as view procedures to be used by the app. Some notable procedures are:
+
+- `generate_user`, `generate_user_event`, `generate_artist`, `generate_artist_event`, `generate_work`, `generate_work_event`, `generate_user_artist`, `generate_user_artist_event`, `generate_user_work`, `generate_user_work_event`: Pure procedures for generating rows of the respective table types.
+- `insert_user`, `insert_user_event`, `insert_artist`, `insert_artist_event`, `insert_work`, `insert_work_event`, `insert_user_artist`, `insert_user_artist_event`, `insert_user_work`, `insert_user_work_event`: Insert procedures for the respective tables, using the pure procedures and views for handling updates, merges, and deletes.
+- `check_login`, `see_my_watchers`, `see_more_users`, `see_my_works`, `see_more_of_my_works`, `see_my_watched_artists`, `see_more_artists`, `see_my_liked_works`, `see_more_works`: View procedures for various read operations related to users, artists, and works.
+- `insert_into_requests_logs`, `insert_into_responses_logs`, `insert_into_errors_logs`, `select_full_logs`: Procedures for logging requests, responses, errors, and retrieving full logs.
+
 
 # Implementation
 [TO DO]

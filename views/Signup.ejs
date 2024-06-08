@@ -7,7 +7,7 @@
   <title>Sandbox</title>
 </head>
 
-<form action="/parametrized/landing/signup/submit" method="post">
+<form action="/landing/signup/submit" method="post">
   <label for="userName">User Name:</label><br>
   <input id="userName" type="text" name="userName"><br>
   <label for="pwd">Password:</label><br>
@@ -17,7 +17,7 @@
   <input type="submit" value="Submit" class="insert">
 </form>
 
-<a href="/parametrized/landing/signin"> Sign up </a>
+<a href="/landing/signin"> Sign up </a>
 
 <%  if (userName) {  %>
   <p> Signed as <%= userName %> </p>

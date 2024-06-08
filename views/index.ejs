@@ -1,3 +1,33 @@
-<%- include('Header.ejs',indexProps.header);%>
-<%- include('Body.ejs',{routes:['/users','/artists','/works','/logs','/api/logs']});%>
-<%- include('Footer.ejs',indexProps.footer);%>
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <link href="/css/aigenerated.css" rel="stylesheet" type="text/css" >
+  <title>Sandbox</title>
+</head>
+
+<form action="/landing/signin">
+  <input type="submit"  class="view" value="Sign in" />
+</form>
+
+<form action="/landing/signup">
+  <input type="submit"  class="insert" value="Sign up" />
+</form>
+
+
+<%  if (userName) {  %>
+<p> Signed as <%= userName %> </p>
+<%  }
+else { %>
+<p> Not signed in </p>
+<%}
+if (startTime) { %>
+<p> Started browsing at <%= startTime  %> </p>
+<%  }
+else { %>
+<p> Started browsing now </p>
+<%  } %>
+
+
+</html>
