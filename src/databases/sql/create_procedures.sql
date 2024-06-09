@@ -407,16 +407,17 @@ SELECT * FROM users_works_events_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION check_login (TEXT,TEXT) RETURNS users
+CREATE OR REPLACE FUNCTION check_signin (TEXT,TEXT) RETURNS checkable_signins_
 AS
 $$
-SELECT t0.user_id,
-       COALESCE(t1.artist_id,'undefined') AS artist_id
-FROM (SELECT user_id
-      FROM users_without_deleted
-      WHERE user_name = 'jake'
-      AND   pwd = 'pwd') t0
-  LEFT JOIN (SELECT artist_id, user_id FROM artists_without_deleted) t1 ON t0.user_id = t1.user_id;
+SELECT user_id, user_name, artist_id FROM checkable_signins WHERE user_name=$1 and pwd=$2
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION check_signup (TEXT,TEXT,TEXT,TEXT) RETURNS checkable_signups_
+AS
+$$
+SELECT * FROM insert_user($1,$2,$3,$4);
+SELECT user_id, user_name FROM checkable_signups WHERE user_id = $1
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION see_my_watchers (TEXT) RETURNS artists

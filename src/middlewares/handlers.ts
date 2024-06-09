@@ -397,19 +397,6 @@ function outputCallbackBuilder(route: string, url?: string): any {
   }
 }
 
-function parseSQLOutput(
-  data: { fields: Array<{ name: string }>; rows: Array<Record<string, any>> },
-  cb?: (field: string, value: any) => any
-): { fields: Array<string>; rows: Array<Array<any>> } {
-  const fields = data.fields.map((f) => f.name);
-  let rows = data.rows.map((r) => fields.map((c) => r[c]));
-  if (cb) {
-    rows = data.rows.map((r) => fields.map((c) => cb(c, r[c])));
-  }
-  const parsedData = { fields: fields, rows: rows };
-  return parsedData;
-}
-
 function convertToCellProps(field: string, cell: any): CellProps {
   let props = { value: cell, link: undefined };
   if (field === "user_id") {
@@ -502,4 +489,4 @@ async function fallbackToHome(
   res.redirect("/home");
 }
 
-export { getTime, parseSQLOutput, checkAnswer, fallbackToIndex, fallbackToHome, buildErrorHandler };
+export { getTime, checkAnswer, fallbackToIndex, fallbackToHome, buildErrorHandler };

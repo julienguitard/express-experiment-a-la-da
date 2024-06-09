@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { Session } from "../express-session";
-import { copyFile } from "fs";
 import pg, { PoolConfig, Pool, QueryResult } from "pg";
-import { nextTick } from "process";
 import { pool, queryPool, queryPoolFromProcedure } from "../databases/index.js";
 import { RouteData, Controler, RoutePath, DBProcedure } from "../types";
 import {
@@ -11,7 +9,11 @@ import {
   fallbackToIndex,
   fallbackToHome,
   buildErrorHandler,
+  getTime,
 } from "./handlers";
+import {promiseRecord} from "../utils/naturalTransformations";
+import {hash} from "../utils/hash";
+import {mergeInto,updateInto} from "../utils/objectTransformations";
 import { request } from "http";
 
 /*function buildControler(reqParamsHandler: (route: TypedRequest<TypedSession>["route"], session: TypedRequest<TypedSession>["session"], params: TypedRequest<TypedSession>["params"]) => Record<string, any>,
@@ -45,7 +47,7 @@ function buildControler(
 }
 
 function buildParametrizedControler(
-  data: RoutesData
+  data: RouteData
 ): (req: Request, res: Response, next: NextFunction) => void {
   function mdw(req: Request, res: Response, next: NextFunction) {
     if (data.redirect !== undefined) {
@@ -105,12 +107,15 @@ function builder(rou: RoutePath): Controler {
         res: Response,
         next: NextFunction
       ): Promise<void> {
-        const procParams = await [req.body.userName, req.body.pwd];
+        const procParams = [req.body.userName, req.body.pwd];
         const procResults = queryPoolFromProcedure(
           pool,
           "check_signin",
           procParams
         );
+        console.log('procResults');
+        procResults.then((r)=>console.log(r)).catch((err)=>console.log('query error : '+ err));
+
         const updateReq = procResults
           .then((r) => {
             if (r.rows.length === 1) {
@@ -137,11 +142,12 @@ function builder(rou: RoutePath): Controler {
         res: Response,
         next: NextFunction
       ): Promise<void> {
-        const procParams = await [
+        const procParams = (req.body.pwd === req.body.confirmedPwd)?[
+          hash(req.body.userName),
+          getTime(),
           req.body.userName,
-          req.body.pwd,
-          req.body.confirmedPwd,
-        ];
+          hash(req.body.pwd),
+        ]:undefined;
         const procResults = queryPoolFromProcedure(
           pool,
           "check_signup",
@@ -214,4 +220,4 @@ function builder(rou: RoutePath): Controler {
   return mdw;
 }
 
-export { buildControler, buildParametrizedControler };
+export { buildControler, buildParametrizedControler, builder };

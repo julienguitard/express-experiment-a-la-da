@@ -156,92 +156,92 @@ declare type DBProcedure =
     | keyof DBProcedureResultsMappingType;
 
 declare type DBProcedureArgsMappingType = {
-    insert_user_event: [{ userId: string }, { time: string }, { key: string }];
-    insert_artist: [{ artistId: string }, { time: string }, { userId: string }];
-    insert_artist_event: [
+    insert_user_event: Iterable<[{ userId: string }, { time: string }, { key: string }]>;
+    insert_artist: Iterable<[{ artistId: string }, { time: string }, { userId: string }]>;
+    insert_artist_event: Iterable<[
         { artistId: string },
         { time: string },
         { key: string }
-    ];
-    insert_work: [
+    ]>;
+    insert_work:Iterable<[
         { workId: string },
         { artistId: string },
         { time: string },
         { workName: string }
-    ];
-    insert_user: [
+    ]>;
+    insert_user: Iterable<[
         { userId: string },
         { time: string },
         { userName: string },
         { pwd: string }
-    ];
-    insert_work_event: [{ workId: string }, { time: string }, { key: string }];
-    insert_user_artist: [
+    ]>;
+    insert_work_event: Iterable<[{ workId: string }, { time: string }, { key: string }]>;
+    insert_user_artist: Iterable<[
         { userArtistId: string },
         { userId: string },
         { artistId: string },
         { time: string }
-    ];
-    insert_user_artist_event: [
+    ]>;
+    insert_user_artist_event:Iterable<[
         { userArtistId: string },
         { time: string },
         { key: string }
-    ];
-    insert_user_work: [
+    ]>;
+    insert_user_work: Iterable<[
         { userWorkId: string },
         { userId: string },
         { workId: string },
         { time: string }
-    ];
-    insert_user_work_event: [
+    ]>;
+    insert_user_work_event:Iterable<[
         { userWorkId: string },
         { time: string },
         { key: string }
-    ];
-    check_signin: [{ userName: string }, { pwd: string }];
-    check_signup: [
+    ]>;
+    check_signin:Iterable<[{ userName: string }, { pwd: string }]>;
+    check_signup: Iterable<[
         { userName: string },
         { pwd: string },
         { confirmedPwd: string }
-    ];
-    see_my_watchers: [{ artistId: string }];
-    see_more_users: [{ artistId: string }];
-    see_my_works: [{ artistId: string }];
-    see_more_of_my_works: [{ artistId: string }];
-    see_my_watched_artists: [{ userId: string }];
-    see_more_artists: [{ userId: string }];
-    see_my_liked_works: [{ userId: string }];
-    see_more_works: [{ userId: string }];
-    view_user: [{ artistId: string }, { userId: string }];
-    view_artist: [{ artistId: string }, { userId: string }];
-    view_works_of_artists: [{ artistId: string }, { userId: string }];
-    view_work: [{ userId: string }, { workId: string }];
-    ban_watcher: [{ artistId: string }, { userId: string }];
-    submit_work: [{ artistId: string }, { workName: string }];
-    withdraw_work: [{ artistId: string }, { workId: string }];
-    submit_first_work: [{ userId: string }, { workName: string }];
-    watch_artist: [{ userId: string }, { artistId: string }];
-    unwatch_artist: [{ userId: string }, { artistId: string }];
-    like_work: [{ userId: string }, { workId: string }];
-    unlike_work: [{ userId: string }, { workId: string }];
-    insert_into_requests_logs: [
+    ]>;
+    see_my_watchers:Iterable<[{ artistId: string }]>;
+    see_more_users:Iterable<[{ artistId: string }]>;
+    see_my_works:Iterable<[{ artistId: string }]>;
+    see_more_of_my_works: Iterable<[{ artistId: string }]>;
+    see_my_watched_artists: Iterable<[{ userId: string }]>;
+    see_more_artists:Iterable<[{ userId: string }]>;
+    see_my_liked_works: Iterable<[{ userId: string }]>;
+    see_more_works:Iterable<[{ userId: string }]>;
+    view_user:Iterable<[{ artistId: string }, { userId: string }]>;
+    view_artist:Iterable<[{ artistId: string }, { userId: string }]>;
+    view_works_of_artists:Iterable<[{ artistId: string }, { userId: string }]>;
+    view_work:Iterable<[{ userId: string }, { workId: string }]>;
+    ban_watcher:Iterable<[{ artistId: string }, { userId: string }]>;
+    submit_work: Iterable<[{ artistId: string }, { workName: string }]>;
+    withdraw_work: Iterable<[{ artistId: string }, { workId: string }]>;
+    submit_first_work: Iterable<[{ userId: string }, { workName: string }]>;
+    watch_artist:Iterable<[{ userId: string }, { artistId: string }]>;
+    unwatch_artist: Iterable<[{ userId: string }, { artistId: string }]>;
+    like_work:Iterable<[{ userId: string }, { workId: string }]>;
+    unlike_work:Iterable<[{ userId: string }, { workId: string }]>;
+    insert_into_requests_logs: Iterable<[
         { time: string },
         { path: string },
         { methods: Array<string> }
-    ];
-    insert_into_responses_logs: [
+    ]>;
+    insert_into_responses_logs: Iterable<[
         { time: string },
         { path: string },
         { methods: Array<string> },
         { error: Error }
-    ];
-    insert_into_errors_logs: [
+    ]>;
+    insert_into_errors_logs:Iterable<[
         { time: string },
         { path: string },
         { methods: Array<string> },
         { error: Error }
-    ];
-    select_full_logs: [];
+    ]>;
+    select_full_logs: Iterable<[]>;
 };
 
 declare type DBProcedureResultsMappingType = {

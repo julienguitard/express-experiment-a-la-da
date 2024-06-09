@@ -8,6 +8,7 @@ import {
 
 import {
   buildControler,
+  builder,
   buildParametrizedControler,
 } from "../middlewares/factory.js";
 
@@ -84,18 +85,34 @@ const routesParams: RoutePathParams = {
 
 
 const routes:Array<RouteData> = Object.entries(routesParams).map(
-  ([k, v]) => {
-    return {
-      route: k,
-      method: (v.method === undefined) ? "get" : v.method,
-      controlers: [
-        consoleControler,
-        sessionFirstUpdateControler,
-        logToPostgresControler,
-        buildParametrizedControler(v),
-      ],
-    };
-  }
+  ([k, v],i) => {
+    if(i<5){
+      console.log('Get into builder')
+      return  {
+        route: k,
+        method: (v.method === undefined) ? "get" : v.method,
+        controlers: [
+          consoleControler,
+          sessionFirstUpdateControler,
+          logToPostgresControler,
+          builder(k),
+        ],
+      };
+    }
+    else {
+      return {
+        route: k,
+        method: (v.method === undefined) ? "get" : v.method,
+        controlers: [
+          consoleControler,
+          sessionFirstUpdateControler,
+          logToPostgresControler,
+          buildParametrizedControler(v),
+        ],
+      };
+    }
+    }
+    
 );
 
 

@@ -6,12 +6,14 @@ import { pool, queryPool, queryPoolFromProcedure } from "../databases/index.js";
 import { hash } from "../utils/hash";
 import { UbiquitousConcept } from "../types";
 import {
-  parseSQLOutput,
+  getTime,
   checkAnswer,
   fallbackToIndex,
   fallbackToHome,
   buildErrorHandler,
 } from "./handlers";
+import { parseSQLOutput } from "../databases/factory";
+
 
 const consoleControler = function (
   req: Request,
@@ -131,6 +133,7 @@ const pageNotFoundControler = function (
   res: Response,
   next: NextFunction
 ): void {
+  console.log('Oh no !!!!!')
   next(createError(404));
 };
 

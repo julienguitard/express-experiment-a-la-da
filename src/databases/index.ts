@@ -1,8 +1,8 @@
 import dotenv_, { DotenvConfigOutput } from "dotenv";
 import pg, { PoolConfig, Pool, QueryResult } from "pg";
-import { DBProcedure } from "../types.js";
+import { DBProcedure, DBProcedureArgsMappingType } from "../types.js";
 import errorConsoleLog from "../utils/errorConsoleLog.js";
-import { convertToSql } from "./factory.js";
+import { convertToSql, parseSQLOutput } from "./factory.js";
 
 const dotenv: DotenvConfigOutput = dotenv_.config();
 const poolConfig: PoolConfig = {
@@ -25,7 +25,8 @@ async function queryPool(
   sql: string,
   params: Array<string>
 ): Promise<QueryResult<any>> {
-  const res = await po.query(sql, params);
+  const res = po.query(sql, params);
+  res.then((r)=>console.log('Query is :' + sql + '\nResult is:' + parseSQLOutput(r)));
   return res;
 }
 
