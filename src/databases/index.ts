@@ -26,7 +26,7 @@ async function queryPool(
   params: Array<string>
 ): Promise<QueryResult<any>> {
   const res = po.query(sql, params);
-  res.then((r)=>console.log('Query is :' + sql + '\nResult is:' + parseSQLOutput(r)));
+  res.then((r)=>console.log('results is',parseSQLOutput(r)));
   return res;
 }
 

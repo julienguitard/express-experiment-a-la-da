@@ -14,9 +14,16 @@ declare type RoutePath =
     | "/landing/signin/submit"
     | "/landing/signup/submit"
     | "/home"
-    | "/profile/works/work/:workId"
-    | "/profile/artists/artist/:artistId"
+    | "/home/works/firstSubmit"
+    | "/home/works/firstSubmit/submit"
+    | "/home/works/submit"
+    | "/home/works/submit/submit"
+    | "/home/users/more"
+    | "/home/artists/more"
+    | "/home/works/more"
     | "/profile/users/user/:userId"
+    | "/profile/artists/artist/:artistId"
+    | "/profile/works/work/:workId"
     | "/profile/users/user/:userWorkId/ban"
     | "/profile/users/user/:userWorkId/ban/submit"
     | "/profile/artists/artist/:artistId/watch"
@@ -25,11 +32,6 @@ declare type RoutePath =
     | "/profile/works/work/:workId/like"
     | "/profile/works/work/:userWorkId/like"
     | "/profile/works/work/:userWorkId/unlike"
-    | "/home/users/more"
-    | "/home/artists/more"
-    | "/home/works/more"
-    | "/home/works/submit"
-    | "/home/works/submit/submit"
     | "/signout"
     | "/signout/submit"
     | "/delete"
@@ -160,92 +162,94 @@ declare type DBProcedure =
     | keyof DBProcedureResultsMappingType;
 
 declare type DBProcedureArgsMappingType = {
-    insert_user_event: Iterable<[{ userId: string }, { time: string }, { key: string }]>;
-    insert_artist: Iterable<[{ artistId: string }, { time: string }, { userId: string }]>;
+    insert_user_event: Iterable<[{ userId: string }, { time: string }, { key: string }]>,
+    insert_artist: Iterable<[{ artistId: string }, { time: string }, { userId: string }]>,
     insert_artist_event: Iterable<[
         { artistId: string },
         { time: string },
         { key: string }
-    ]>;
+    ]>,
     insert_work:Iterable<[
         { workId: string },
         { artistId: string },
         { time: string },
         { workName: string }
-    ]>;
+    ]>,
     insert_user: Iterable<[
         { userId: string },
         { time: string },
         { userName: string },
         { pwd: string }
-    ]>;
-    insert_work_event: Iterable<[{ workId: string }, { time: string }, { key: string }]>;
+    ]>,
+    insert_work_event: Iterable<[{ workId: string }, { time: string }, { key: string }]>,
     insert_user_artist: Iterable<[
         { userArtistId: string },
         { userId: string },
         { artistId: string },
         { time: string }
-    ]>;
+    ]>,
     insert_user_artist_event:Iterable<[
         { userArtistId: string },
         { time: string },
         { key: string }
-    ]>;
+    ]>,
     insert_user_work: Iterable<[
         { userWorkId: string },
         { userId: string },
         { workId: string },
         { time: string }
-    ]>;
+    ]>,
     insert_user_work_event:Iterable<[
         { userWorkId: string },
         { time: string },
         { key: string }
-    ]>;
-    check_signin:Iterable<[{ userName: string }, { pwd: string }]>;
+    ]>,
+    check_signin:Iterable<[{ userName: string }, { pwd: string }]>,
     check_signup: Iterable<[
         { userName: string },
         { pwd: string },
         { confirmedPwd: string }
-    ]>;
-    see_my_watchers:Iterable<[{ artistId: string }]>;
-    see_more_users:Iterable<[{ artistId: string }]>;
-    see_my_works:Iterable<[{ artistId: string }]>;
-    see_more_of_my_works: Iterable<[{ artistId: string }]>;
-    see_my_watched_artists: Iterable<[{ userId: string }]>;
-    see_more_artists:Iterable<[{ userId: string }]>;
-    see_my_liked_works: Iterable<[{ userId: string }]>;
-    see_more_works:Iterable<[{ userId: string }]>;
-    view_user:Iterable<[{ artistId: string }, { userId: string }]>;
-    view_artist:Iterable<[{ artistId: string }, { userId: string }]>;
-    view_works_of_artists:Iterable<[{ artistId: string }, { userId: string }]>;
-    view_work:Iterable<[{ userId: string }, { workId: string }]>;
-    ban_watcher:Iterable<[{ artistId: string }, { userId: string }]>;
-    submit_work: Iterable<[{ artistId: string }, { workName: string }]>;
-    withdraw_work: Iterable<[{ artistId: string }, { workId: string }]>;
-    submit_first_work: Iterable<[{ userId: string }, { workName: string }]>;
-    watch_artist:Iterable<[{ userId: string }, { artistId: string }]>;
-    unwatch_artist: Iterable<[{ userId: string }, { artistId: string }]>;
-    like_work:Iterable<[{ userId: string }, { workId: string }]>;
-    unlike_work:Iterable<[{ userId: string }, { workId: string }]>;
+    ]>,
+    see_my_watchers:Iterable<[{ artistId: string }]>,
+    see_more_users:Iterable<[{ artistId: string }]>,
+    see_my_works:Iterable<[{ artistId: string }]>,
+    see_more_of_my_works: Iterable<[{ artistId: string }]>,
+    see_my_watched_artists: Iterable<[{ userId: string }]>,
+    see_more_artists:Iterable<[{ userId: string }]>,
+    see_my_liked_works: Iterable<[{ userId: string }]>,
+    see_more_works:Iterable<[{ userId: string }]>,
+    view_user:Iterable<[{ artistId: string }, { userId: string }]>,
+    view_artist:Iterable<[{ artistId: string }, { userId: string }]>,
+    view_works_of_artist:Iterable<[{ artistId: string }, { userId: string }]>,
+    view_work:Iterable<[{ userId: string }, { workId: string }]>,
+    ban_watcher:Iterable<[{ artistId: string }, { userId: string }]>,
+    submit_work: Iterable<[{ artistId: string }, { workName: string }]>,
+    withdraw_work: Iterable<[{ artistId: string }, { workId: string }]>,
+    submit_my_first_work: Iterable<[{ userId: string }, { workName: string }]>,
+    watch_artist:Iterable<[{ userId: string }, { artistId: string }]>,
+    unwatch_artist: Iterable<[{ userId: string }, { artistId: string }]>,
+    like_work:Iterable<[{ userId: string }, { workId: string }]>,
+    unlike_work:Iterable<[{ userId: string }, { workId: string }]>,
+    signout:Iterable<[{ userId: string }, { userName: string },{artistId:string}?]>,
+    delete:Iterable<[{ userId: string }, { userName: string },{artistId:string}?]>,
     insert_into_requests_logs: Iterable<[
         { time: string },
         { path: string },
         { methods: Array<string> }
-    ]>;
+    ]>,
     insert_into_responses_logs: Iterable<[
         { time: string },
         { path: string },
         { methods: Array<string> },
         { error: Error }
-    ]>;
+    ]>,
     insert_into_errors_logs:Iterable<[
         { time: string },
         { path: string },
         { methods: Array<string> },
         { error: Error }
-    ]>;
-    select_full_logs: Iterable<[]>;
+    ]>,
+    select_full_logs: Iterable<[]>,
 };
 
 declare type DBProcedureResultsMappingType = {

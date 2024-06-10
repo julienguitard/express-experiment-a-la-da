@@ -4,11 +4,53 @@ import { queryPool, queryPoolFromProcedure } from "../databases/index.js";
 import { hash } from "../utils/hash.js";
 import { Session, SessionData } from "express-session";
 import {
-  DBProcedures,
+  DBProcedure,
   DBProcedureArgsMappingType,
   DBProcedureResultsMappingType,
+  RoutePath,
 } from "../types";
-import { UbiquitousConcept, CellProps } from "../types.js";
+import { UbiquitousConcept } from "../types.js";
+
+
+const RouteDBProcedureDict: Record<RoutePath, DBProcedure | Record<string, DBProcedure>> = {
+  "/": {},
+  "/landing/signin": {},
+  "/landing/signup": {},
+  "/landing/signin/submit": 'check_signin',
+  "/landing/signup/submit": 'check_signup',
+  "/home": {
+    see_my_watchers: 'see_my_watchers',
+    see_my_works: 'see_my_works',
+    see_my_watched_artists: 'see_my_watched_artists',
+    see_my_liked_works: 'see_my_watched_artists',
+  },
+  "/home/works/firstSubmit": {},
+  "/home/works/firstSubmit/submit": 'submit_my_first_work',
+  "/home/works/submit": {},
+  "/home/works/submit/submit": 'submit_work',
+  "/home/users/more": 'see_more_users',
+  "/home/artists/more": 'see_more_artists',
+  "/home/works/more": 'see_more_works',
+  "/profile/users/user/:userId": 'view_user',
+  "/profile/artists/artist/:artistId": {
+    view_artist: 'view_artist',
+    view_works_of_artist: 'view_works_of_artist'
+  },
+  "/profile/works/work/:workId": 'view_work',
+  "/profile/users/user/:userWorkId/ban": {},
+  "/profile/users/user/:userWorkId/ban/submit": 'ban_watcher',
+  "/profile/artists/artist/:artistId/watch": 'watch_artist',
+  "/profile/artists/artist/:userArtistId/watch": 'watch_artist',
+  "/profile/artists/artist/:userArtistId/unwatch": 'unwatch_artist',
+  "/profile/works/work/:workId/like": 'like_work',
+  "/profile/works/work/:userWorkId/like": 'like_work',
+  "/profile/works/work/:userWorkId/unlike": 'like_work',
+  "/signout": {},
+  "/signout/submit": 'signout',
+  "/delete": {},
+  "/delete/submit": 'delete'
+
+}
 
 function getDBprocedureArgs<T extends DBProcedures>(
   pro: T,
@@ -21,6 +63,14 @@ function getDBprocedureArgs<T extends DBProcedures>(
   error?: Error
 ): DBProcedureArgsMappingType[T] {
   switch (pro) {
+    case "insert_user":
+      return [
+        { userId: session.userId },
+        { time: session.reqTime },
+        { userName: session.userName },
+        { pwd: hash(bodyParams.pwd) },
+      ];
+      break;
     case "insert_user_event":
       return [
         { userId: session.userId },
@@ -50,14 +100,6 @@ function getDBprocedureArgs<T extends DBProcedures>(
         { workName: bodyParams.workName },
       ];
       break;
-    case "insert_user":
-      return [
-        { userId: session.userId },
-        { time: session.reqTime },
-        { userName: session.userName },
-        { pwd: hash(bodyParams.pwd) },
-      ];
-      break;
     case "insert_work_event":
       return [
         { workId: params.workId },
@@ -68,7 +110,7 @@ function getDBprocedureArgs<T extends DBProcedures>(
     case "insert_user_artist":
       if (session.userId) {
         return [
-          { userArtistId: merge(session.userId, params.artistId) },
+          { userArtistId: hash(merge(session.userId, params.artistId)) },
           { userId: session.userId },
           { artistId: session.artistId },
           { time: session.reqTime },
@@ -80,7 +122,7 @@ function getDBprocedureArgs<T extends DBProcedures>(
     case "insert_user_artist_event":
       if (session.userId) {
         return [
-          { userArtistId: merge(session.userId, params.artistId) },
+          { userArtistId: hash(merge(session.userId, params.artistId)) },
           { time: session.reqTime },
           { key: "create" },
         ];
@@ -91,7 +133,7 @@ function getDBprocedureArgs<T extends DBProcedures>(
     case "insert_user_work":
       if (session.userId) {
         return [
-          { userWorkId: merge(session.userId, params.workId) },
+          { userWorkId: hash(merge(session.userId, params.workId)) },
           { userId: session.userId },
           { workId: params.workId },
           { time: session.reqTime },
@@ -103,7 +145,7 @@ function getDBprocedureArgs<T extends DBProcedures>(
     case "insert_user_work_event":
       if (session.userId) {
         return [
-          { userWorkId: merge(session.userId, params.workId) },
+          { userWorkId: hash(merge(session.userId, params.workId)) },
           { time: session.reqTime },
           { key: "create" },
         ];
@@ -213,188 +255,20 @@ function getDBprocedureArgs<T extends DBProcedures>(
   }
 }
 
+console.log()
+
 async function getDBprocedureOuputs<T extends DBProcedures>(
-  pool:Pool,
-  pro : T,
-  args : DBProcedureArgsMappingType[T]
-) : Promise<Array<DBProcedureResultsMappingType[T]>>
-{
-  const res = await queryPoolFromProcedure(pool,pro,args.map((k,v)=>v[0])).rows;
+  pool: Pool,
+  pro: T,
+  args: DBProcedureArgsMappingType[T]
+): Promise<Array<DBProcedureResultsMappingType[T]>> {
+  const res = await queryPoolFromProcedure(pool, pro, args.map((k, v) => v[0])).rows;
   return res;
 }
 
-function getTitle(): string {
-  return "Jus page";
-}
 
-function getHeader(): Header {
-  return { title: getTitle() };
-}
-
-function getTime(): string {
+function getEpochString(): string {
   return (Date.now() / 1000).toString();
-}
-
-function getSigninAs(session: SessionData): string {
-  return session.userId || "none";
-}
-
-function getStartTime(session: SessionData): string {
-  return session.startTime || getTime();
-}
-
-
-
-//function getFormProps(formType:string):Form{
-//
-//}
-
-function getUserId(
-  route: Request["route"],
-  session: SessionData,
-  params: Request["params"]
-): string {
-  if (":artistId" in route.split("/")) {
-    return params.userId;
-  } else if (session.userId) {
-    return session.userId;
-  } else if (params.userName && params.pwd) {
-    return hash(params.userName);
-  } else {
-    throw Error("Unmatched case");
-  }
-}
-
-function getUserName(params: Request["params"]): string {
-  if (params.userName && params.pwd) {
-    return params.userName;
-  } else {
-    throw Error("Unmatched case");
-  }
-}
-
-function getPwd(params: Request["params"]): string {
-  if (params.userName && params.pwd) {
-    return hash(params.pwd);
-  } else {
-    throw Error("Unmatched case");
-  }
-}
-
-function getKey(route: Request["route"]): string {
-  //TO DO
-  if ("delete" in route.split("/")) {
-    return "delete";
-  } else if ("watch" in route.split("/")) {
-    return "watch";
-  } else if ("signup" in route.split("/")) {
-    return "create";
-  } else if ("submit" in route.split("/")) {
-    return "submit";
-  } else if ("like" in route.split("/")) {
-    return "like";
-  } else {
-    return "create";
-  }
-}
-
-function getArtistId(
-  route: Request["route"],
-  session: SessionData,
-  params: Request["params"]
-): string {
-  if (":artistId" in route.split("/")) {
-    return params.artistId;
-  } else if (session.artistId) {
-    return session.artistId;
-  } else if (session.userId) {
-    return hash(session.userId);
-  } else {
-    throw Error("Unmatched case");
-  }
-}
-
-function getWorkId(route: Request["route"], params: Request["params"]): string {
-  if (":workId" in route.split("/")) {
-    return params.workId;
-  } else {
-    throw Error("Unmatched case");
-  }
-}
-
-function getUserArtistId(
-  route: Request["route"],
-  session: SessionData,
-  params: Request["params"]
-): string {
-  if (":artistId" in route.split("/") && session.userId) {
-    return hash(params.artistId + session.userId);
-  } else {
-    throw Error("Unmatched case");
-  }
-}
-
-function getUserWorkId(
-  route: Request["route"],
-  session: SessionData,
-  params: Request["params"]
-): string {
-  if (":workId" in route.split("/") && session.userId) {
-    return hash(params.workId + session.userId);
-  } else {
-    throw Error("Unmatched case");
-  }
-}
-
-function requestParamsHandler(
-  route: Request["route"],
-  session: SessionData,
-  params: Request["params"]
-): Record<string, any> {
-  return {
-    userId: getUserId(route, session, params),
-    time: getTime(),
-    userName: getUserName(params),
-    pwd: getPwd(params),
-    key: getKey(route),
-    artistId: getArtistId(route, session, params),
-    workId: getWorkId(route, params),
-    userArtistId: getUserArtistId(route, session, params),
-    workArtistId: getUserWorkId(route, session, params),
-  };
-}
-
-function dbHandlerBuilder(
-  pool: Pool,
-  proc: string,
-  procArgs: Array<string>
-): (params: Record<string, any>) => Promise<QueryResult<any>> {
-  function dbHandler(params: Record<string, any>): Promise<QueryResult<any>> {
-    return queryPool(
-      pool,
-      "SELECT * FROM " + proc,
-      procArgs.map((a) => params[a])
-    );
-  }
-  return dbHandler;
-}
-
-function outputCallbackBuilder(route: string, url?: string): any {
-  if ("api" in route.split("/")) {
-    return (res: Response, props: Object) => {
-      res.json(props);
-    };
-  } else if (route) {
-    return (res: Response, props: Object) => {
-      res.render("index.js", props);
-    };
-  } else if (url) {
-    return (res: Response, props: Object) => {
-      res.redirect(url);
-    };
-  } else {
-    throw Error("Unmatched case");
-  }
 }
 
 function convertToCellProps(field: string, cell: any): CellProps {
@@ -403,37 +277,37 @@ function convertToCellProps(field: string, cell: any): CellProps {
     Object.defineProperty(
       props,
       "link",
-      `//profile/users/user?${cell}`
+      `/profile/users/user?${cell}`
     );
   } else if (field === "artist_id") {
     Object.defineProperty(
       props,
       "link",
-      `//profile/artists/artist?${cell}`
+      `/profile/artists/artist?${cell}`
     );
   } else if (field === "work_id") {
     Object.defineProperty(
       props,
       "link",
-      `//profile/works/work?${cell}`
+      `/profile/works/work?${cell}`
     );
   } else if (field === "ban") {
     Object.defineProperty(
       props,
       "link",
-      `//profile/users/user?${cell}/ban`
+      `/profile/users/user?${cell}/ban`
     );
   } else if (field === "withdraw") {
     Object.defineProperty(
       props,
       "link",
-      `//profile/works/work?${cell}/withdraw`
+      `/profile/works/work?${cell}/withdraw`
     );
   } else if (field === "unlike") {
     Object.defineProperty(
       props,
       "link",
-      `//profile/works/work?${cell}/unlike`
+      `/profile/works/work?${cell}/unlike`
     );
   }
   return props;
@@ -445,7 +319,7 @@ const buildErrorHandler = function (
   cb?: (err: Error) => void
 ): (err: Error) => void {
   function errorHandler(err: Error) {
-    const no = getTime();
+    const no = getEpochString();
     if (req.session.reqTime && req.session.path) {
       const resQuery = queryPoolFromProcedure(pool, "insert_into_errors_logs", [
         req.session.reqTime,
@@ -453,7 +327,7 @@ const buildErrorHandler = function (
         req.session.path,
         err.message,
       ]);
-      if (cb){
+      if (cb) {
         cb(err);
       }
     }
@@ -489,4 +363,4 @@ async function fallbackToHome(
   res.redirect("/home");
 }
 
-export { getTime, checkAnswer, fallbackToIndex, fallbackToHome, buildErrorHandler };
+export { getEpochString, checkAnswer, fallbackToIndex, fallbackToHome, buildErrorHandler };

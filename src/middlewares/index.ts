@@ -6,7 +6,7 @@ import { pool, queryPool, queryPoolFromProcedure } from "../databases/index.js";
 import { hash } from "../utils/hash";
 import { UbiquitousConcept } from "../types";
 import {
-  getTime,
+  getEpochString,
   checkAnswer,
   fallbackToIndex,
   fallbackToHome,
@@ -31,8 +31,8 @@ const consoleControler = function (
 };
 
 function updateSessionInitially(session: SessionData, req: Request): void {
-  session.reqTime = getTime();
-  session.startTime = session.startTime ?? getTime();
+  session.reqTime = getEpochString();
+  session.startTime = session.startTime ?? getEpochString();
   session.userId = session.userId ?? "Admin";
   session.userName = session.userName ?? "Admin";
   session.artistId = session.artistId ?? "Admin";
@@ -88,7 +88,7 @@ const logToPostgresControler = function (
     next();
   });
   const resData = nextVoid.then(() => {
-    let no = getTime();
+    let no = getEpochString();
     return queryPoolFromProcedure(pool, "insert_into_responses_logs", [
       req.session.reqTime ?? "",
       no,
@@ -169,7 +169,7 @@ const signupSubmitControler = function (
     .then((req) =>
       queryPoolFromProcedure(pool, "insert_user", [
         hash(req.body.userName),
-        getTime(),
+        getEpochString(),
         req.body.userName,
         hash(req.body.pwd),
       ])

@@ -9,7 +9,7 @@ import {
   fallbackToIndex,
   fallbackToHome,
   buildErrorHandler,
-  getTime,
+  getEpochString,
 } from "./handlers";
 import {promiseRecord} from "../utils/naturalTransformations";
 import {hash} from "../utils/hash";
@@ -124,7 +124,7 @@ function builder(rou: RoutePath): Controler {
                   : r.rows[0]["artist_id"];
             }
           })
-          .catch((err) => buildErrorHandler(err));
+          .catch((err) => buildErrorHandler(err,(e)=>{fallbackToIndex(res)}));
         const updateRes = updateReq.then(() => {
           console.log(req.session.userId);
           if (req.session.userId) {
@@ -143,7 +143,7 @@ function builder(rou: RoutePath): Controler {
       ): Promise<void> {
         const procParams = (req.body.pwd === req.body.confirmedPwd)?[
           hash(req.body.userName),
-          getTime(),
+          getEpochString(),
           req.body.userName,
           hash(req.body.pwd),
         ]:undefined;
@@ -156,6 +156,7 @@ function builder(rou: RoutePath): Controler {
           .then((r) => {
             if (r.rows.length === 1) {
               req.session.userId = r.rows[0]["user_id"];
+              req.session.userName = r.rows[0]["user_name"];
               req.session.artistId = undefined;
             }
           })
