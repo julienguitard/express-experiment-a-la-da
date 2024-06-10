@@ -41,16 +41,28 @@ const routesParams: RoutePathParams = {
   "/profile/users/user/:userId": {
     render: "User",
   },
-  "/profile/users/user/:userId/ban": {
+  "/profile/users/user/:userWorkId/ban": {
     render: "Ban"
   },
-  "/profile/users/user/:userId/ban/submit": {
+  "/profile/users/user/:userWorkId/ban/submit": {
     redirect: "/home", method: "post"
   },
-  "/profile/artists/artist/:artistId/unwatch": {
+  "/profile/artists/artist/:artistId/watch": {
     redirect: "/home", method: "post"
   },
-  "/profile/works/work/:workId/unlike": {
+  "/profile/artists/artist/:userArtistId/watch": {
+    redirect: "/home", method: "post"
+  },
+  "/profile/artists/artist/:userArtistId/unwatch": {
+    redirect: "/home", method: "post"
+  },
+  "/profile/works/work/:workId/like": {
+    redirect: "/home", method: "post"
+  },
+  "/profile/works/work/:userWorkId/like": {
+    redirect: "/home", method: "post"
+  },
+  "/profile/works/work/:userWorkId/unlike": {
     redirect: "/home", method: "post"
   },
   "/home/users/more": {

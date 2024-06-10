@@ -113,13 +113,11 @@ function builder(rou: RoutePath): Controler {
           "check_signin",
           procParams
         );
-        console.log('procResults');
-        procResults.then((r)=>console.log(r)).catch((err)=>console.log('query error : '+ err));
-
         const updateReq = procResults
           .then((r) => {
             if (r.rows.length === 1) {
               req.session.userId = r.rows[0]["user_id"];
+              req.session.userName = r.rows[0]["user_name"];
               req.session.artistId =
                 r.rows[0]["artist_id"] === "null"
                   ? undefined
@@ -128,6 +126,7 @@ function builder(rou: RoutePath): Controler {
           })
           .catch((err) => buildErrorHandler(err));
         const updateRes = updateReq.then(() => {
+          console.log(req.session.userId);
           if (req.session.userId) {
             res.redirect("/home");
           } else {

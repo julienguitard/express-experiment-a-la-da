@@ -262,9 +262,9 @@ FROM (SELECT t0.id,
 
 CREATE OR REPLACE VIEW checkable_signins AS (
 SELECT t0.user_id,
+       artist_id,
        user_name,
-       pwd,
-       artist_id
+       pwd
 FROM (SELECT DISTINCT user_id,
              user_name,
              pwd
@@ -278,8 +278,8 @@ FROM (SELECT DISTINCT user_id,
 
 CREATE OR REPLACE VIEW checkable_signins_ AS (
 SELECT user_id,
-       user_name,
-       artist_id
+       artist_id,
+       user_name
 FROM checkable_signins
 --WHERE user_name=$1 AND pwd=$2
 );
@@ -299,7 +299,7 @@ SELECT * FROM checkable_signups
 );
 
 CREATE OR REPLACE VIEW seeable_watchers AS (
-SELECT include_ref('user_name',user_name,'user_id',user_id) AS user,
+SELECT include_ref('user_name',user_name,'user_id',user_id) AS user_,
        user_artist_id AS ban,
        artist_id
 FROM (SELECT user_artist_id,
@@ -318,8 +318,15 @@ FROM (SELECT user_artist_id,
 --WHERE artist_id=$1 
 );
 
+CREATE OR REPLACE VIEW seeable_watchers AS (
+SELECT user_,
+       ban
+FROM seeable_watchers 
+--WHERE artist_id=$1 
+);
+
 CREATE OR REPLACE VIEW more_seeable_watchers AS (
-SELECT include_ref('user_name',user_name,'user_id',user_id) AS user_id,
+SELECT include_ref('user_name',user_name,'user_id',user_id) AS user_,
        artist_id
 FROM (SELECT CASE
                WHEN t2.user_artist_id IS NULL THEN 1
@@ -342,8 +349,32 @@ WHERE non_watcher = 1
 --WHERE artist_id=$1 
 );
 
+CREATE OR REPLACE VIEW more_seeable_watchers_ AS (
+SELECT user_
+FROM more_seeable_watchers
+--WHERE artist_id=$1 
+);
+
 CREATE OR REPLACE VIEW my_seeable_works AS (
-SELECT include_ref('work_name',work_name,'work_id',work_id),
+SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
+       work_id,
+       artist_id
+FROM (SELECT DISTINCT work_id,
+             artist_id,
+             work_name
+      FROM works_without_withdrawn)
+--WHERE artist_id=$1 
+);
+CREATE OR REPLACE VIEW my_seeable_works_ AS (
+SELECT work_,
+       work_id
+FROM my_seeable_works
+--WHERE artist_id=$1 
+);
+
+CREATE OR REPLACE VIEW more_of_my_seeable_works AS (
+SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
+       work_id,
        artist_id
 FROM (SELECT DISTINCT work_id,
              artist_id,
@@ -352,13 +383,10 @@ FROM (SELECT DISTINCT work_id,
 --WHERE artist_id=$1 
 );
 
-CREATE OR REPLACE VIEW more_of_my_seeable_works AS (
-SELECT include_ref('work_name',work_name,'work_id',work_id),
-       artist_id
-FROM (SELECT DISTINCT work_id,
-             artist_id,
-             work_name
-      FROM works_without_withdrawn)
+CREATE OR REPLACE VIEW more_of_my_seeable_works_ AS (
+SELECT work_,
+       work_id
+FROM more_of_my_seeable_works
 ORDER BY RANDOM()
 --WHERE artist_id=$1 
 );
@@ -386,7 +414,12 @@ FROM (SELECT user_artist_id,
 --WHERE user_id=$1 
 );
 
-
+CREATE OR REPLACE VIEW seeable_artists_ AS (
+SELECT artist,
+       unwatch
+FROM seeable_artists
+--WHERE user_id=$1 
+);
 
 CREATE OR REPLACE VIEW more_seeable_artists AS (
 SELECT include_ref('user_name',user_name,'artist_id',artist_id) AS artist,
@@ -421,8 +454,15 @@ WHERE not_watched = 1
 --WHERE user_id=$1 
 );
 
+CREATE OR REPLACE VIEW more_seeable_artists_ AS (
+SELECT artist,
+       unwatch
+FROM more_seeable_artists
+--WHERE user_id=$1 
+);
+
 CREATE OR REPLACE VIEW seeable_works AS (
-SELECT include_ref('work_name',work_name,'work_id',work_id) AS work,
+SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
        user_work_id AS unlike,
        user_id
 FROM (SELECT user_work_id,
@@ -439,8 +479,15 @@ FROM (SELECT user_work_id,
 --WHERE user_id=$1 
 );
 
+CREATE OR REPLACE VIEW seeable_works_ AS (
+SELECT work_,
+       unlike
+FROM seeable_works
+--WHERE user_id=$1 
+);
+
 CREATE OR REPLACE VIEW more_seeable_works AS (
-SELECT include_ref('work_name',work_name,'work_id',work_id) AS WORK,
+SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
        user_work_id AS like_,
        user_id
 FROM (SELECT CASE
@@ -465,7 +512,12 @@ WHERE not_liked = 1
 --WHERE user_id=$1 
 );
 
-
+CREATE OR REPLACE VIEW more_seeable_works_ AS (
+SELECT work_,
+       unlike
+FROM more_seeable_works
+--WHERE user_id=$1 
+);
 
 CREATE OR REPLACE VIEW viewable_users AS
 (
@@ -481,6 +533,14 @@ FROM (SELECT user_id,
                           user_id,
                           artist_id
                    FROM users_artists_without_banned) USING (user_id))
+--WHERE artist_id=$1
+);
+
+CREATE OR REPLACE VIEW viewable_users_ AS
+(
+SELECT user_
+       ban
+FROM viewable_users
 --WHERE artist_id=$1
 );
 
@@ -502,9 +562,17 @@ FROM (SELECT artist_id,
 --WHERE user_id=$1
 );
 
+CREATE OR REPLACE VIEW viewable_artists_ AS
+(
+SELECT artist,
+       watch
+FROM viewable_artists
+--WHERE user_id=$1
+);
+
 CREATE OR REPLACE VIEW viewable_works_of_artist AS
 (
-SELECT include_ref('work_name',work_name,'work_id',work_id) AS WORK,
+SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
        user_work_id AS like_,
        user_id
 FROM (SELECT work_id,
@@ -526,3 +594,11 @@ FROM (SELECT work_id,
              FROM users_works_without_banned) USING (work_id)
 --WHERE user_id=$1
 );
+
+CREATE OR REPLACE VIEW viewable_works_of_artist_ AS
+(
+SELECT work_,
+       like_,
+FROM viewable_works_of_artist
+--WHERE user_id=$1
+); 
