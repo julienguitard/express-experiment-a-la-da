@@ -50,19 +50,19 @@ const routesParams: RoutePathParams = {
   "/profile/artists/artist/:artistId/watch": {
     redirect: "/home", method: "post"
   },
-  "/profile/artists/artist/:userArtistId/watch": {
+  "/profile/artists/artist/:userArtistId/unwatch": {
     redirect: "/home", method: "post"
   },
-  "/profile/artists/artist/:userArtistId/unwatch": {
+  "/profile/artists/artist/:userArtistId/rewatch": {
     redirect: "/home", method: "post"
   },
   "/profile/works/work/:workId/like": {
     redirect: "/home", method: "post"
   },
-  "/profile/works/work/:userWorkId/like": {
+  "/profile/works/work/:userWorkId/unlike": {
     redirect: "/home", method: "post"
   },
-  "/profile/works/work/:userWorkId/unlike": {
+  "/profile/works/work/:userWorkId/relike": {
     redirect: "/home", method: "post"
   },
   "/home/users/more": {

@@ -12,7 +12,7 @@ import {
 import { UbiquitousConcept } from "../types.js";
 
 
-const RouteDBProcedureDict: Record<RoutePath, DBProcedure | Record<string, DBProcedure>> = {
+const routeDBProcedureDict: Record<RoutePath, DBProcedure | Record<string, DBProcedure>> = {
   "/": {},
   "/landing/signin": {},
   "/landing/signup": {},
@@ -40,11 +40,11 @@ const RouteDBProcedureDict: Record<RoutePath, DBProcedure | Record<string, DBPro
   "/profile/users/user/:userWorkId/ban": {},
   "/profile/users/user/:userWorkId/ban/submit": 'ban_watcher',
   "/profile/artists/artist/:artistId/watch": 'watch_artist',
-  "/profile/artists/artist/:userArtistId/watch": 'watch_artist',
+  "/profile/artists/artist/:userArtistId/rewatch": 'watch_artist',
   "/profile/artists/artist/:userArtistId/unwatch": 'unwatch_artist',
   "/profile/works/work/:workId/like": 'like_work',
-  "/profile/works/work/:userWorkId/like": 'like_work',
-  "/profile/works/work/:userWorkId/unlike": 'like_work',
+  "/profile/works/work/:userWorkId/relike": 'like_work',
+  "/profile/works/work/:userWorkId/unlike": 'unlike_work',
   "/signout": {},
   "/signout/submit": 'signout',
   "/delete": {},
@@ -52,7 +52,61 @@ const RouteDBProcedureDict: Record<RoutePath, DBProcedure | Record<string, DBPro
 
 }
 
-function getDBprocedureArgs<T extends DBProcedures>(
+function getDBprocedureFromRoute(route: RoutePath, session: SessionData): DBProcedure | Record<string, DBProcedure> {
+  let pro = routeDBProcedureDict[route];
+  if (route === '/home') {
+    if (session.artistId) {
+      pro = {
+        see_my_watched_artists: 'see_my_watched_artists',
+        see_my_liked_works: 'see_my_watched_artists'
+      };
+    }
+  }
+  return pro;
+}
+
+
+type KeyFoo = 'a' | 'b';
+type Foo = {
+  a: {
+     userId: string ,
+     time: string ,
+     userName: string ,
+     pwd: string }
+     ,
+  b: { 
+    a: string 
+  }
+};
+
+type Foo_<T extends KeyFoo> = Foo[T];
+type ValueFoo = Foo[KeyFoo];
+
+
+function hoo<T extends KeyFoo>(k: T):ValueFoo {
+  switch (k) {
+    case 'a':
+      let foo: Foo['a'] = 
+        { userId: '' ,time: '' ,
+         userName: '' ,
+         pwd: '' }
+      
+      return foo;
+      break;
+    case 'b':
+      let goo: Foo['b'] = 
+        { a: '' }
+      return goo;
+      break;
+    default:
+      throw (Error('Unmatched case'));
+  }
+}
+
+const goo = Object.entries(hoo('a'));
+console.log(goo);
+
+function getDBprocedureArgs<T extends DBProcedure>(
   pro: T,
   route: Request["route"],
   session: SessionData,
@@ -61,15 +115,18 @@ function getDBprocedureArgs<T extends DBProcedures>(
   hash: (s: string) => string,
   merge: (u0: string, u1: string) => string,
   error?: Error
-): DBProcedureArgsMappingType[T] {
+): DBProcedureArgsMappingType[DBProcedure] {
   switch (pro) {
     case "insert_user":
-      return [
+      if (session.userId && session.reqTime && session.userName && bodyParams.pwd ){
+        const args:DBProcedureArgsMappingType["insert_user"] = [
         { userId: session.userId },
         { time: session.reqTime },
         { userName: session.userName },
-        { pwd: hash(bodyParams.pwd) },
-      ];
+        { pwd: hash(bodyParams.pwd) }
+      ]
+      return args;
+    }
       break;
     case "insert_user_event":
       return [
@@ -193,7 +250,7 @@ function getDBprocedureArgs<T extends DBProcedures>(
     case "view_artist":
       return [{ artistId: session.artistId }, { userId: session.userId }];
       break;
-    case "view_works_of_artists":
+    case "view_works_of_artist":
       return [{ artistId: session.artistId }, { userId: session.userId }];
       break;
     case "view_work":
@@ -211,7 +268,7 @@ function getDBprocedureArgs<T extends DBProcedures>(
     case "withdraw_work":
       return [{ artistId: session.artistId }, { workId: params.workId }];
       break;
-    case "submit_first_work":
+    case "submit_my_first_work":
       return [{ userId: session.userId }, { workName: bodyParams.workName }];
       break;
     case "watch_artist":

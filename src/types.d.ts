@@ -3,8 +3,7 @@ import { Request, Reponse, Error, NextFunction } from "express";
 import { Pool, QueryResult } from "pg";
 import { Session, SessionData } from "./express-session";
 
-declare;
-OneMore<T> = [T, Array<T>];
+declare type OneMore<T> = [T, Array<T>];
 
 
 declare type RoutePath =
@@ -27,11 +26,11 @@ declare type RoutePath =
     | "/profile/users/user/:userWorkId/ban"
     | "/profile/users/user/:userWorkId/ban/submit"
     | "/profile/artists/artist/:artistId/watch"
-    | "/profile/artists/artist/:userArtistId/watch"
     | "/profile/artists/artist/:userArtistId/unwatch"
+    | "/profile/artists/artist/:userArtistId/rewatch"
     | "/profile/works/work/:workId/like"
-    | "/profile/works/work/:userWorkId/like"
     | "/profile/works/work/:userWorkId/unlike"
+    | "/profile/works/work/:userWorkId/relike"
     | "/signout"
     | "/signout/submit"
     | "/delete"
@@ -41,9 +40,9 @@ declare type RoutePath =
 declare type Redirection = keyof RedirectionArgsMappingType;
 
 declare type RedirectionArgsMappingType = {
-    "/home": {};
-    "/": {};
-};
+    "/home": {},
+    "/": {},
+}
 
 declare type Verb = 'get' | 'post'
 declare type RoutePathParams = Record<
@@ -55,80 +54,80 @@ declare type RouteData = {
     route: RoutePath;
     method: Verb;
     controlers: Array<Controler>;
-};
+}
 
 declare type EjsView = keyof EjsViewPropsMappingType;
 
 declare type EjsViewPropsMappingType = {
-    Index: { userName: string?; startTime: string };
-    Signin: { startTime: string };
-    Signup: { startTime: string };
+    Index: { userName: string?; startTime: string },
+    Signin: { startTime: string },
+    Signup: { startTime: string },
     UserHome: {
-        userName: string;
-        startTime: string;
+        userName: string,
+        startTime: string,
         myWatchedArtists: Array<{
-            artistId: { userName: string; artistId: string };
-            watch: string;
-        }>;
+            artistId: { userName: string, artistId: string },
+            watch: string,
+        }>,
         myLikedWorks: Array<{
-            workId: { workName: string; workId: string };
-            like: string;
-        }>;
-    };
+            workId: { workName: string, workId: string },
+            like: string,
+        }>,
+    },
     ArtistHome: {
-        userName: string;
-        startTime: string;
+        userName: string,
+        startTime: string,
         myWatchers: Array<{
-            userId: { userName: string; userId: string };
-            ban: string;
-        }>;
+            userId: { userName: string, userId: string },
+            ban: string,
+        }>,
         myWorks: Array<{
-            workId: { workName: string; workId: string };
-            withdraw: string;
-        }>;
+            workId: { workName: string, workId: string },
+            withdraw: string,
+        }>,
         myWatchedArtists: Array<{
-            artistId: { userName: string; artistId: string };
-            watch: string;
-        }>;
+            artistId: { userName: string, artistId: string },
+            watch: string,
+        }>,
         myLikedWorks: Array<{
-            workId: { workName: string; workId: string };
-            like: string;
-        }>;
-    };
-    Ban: { userName: string; startTime: string; userId: string }; //TO DO
-    Submit: { userName: string; startTime: string };
-    Withdraw: { userName: string; startTime: string; workId: string };
-    Signout: { userName: string; startTime: string };
-    Delete: { userName: string; startTime: string };
+            workId: { workName: string, workId: string },
+            like: string,
+        }>,
+    },
+    Ban: { userName: string, startTime: string, userId: string }, //TO DO
+    Submit: { userName: string, startTime: string },
+    Withdraw: { userName: string, startTime: string, workId: string },
+    Signout: { userName: string, startTime: string },
+    Delete: { userName: string, startTime: string },
     Work: {
-        workId: { workName: string; workId: string };
-        withdraw: string;
-    };
+        workId: { workName: string, workId: string },
+        withdraw: string,
+    },
     Artist: {
-        artistId: { userName: string; artistId: string };
-        watch: string;
+        artistId: { userName: string, artistId: string },
+        watch: string,
         works: Array<{
-            workId: { workName: string; workId: string };
-            withdraw: string;
+            workId: { workName: string, workId: string },
+            withdraw: string,
         }>
-    };
+    },
     User: {
-        userId: { userName: string; userId: string };
-        ban: string;
-    };
+        userId: { userName: string, userId: string },
+        ban: string,
+    },
     MoreUsers: Array<{
-        userId: { userName: string; userId: string };
-        ban: string;
-    }>;
+        userId: { userName: string, userId: string },
+        ban: string,
+    }>,
     MoreArtists: Array<{
-        artistId: { userName: string; artistId: string };
-        watch: string;
-    }>;
+        artistId: { userName: string, artistId: string },
+        watch: string,
+    }>,
     MoreWorks: Array<{
-        workId: { workName: string; workId: string };
-        like: string;
-    }>;
-};
+        workId: { workName: string, workId: string },
+        like: string,
+    }>,
+}
 
 
 
@@ -143,13 +142,13 @@ declare interface ProcedureOutput<T> {
 }
 
 declare interface PhantomData {
-    pwd: string;
-    workId: string;
-    workName: string;
-    userArtistId: string;
-    userWorkId: string;
-    time: string;
-    key: string;
+    pwd: string,
+    workId: string,
+    workName: string,
+    userArtistId: string,
+    userWorkId: string,
+    time: string,
+    key: string,
 }
 
 type UbiquitousConcept =
@@ -162,329 +161,84 @@ declare type DBProcedure =
     | keyof DBProcedureResultsMappingType;
 
 declare type DBProcedureArgsMappingType = {
-    insert_user_event: Iterable<[{ userId: string }, { time: string }, { key: string }]>,
-    insert_artist: Iterable<[{ artistId: string }, { time: string }, { userId: string }]>,
-    insert_artist_event: Iterable<[
-        { artistId: string },
-        { time: string },
-        { key: string }
-    ]>,
-    insert_work:Iterable<[
-        { workId: string },
-        { artistId: string },
-        { time: string },
-        { workName: string }
-    ]>,
-    insert_user: Iterable<[
-        { userId: string },
-        { time: string },
-        { userName: string },
-        { pwd: string }
-    ]>,
-    insert_work_event: Iterable<[{ workId: string }, { time: string }, { key: string }]>,
-    insert_user_artist: Iterable<[
-        { userArtistId: string },
-        { userId: string },
-        { artistId: string },
-        { time: string }
-    ]>,
-    insert_user_artist_event:Iterable<[
-        { userArtistId: string },
-        { time: string },
-        { key: string }
-    ]>,
-    insert_user_work: Iterable<[
-        { userWorkId: string },
-        { userId: string },
-        { workId: string },
-        { time: string }
-    ]>,
-    insert_user_work_event:Iterable<[
-        { userWorkId: string },
-        { time: string },
-        { key: string }
-    ]>,
-    check_signin:Iterable<[{ userName: string }, { pwd: string }]>,
-    check_signup: Iterable<[
-        { userName: string },
-        { pwd: string },
-        { confirmedPwd: string }
-    ]>,
-    see_my_watchers:Iterable<[{ artistId: string }]>,
-    see_more_users:Iterable<[{ artistId: string }]>,
-    see_my_works:Iterable<[{ artistId: string }]>,
-    see_more_of_my_works: Iterable<[{ artistId: string }]>,
-    see_my_watched_artists: Iterable<[{ userId: string }]>,
-    see_more_artists:Iterable<[{ userId: string }]>,
-    see_my_liked_works: Iterable<[{ userId: string }]>,
-    see_more_works:Iterable<[{ userId: string }]>,
-    view_user:Iterable<[{ artistId: string }, { userId: string }]>,
-    view_artist:Iterable<[{ artistId: string }, { userId: string }]>,
-    view_works_of_artist:Iterable<[{ artistId: string }, { userId: string }]>,
-    view_work:Iterable<[{ userId: string }, { workId: string }]>,
-    ban_watcher:Iterable<[{ artistId: string }, { userId: string }]>,
-    submit_work: Iterable<[{ artistId: string }, { workName: string }]>,
-    withdraw_work: Iterable<[{ artistId: string }, { workId: string }]>,
-    submit_my_first_work: Iterable<[{ userId: string }, { workName: string }]>,
-    watch_artist:Iterable<[{ userId: string }, { artistId: string }]>,
-    unwatch_artist: Iterable<[{ userId: string }, { artistId: string }]>,
-    like_work:Iterable<[{ userId: string }, { workId: string }]>,
-    unlike_work:Iterable<[{ userId: string }, { workId: string }]>,
-    signout:Iterable<[{ userId: string }, { userName: string },{artistId:string}?]>,
-    delete:Iterable<[{ userId: string }, { userName: string },{artistId:string}?]>,
-    insert_into_requests_logs: Iterable<[
-        { time: string },
-        { path: string },
-        { methods: Array<string> }
-    ]>,
-    insert_into_responses_logs: Iterable<[
-        { time: string },
-        { path: string },
-        { methods: Array<string> },
-        { error: Error }
-    ]>,
-    insert_into_errors_logs:Iterable<[
-        { time: string },
-        { path: string },
-        { methods: Array<string> },
-        { error: Error }
-    ]>,
-    select_full_logs: Iterable<[]>,
-};
+    insert_user: { userId: string , time: string , userName: string ,  pwd: string },
+    insert_user_event: { userId: string, time: string,key: string },
+    insert_artist: { artistId: string,time: string,userId: string },
+    insert_artist_event: { artistId: string , time: string , key: string },
+    insert_work:{ workId: string , artistId: string , time: string , workName: string },
+    insert_work_event: { workId: string,time: string,key: string },
+    insert_user_artist: { userArtistId: string , userId: string , artistId: string , time: string },
+    insert_user_artist_event:{ userArtistId: string , time: string , key: string },
+    insert_user_work: { userWorkId: string ,  userId: string , workId: string , time: string },
+    insert_user_work_event:{ userWorkId: string ,  time: string , key: string },
+    check_signin:{ userName: string,pwd: string },
+    check_signup: { userName: string , pwd: string ,  confirmedPwd: string },
+    see_my_watchers:{ artistId: string },
+    see_more_users:{ artistId: string },
+    see_my_works:{ artistId: string },
+    see_more_of_my_works: { artistId: string },
+    see_my_watched_artists: { userId: string },
+    see_more_artists:{ userId: string },
+    see_my_liked_works: { userId: string },
+    see_more_works:{ userId: string },
+    view_user:{ artistId: string,userId: string },
+    view_artist:{ artistId: string,userId: string },
+    view_works_of_artist:{ artistId: string,userId: string },
+    view_work:{ userId: string,workId: string },
+    ban_watcher:{ artistId: string,userId: string },
+    submit_work: { artistId: string,workName: string },
+    withdraw_work: { artistId: string,workId: string },
+    submit_my_first_work: { userId: string,workName: string },
+    watch_artist:{ userId: string,artistId: string },
+    unwatch_artist: { userId: string,artistId: string },
+    like_work:{ userId: string,workId: string },
+    unlike_work:{ userId: string,workId: string },
+    signout:{ userId: string,userName: string ,artistId?:string},
+    delete:{ userId: string,userName: string ,artistId?:string},
+    insert_into_requests_logs: { time: string , path: string , methods: Array<string> },
+    insert_into_responses_logs: { time: string , path: string , methods: Array<string> ,  error: Error },
+    insert_into_errors_logs:{ time: string , path: string , methods: Array<string> , error: Error },
+    select_full_logs: {},
+}
 
 declare type DBProcedureResultsMappingType = {
-    insert_user_event: [{ userId: string }, { time: string }, { key: string }];
-    insert_artist: [{ artistId: string }, { time: string }, { userId: string }];
-    insert_artist_event: [
-        { artistId: string },
-        { time: string },
-        { key: string }
-    ];
-    insert_work: [
-        { workId: string },
-        { artistId: string },
-        { time: string },
-        { workName: string }
-    ];
-    insert_user: [
-        { userId: string },
-        { time: string },
-        { userName: string },
-        { pwd: string }
-    ];
-    insert_work_event: [{ workId: string }, { time: string }, { key: string }];
-    insert_user_artist: [
-        { userArtistId: string },
-        { userId: string },
-        { artistId: string },
-        { time: string }
-    ];
-    insert_user_artist_event: [
-        { userArtistId: string },
-        { time: string },
-        { key: string }
-    ];
-    insert_user_work: [
-        { userWorkId: string },
-        { userId: string },
-        { workId: string },
-        { time: string }
-    ];
-    insert_user_work_event: [
-        { userWorkId: string },
-        { time: string },
-        { key: string }
-    ];
-    check_signin: [{ userId: string }, { userName: string }, { artistId: string?}];
-    check_signup: [{ userId: string }, { userName: string }];
-    see_my_watchers: [
-        { userId: { userName: string; userId: string }, ban: string }
-    ];
-    see_more_users: [
-        { userId: { userName: string; userId: string } }
-    ];
-    see_my_works: [
-        { workId: { workName: string; workId: string }, withdraw: string }
-    ];
-    see_more_of_my_works: [
-        { workId: { workName: string; workId: string }, withdraw: string }
-    ];
-    see_my_watched_artists: [
-        { artistId: { userName: string; artistId: string }, unwatch: string }
-    ];
-    see_more_artists: [
-        { artistId: { userName: string; artistId: string }, watch: string }
-    ];
-    see_my_liked_works: [
-        { workId: { workName: string; workId: string }, unlike: string }
-    ];
-    see_more_works: [
-        { workId: { workName: string; workId: string }, like: string }
-    ];
-    view_user: [{ userId: { userName: string; userId: string }; ban?: string }];
-    view_artist: [
-        { artistId: { userName: string; artistId: string }, watch: string }
-    ];
-    view_works_of_artists: [
-        { workId: { workName: string; workId: string }, like: string }
-    ];
-    view_work: [{ workId: { workName: string; workId: string }, like: string }];
-    ban_watcher: [{ userId: { userName: string; userId: string }; ban: string }];
-    submit_work: [{ workId: string }];
-    withdraw_work: [{ workId: string }];
-    submit_first_work: [{ artistId: string }, { workId: string }];
-    watch_artist: [{ artistId: string }];
-    unwatch_artist: [{ artistId: string }];
-    like_work: [{ workId: string }];
-    unlike_work: [{ workId: string }];
-    insert_into_requests_logs: [
-        { requestId: string },
-        { time: string },
-        { path: string },
-        { methods: Array<string> }
-    ];
-    insert_into_responses_logs: [
-        { reponseId: string },
-        { time: string },
-        { requestId: string },
-        { status: string }
-    ];
-    insert_into_errors_logs: [
-        { errorId: string },
-        { time: string },
-        { requestId: string },
-        { message: string }
-    ];
-    select_full_logs: [
-        { requestId: string },
-        { time: string },
-        { path: string },
-        { methods: Array<string> },
-        { errorId: string },
-        { time: string },
-        { message: string },
-        { reponseId: string },
-        { time: string },
-        { status: string }
-    ];
-};
-
-declare type DBProcedureFormatedResultsMappingType = {
-    insert_user_event: [{ userId: string }, { time: string }, { key: string }];
-    insert_artist: [{ artistId: string }, { time: string }, { userId: string }];
-    insert_artist_event: [
-        { artistId: string },
-        { time: string },
-        { key: string }
-    ];
-    insert_work: [
-        { workId: string },
-        { artistId: string },
-        { time: string },
-        { workName: string }
-    ];
-    insert_user: [
-        { userId: string },
-        { time: string },
-        { userName: string },
-        { pwd: string }
-    ];
-    insert_work_event: [{ workId: string }, { time: string }, { key: string }];
-    insert_user_artist: [
-        { userArtistId: string },
-        { userId: string },
-        { artistId: string },
-        { time: string }
-    ];
-    insert_user_artist_event: [
-        { userArtistId: string },
-        { time: string },
-        { key: string }
-    ];
-    insert_user_work: [
-        { userWorkId: string },
-        { userId: string },
-        { workId: string },
-        { time: string }
-    ];
-    insert_user_work_event: [
-        { userWorkId: string },
-        { time: string },
-        { key: string }
-    ];
-    check_signin: [{ userId: string }, { userName: string }, { artistId: string?}];
-    check_signup: [{ userId: string }, { userName: string }];
-    see_my_watchers: [
-        { userId: { userName: string; userId: string }, ban: string }
-    ];
-    see_more_users: [
-        { userId: { userName: string; userId: string } }
-    ];
-    see_my_works: [
-        { workId: { workName: string; workId: string }, withdraw: string }
-    ];
-    see_more_of_my_works: [
-        { workId: { workName: string; workId: string }, withdraw: string }
-    ];
-    see_my_watched_artists: [
-        { artistId: { userName: string; artistId: string }, unwatch: string }
-    ];
-    see_more_artists: [
-        { artistId: { userName: string; artistId: string }, watch: string }
-    ];
-    see_my_liked_works: [
-        { workId: { workName: string; workId: string }, unlike: string }
-    ];
-    see_more_works: [
-        { workId: { workName: string; workId: string }, like: string }
-    ];
-    view_user: [{ userId: { userName: string; userId: string }; ban?: string }];
-    view_artist: [
-        { artistId: { userName: string; artistId: string }, watch: string }
-    ];
-    view_works_of_artists: [
-        { workId: { workName: string; workId: string }, like: string }
-    ];
-    view_work: [{ workId: { workName: string; workId: string }, like: string }];
-    ban_watcher: [{ userId: { userName: string; userId: string }; ban: string }];
-    submit_work: [{ workId: string }];
-    withdraw_work: [{ workId: string }];
-    submit_first_work: [{ artistId: string }, { workId: string }];
-    watch_artist: [{ artistId: string }];
-    unwatch_artist: [{ artistId: string }];
-    like_work: [{ workId: string }];
-    unlike_work: [{ workId: string }];
-    insert_into_requests_logs: [
-        { requestId: string },
-        { time: string },
-        { path: string },
-        { methods: Array<string> }
-    ];
-    insert_into_responses_logs: [
-        { reponseId: string },
-        { time: string },
-        { requestId: string },
-        { status: string }
-    ];
-    insert_into_errors_logs: [
-        { errorId: string },
-        { time: string },
-        { requestId: string },
-        { message: string }
-    ];
-    select_full_logs: [
-        { requestId: string },
-        { time: string },
-        { path: string },
-        { methods: Array<string> },
-        { errorId: string },
-        { time: string },
-        { message: string },
-        { reponseId: string },
-        { time: string },
-        { status: string }
-    ];
-};
+    insert_user: { userId: string , time: string , userName: string ,  pwd: string },
+    insert_user_event: { userId: string,time: string,key: string },
+    insert_artist: { artistId: string,time: string,userId: string },
+    insert_artist_event: { artistId: string , time: string , key: string },
+    insert_work:{ workId: string , artistId: string , time: string , workName: string },
+    insert_work_event: { workId: string,time: string,key: string },
+    insert_user_artist: { userArtistId: string , userId: string , artistId: string , time: string },
+    insert_user_artist_event:{ userArtistId: string , time: string , key: string },
+    insert_user_work: { userWorkId: string ,  userId: string , workId: string , time: string },
+    insert_user_work_event:{ userWorkId: string ,  time: string , key: string },
+    check_signin: { userId: string,userName: string,artistId?: string},
+    check_signup: { userId: string,userName: string },
+    see_my_watchers: { userId: { userName: string, userId: string }, ban: string },
+    see_more_users: { userId: { userName: string, userId: string } },
+    see_my_works: { workId: { workName: string, workId: string }, withdraw: string },
+    see_more_of_my_works: { workId: { workName: string, workId: string }, withdraw: string },
+    see_my_watched_artists: { artistId: { userName: string, artistId: string }, unwatch: string },
+    see_more_artists:{ artistId: { userName: string, artistId: string }, watch: string },
+    see_my_liked_works: { workId: { workName: string, workId: string }, unlike: string },
+    see_more_works: { workId: { workName: string, workId: string }, like: string },
+    view_user: { userId: { userName: string, userId: string }, ban?: string },
+    view_artist: { artistId: { userName: string, artistId: string }, watch: string },
+    view_works_of_artists:{ workId: { workName: string, workId: string }, like: string },
+    view_work: { workId: { workName: string, workId: string }, like: string },
+    ban_watcher: { userId: { userName: string, userId: string }, ban: string },
+    submit_work: { workId: string },
+    withdraw_work: { workId: string },
+    submit_first_work: { artistId: string,workId: string },
+    watch_artist: { artistId: string },
+    unwatch_artist: { artistId: string },
+    like_work: { workId: string },
+    unlike_work: { workId: string },
+    insert_into_requests_logs: { requestId: string , time: string , path: string , methods: Array<string> },
+    insert_into_responses_logs:  { reponseId: string , time: string , requestId: string , status: string },
+    insert_into_errors_logs:  { errorId: string , time: string , requestId: string , message: string },
+    select_full_logs: { requestId: string , time: string , path: string , methods: Array<string> , errorId: string , time: string , message: string , reponseId: string , time: string , status: string }
+}
 
 declare type Controler =
     (
@@ -539,7 +293,7 @@ declare function outputCallbackGenerator(
 
 declare interface CellProps {
     value: any;
-    link?: string;
+    link?: string,
 }
 
 export type {
@@ -555,4 +309,4 @@ export type {
     RoutePathParams,
     RouteData,
     Controler
-};
+}

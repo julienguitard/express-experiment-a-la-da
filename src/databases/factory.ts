@@ -1,4 +1,4 @@
-import {DBProcedure, DBProcedureArgsMappingType} from 'types';
+import {DBProcedure, DBProcedureArgsMappingType} from '../types';
 
 
 function convertToSql(pro:DBProcedure,params:Array<string>|undefined):string {
