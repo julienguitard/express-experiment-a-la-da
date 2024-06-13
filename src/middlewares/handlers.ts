@@ -11,48 +11,41 @@ import {
 } from "../types";
 import { UbiquitousConcept } from "../types.js";
 
-
-const routeDBProcedureDict: Record<RoutePath, DBProcedure | Record<string, DBProcedure>> = {
-  "/": {},
-  "/landing/signin": {},
-  "/landing/signup": {},
-  "/landing/signin/submit": 'check_signin',
-  "/landing/signup/submit": 'check_signup',
-  "/home": {
-    see_watchers: 'see_watchers',
-    see_works: 'see_works',
-    see_watched_artists: 'see_watched_artists',
-    see_liked_works: 'see_liked_works',
-  },
-  "/home/works/firstSubmit": {},
-  "/home/works/firstSubmit/submit": 'submit_first_work',
-  "/home/works/submit": {},
-  "/home/works/submit/submit": 'submit_work',
-  "/home/users/more": 'see_more_users',
-  "/home/artists/more": 'see_more_artists',
-  "/home/works/more": 'see_more_works',
-  "/home/works/liked/more": 'see_more_liked_works',
-  "/profile/users/user/:userId": 'view_user',
-  "/profile/artists/artist/:artistId": {
-    view_artist: 'view_artist',
-    view_works_of_artist: 'view_works_of_artist'
-  },
-  "/profile/works/work/:workId/view": 'go_view_work',
-  "/profile/works/work/:userWorkId/review": 'go_review_work',
-  "/profile/works/work/:workId": 'view_work',
-  "/profile/users/user/:userArtistId/ban": {},
-  "/profile/users/user/:userArtistId/ban/submit": 'ban_watcher',
-  "/profile/artists/artist/:artistId/watch": 'watch_artist',
-  "/profile/artists/artist/:userArtistId/rewatch": 'rewatch_artist',
-  "/profile/artists/artist/:userArtistId/unwatch": 'unwatch_artist',
-  "/profile/works/work/:userWorkId/like": 'like_work',
-  "/profile/works/work/:userWorkId/unlike": 'unlike_work',
-  "/signout": {},
-  "/signout/submit": {},
-  "/delete": {},
-  "/delete/submit": 'delete_'
-
+const routeDBProcedureDict: Record<RoutePath, Array<DBProcedure>> = {
+  "/": [],
+  "/landing/signin": [],
+  "/landing/signup": [],
+  "/landing/signin/submit": ['check_signin'],
+  "/landing/signup/submit": ['check_signup'],
+  "/home": ['see_watchers','see_works','see_watched_artists','see_liked_works'],
+  "/home/works/firstSubmit": [],
+  "/home/works/firstSubmit/submit": ['submit_first_work'],
+  "/home/works/submit": [],
+  "/home/works/submit/submit": ['submit_work'],
+  "/home/works/withdraw": [],
+  "/home/works/withdraw/submit": ['withdraw_work'],
+  "/home/users/more": ['see_more_users'],
+  "/home/artists/more": ['see_more_artists'],
+  "/home/works/more": ['see_more_works'],
+  "/home/works/like/more": ['see_more_liked_works'],
+  "/profile/users/user/:userId": ['view_user'],
+  "/profile/artists/artist/:artistId": ['view_artist', 'view_works_of_artist'],
+  "/profile/works/work/:workId/view": ['go_view_work'],
+  "/profile/works/work/:userWorkId/review": ['go_review_work'],
+  "/profile/works/work/:workId": ['view_work'],
+  "/profile/users/user/:userArtistId/ban": [],
+  "/profile/users/user/:userArtistId/ban/submit": ['ban_watcher'],
+  "/profile/artists/artist/:artistId/watch": ['watch_artist'],
+  "/profile/artists/artist/:userArtistId/rewatch": ['rewatch_artist'],
+  "/profile/artists/artist/:userArtistId/unwatch": ['unwatch_artist'],
+  "/profile/works/work/:userWorkId/like": ['like_work'],
+  "/profile/works/work/:userWorkId/unlike": ['unlike_work'],
+  "/signout": [],
+  "/signout/submit": [],
+  "/delete": [],
+  "/delete/submit": ['delete_']
 }
+
 
 function getDBprocedureFromRoute(route: RoutePath, session: SessionData): DBProcedure | Record<string, DBProcedure> {
   let pro = routeDBProcedureDict[route];

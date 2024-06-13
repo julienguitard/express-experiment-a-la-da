@@ -22,6 +22,8 @@ declare type RoutePath =
     | "/home/works/firstSubmit/submit"
     | "/home/works/submit"
     | "/home/works/submit/submit"
+    | "/home/works/withdraw"
+    | "/home/works/withdraw/submit"
     | "/profile/users/user/:userId"
     | "/profile/artists/artist/:artistId"
     | "/profile/works/work/:workId/view"
@@ -192,7 +194,7 @@ declare type DBProcedureArgsMappingType = {
     ban_watcher:{ artistId: string,userId: string },
     submit_work: { artistId: string,workName: string },
     submit_first_work: { userId: string,workName: string },
-    withdraw_work: { artistId: string,workId: string },
+    withdraw_work: {workId: string },
     watch_artist:{ userId: string,artistId: string },
     rewatch_artist:{ userArtistId: string},
     unwatch_artist: { userId: string,artistId: string },

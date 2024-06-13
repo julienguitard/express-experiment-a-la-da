@@ -604,22 +604,27 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION submit_first_work (TEXT) RETURNS works
 AS
 $$
-SELECT $1
-ORDER BY RANDOM() LIMIT 10;
+
+SELECT * FROM insert_artist(artist_id, user_id, req_epoch);
+
+SELECT * FROM insert_work(work_id, artist_id, req_epoch)
+
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION submit_first_work (TEXT) RETURNS works
+CREATE OR REPLACE FUNCTION submit_work (TEXT) RETURNS works
 AS
 $$
-SELECT $1
-ORDER BY RANDOM() LIMIT 10;
+
+SELECT * FROM insert_work(work_id, artist_id, req_epoch);
+
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION withdraw_work (TEXT) RETURNS works
 AS
 $$
-SELECT $1
-ORDER BY RANDOM() LIMIT 10;
+
+SELECT * FROM insert_work_event(work_, req_epoch, 'withdraw')
+
 $$ LANGUAGE SQL;
 
 
