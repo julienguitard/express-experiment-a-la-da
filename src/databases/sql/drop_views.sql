@@ -1,6 +1,6 @@
 DROP VIEW IF EXISTS my_seeable_works CASCADE ;
 
-DROP VIEW IF EXISTS more_of_my_seeable_works CASCADE ;
+DROP VIEW IF EXISTS more_of_seeable_works CASCADE ;
 
 DROP VIEW IF EXISTS seeable_artists CASCADE ;
 

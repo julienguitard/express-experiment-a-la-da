@@ -178,10 +178,10 @@ function builder(rou: RoutePath): Controler {
       ): Promise<void> {
         if (req.session.artistId && req.session.userId) {
           const procParams: Record<DBProcedure, Array<string>> = {
-            see_my_watchers: [req.session.artistId],
-            see_my_works: [req.session.artistId],
-            see_my_watched_artists: [req.session.userId],
-            see_my_liked_works: [req.session.userId],
+            see_watchers: [req.session.artistId],
+            see_works: [req.session.artistId],
+            see_watched_artists: [req.session.userId],
+            see_liked_works: [req.session.userId],
           };
           const procResults = Object.fromEntries(
             Object.entries(procParams).map((kv) => [
@@ -195,8 +195,8 @@ function builder(rou: RoutePath): Controler {
           });
         } else if (req.session.userId) {
           const procParams: Record<DBProcedure, Array<string>> = {
-            see_my_watched_artists: [req.session.userId],
-            see_my_liked_works: [req.session.userId],
+            see_watched_artists: [req.session.userId],
+            see_liked_works: [req.session.userId],
           };
           const procResults = Object.fromEntries(
             Object.entries(procParams).map((kv) => [

@@ -9,7 +9,7 @@ declare module 'express-session' {
 
     declare interface SessionData {
       startTime?:string,
-      reqTime?:string,
+      reqEpoch?:string,
       path?:string,
       userId?:string,
       userName?:string,

@@ -13,15 +13,16 @@ import {
 } from "../middlewares/factory.js";
 
 
+
 const routesParams: RoutePathParams = {
   "/": {
-    render: "Index",
+    render: "Index"
   },
   "/landing/signin": {
-    render: "Signin",
+    render: "Signin"
   },
   "/landing/signup": {
-    render: "Signup",
+    render: "Signup"
   },
   "/landing/signin/submit": {
     redirect: "/home", method: "post"
@@ -30,21 +31,51 @@ const routesParams: RoutePathParams = {
     redirect: "/home", method: "post"
   },
   "/home": {
-    render: "ArtistHome",
+    render: "ArtistHome"
   },
+    "/home/users/more": {
+      render: "MoreUsers"
+    },
+    "/home/works/more": {
+      render: "MoreWorks"
+    },
+    "/home/artists/more": {
+      render: "MoreArtists"
+    },
+    "/home/works/like/more": {
+      render: "MoreWorks"
+    },
+    "/home/works/firstSubmit": {
+      render: "Submit"
+    },
+    "/home/works/firstSubmit/submit": {
+      redirect: "/home", method: "post"
+    },
+    "/home/works/submit": {
+      render: "Submit"
+    },
+    "/home/works/submit/submit": {
+      redirect: "/home", method: "post"
+    },
+    "/profile/users/user/:userId": {
+      render: "User",
+    },
+    "/profile/artists/artist/:artistId": {
+      render: "Artist",
+    },
+    "/profile/works/work/:workId/view": {
+      redirect: "/profile/works/work/:workId", method:"post"
+    },
+    "/profile/works/work/:userWorkId/review": {
+      redirect: "/profile/works/work/:workId", method:"post"
+    },
   "/profile/works/work/:workId": {
-    render: "Work",
+    render: "Work"
   },
-  "/profile/artists/artist/:artistId": {
-    render: "Artist",
-  },
-  "/profile/users/user/:userId": {
-    render: "User",
-  },
-  "/profile/users/user/:userWorkId/ban": {
+  "/profile/users/user/:userArtistId/ban": {
     render: "Ban"
   },
-  "/profile/users/user/:userWorkId/ban/submit": {
+  "/profile/users/user/:userArtistId/ban/submit": {
     redirect: "/home", method: "post"
   },
   "/profile/artists/artist/:artistId/watch": {
@@ -56,28 +87,10 @@ const routesParams: RoutePathParams = {
   "/profile/artists/artist/:userArtistId/rewatch": {
     redirect: "/home", method: "post"
   },
-  "/profile/works/work/:workId/like": {
+  "/profile/works/work/:userWorkId/like": {
     redirect: "/home", method: "post"
   },
   "/profile/works/work/:userWorkId/unlike": {
-    redirect: "/home", method: "post"
-  },
-  "/profile/works/work/:userWorkId/relike": {
-    redirect: "/home", method: "post"
-  },
-  "/home/users/more": {
-    render: "MoreUsers",
-  },
-  "/home/artists/more": {
-    render: "MoreArtists",
-  },
-  "/home/works/more": {
-    render: "MoreWorks",
-  },
-  "/home/works/submit": {
-    render: "Submit",
-  },
-  "/home/works/submit/submit": {
     redirect: "/home", method: "post"
   },
   "/signout": {

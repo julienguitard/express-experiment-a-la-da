@@ -258,10 +258,12 @@ FROM (SELECT t0.id,
         FROM users_artists_without_banned) USING (user_id,artist_id)
 );
 
--- View for procedures
 
-CREATE OR REPLACE VIEW checkable_signins AS (
-SELECT t0.user_id,
+-- Some denormalized utils
+
+CREATE OR REPLACE VIEW users_ids_with_pwd_artist AS
+(
+SELECT user_id,
        artist_id,
        user_name,
        pwd
@@ -272,6 +274,27 @@ FROM (SELECT DISTINCT user_id,
   LEFT JOIN (SELECT DISTINCT artist_id,
                     user_id
              FROM artists_without_deleted) t1 USING (user_id)
+
+);
+
+CREATE OR REPLACE VIEW users_ids_with_artist AS
+(
+SELECT user_id,
+       artist_id,
+       user_name
+FROM users_ids_with_pwd_artist
+);
+
+
+-- Views for procedures
+
+CREATE OR REPLACE VIEW checkable_signins AS 
+(
+SELECT user_id,
+       artist_id,
+       user_name,
+       pwd
+FROM users_ids_with_pwd_artist
 --WHERE user_name=$1 AND pwd=$2
 );
 
@@ -318,7 +341,7 @@ FROM (SELECT user_artist_id,
 --WHERE artist_id=$1 
 );
 
-CREATE OR REPLACE VIEW seeable_watchers AS (
+CREATE OR REPLACE VIEW seeable_watchers_ AS (
 SELECT user_,
        ban
 FROM seeable_watchers 
@@ -355,42 +378,6 @@ FROM more_seeable_watchers
 --WHERE artist_id=$1 
 );
 
-CREATE OR REPLACE VIEW my_seeable_works AS (
-SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
-       work_id,
-       artist_id
-FROM (SELECT DISTINCT work_id,
-             artist_id,
-             work_name
-      FROM works_without_withdrawn)
---WHERE artist_id=$1 
-);
-CREATE OR REPLACE VIEW my_seeable_works_ AS (
-SELECT work_,
-       work_id
-FROM my_seeable_works
---WHERE artist_id=$1 
-);
-
-CREATE OR REPLACE VIEW more_of_my_seeable_works AS (
-SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
-       work_id,
-       artist_id
-FROM (SELECT DISTINCT work_id,
-             artist_id,
-             work_name
-      FROM works_without_withdrawn)
---WHERE artist_id=$1 
-);
-
-CREATE OR REPLACE VIEW more_of_my_seeable_works_ AS (
-SELECT work_,
-       work_id
-FROM more_of_my_seeable_works
-ORDER BY RANDOM()
---WHERE artist_id=$1 
-);
-
 CREATE OR REPLACE VIEW seeable_artists AS (
 SELECT include_ref('user_name',user_name,'artist_id',artist_id) AS artist,
        user_artist_id AS unwatch,
@@ -407,10 +394,7 @@ FROM (SELECT user_artist_id,
             AND   value = 1) t0
         JOIN (SELECT artist_id,
                      user_name
-              FROM (SELECT DISTINCT artist_id,
-                           user_id
-                    FROM artists_without_deleted) t10
-                JOIN (SELECT DISTINCT user_id, user_name FROM users_without_deleted) t11 USING (user_id)) t1 USING (artist_id))
+              FROM users_ids_with_artist t1 USING (artist_id)))
 --WHERE user_id=$1 
 );
 
@@ -419,6 +403,42 @@ SELECT artist,
        unwatch
 FROM seeable_artists
 --WHERE user_id=$1 
+);
+
+CREATE OR REPLACE VIEW seeable_works AS (
+SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
+       work_id,
+       artist_id
+FROM (SELECT DISTINCT work_id,
+             artist_id,
+             work_name
+      FROM works_without_withdrawn)
+--WHERE artist_id=$1 
+);
+CREATE OR REPLACE VIEW seeable_works_ AS (
+SELECT work_,
+       work_id
+FROM seeable_works
+--WHERE artist_id=$1 
+);
+
+CREATE OR REPLACE VIEW more_of_seeable_works AS (
+SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
+       work_id,
+       artist_id
+FROM (SELECT DISTINCT work_id,
+             artist_id,
+             work_name
+      FROM works_without_withdrawn)
+--WHERE artist_id=$1 
+);
+
+CREATE OR REPLACE VIEW more_of_seeable_works_ AS (
+SELECT work_,
+       work_id
+FROM more_of_seeable_works
+ORDER BY RANDOM()
+--WHERE artist_id=$1 
 );
 
 CREATE OR REPLACE VIEW more_seeable_artists AS (
@@ -461,14 +481,14 @@ FROM more_seeable_artists
 --WHERE user_id=$1 
 );
 
-CREATE OR REPLACE VIEW seeable_works AS (
+CREATE OR REPLACE VIEW seeable_liked_works AS (
 SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
        user_work_id AS unlike,
        user_id
 FROM (SELECT user_work_id,
              user_id,
              work_id,
-            work_name
+             work_name
       FROM (SELECT DISTINCT user_work_id,
                    work_id,
                    user_id
@@ -479,14 +499,14 @@ FROM (SELECT user_work_id,
 --WHERE user_id=$1 
 );
 
-CREATE OR REPLACE VIEW seeable_works_ AS (
+CREATE OR REPLACE VIEW seeable_liked_works_ AS (
 SELECT work_,
        unlike
-FROM seeable_works
+FROM seeable_liked_works
 --WHERE user_id=$1 
 );
 
-CREATE OR REPLACE VIEW more_seeable_works AS (
+CREATE OR REPLACE VIEW more_seeable_liked_works AS (
 SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
        user_work_id AS like_,
        user_id
@@ -512,10 +532,10 @@ WHERE not_liked = 1
 --WHERE user_id=$1 
 );
 
-CREATE OR REPLACE VIEW more_seeable_works_ AS (
+CREATE OR REPLACE VIEW more_seeable_liked_works_ AS (
 SELECT work_,
        unlike
-FROM more_seeable_works
+FROM more_seeable_liked_works
 --WHERE user_id=$1 
 );
 
@@ -551,10 +571,7 @@ SELECT include_ref('user_name',user_name,'artist_id',artist_id) AS artist,
        user_id
 FROM (SELECT artist_id,
              user_name
-      FROM (SELECT DISTINCT artist_id,
-                   user_id
-            FROM artists_without_deleted)
-        JOIN (SELECT DISTINCT user_id, user_name FROM users_without_deleted) USING (user_id))
+      FROM users_ids_with_artists)
   LEFT JOIN (SELECT DISTINCT user_artist_id,
                     user_id,
                     artist_id
@@ -582,12 +599,7 @@ FROM (SELECT work_id,
                         artist_id,
                         work_name
                  FROM works_without_withdrawn)
-        JOIN (SELECT artist_id,
-                     user_name
-              FROM (SELECT DISTINCT artist_id,
-                           user_id
-                    FROM artists_without_deleted)
-                JOIN (SELECT DISTINCT user_id, user_name FROM users_without_deleted) USING (user_id)) USING (artist_id))
+        JOIN users_ids_with_artist USING (artist_id))
   LEFT JOIN (SELECT DISTINCT user_work_id,
                     user_id,
                     work_id

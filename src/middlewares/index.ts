@@ -31,7 +31,7 @@ const consoleControler = function (
 };
 
 function updateSessionInitially(session: SessionData, req: Request): void {
-  session.reqTime = getEpochString();
+  session.reqEpoch = getEpochString();
   session.startTime = session.startTime ?? getEpochString();
   session.userId = session.userId ?? "Admin";
   session.userName = session.userName ?? "Admin";
@@ -80,7 +80,7 @@ const logToPostgresControler = function (
     .map(([k, v]) => k)
     .join(",");
   const reqData = queryPoolFromProcedure(pool, "insert_into_requests_logs", [
-    req.session.reqTime,
+    req.session.reqEpoch,
     req.session.path,
     meths,
   ]);
@@ -90,7 +90,7 @@ const logToPostgresControler = function (
   const resData = nextVoid.then(() => {
     let no = getEpochString();
     return queryPoolFromProcedure(pool, "insert_into_responses_logs", [
-      req.session.reqTime ?? "",
+      req.session.reqEpoch ?? "",
       no,
       req.session.path ?? "unknown route path",
       res.statusCode.toString(),
@@ -212,21 +212,21 @@ const getHomeControler = function (
         myWatchers:
           reqData.artistId === undefined
             ? undefined
-            : queryPoolFromProcedure(pool, "see_my_watchers", [
+            : queryPoolFromProcedure(pool, "see_watchers", [
                 reqData.artistId,
               ]),
         myWorks:
           reqData.artistId === undefined
             ? undefined
-            : queryPoolFromProcedure(pool, "see_my_works", [reqData.artistId]),
+            : queryPoolFromProcedure(pool, "see_works", [reqData.artistId]),
         myWatchedArtists: queryPoolFromProcedure(
           pool,
-          "see_my_watched_artists",
+          "see_watched_artists",
           req.session.userId ? [req.session.userId] : undefined
         ),
         myLikedWorks: queryPoolFromProcedure(
           pool,
-          "see_my_liked_works",
+          "see_liked_works",
           req.session.userId ? [req.session.userId] : undefined
         ),
       };

@@ -19,36 +19,38 @@ const routeDBProcedureDict: Record<RoutePath, DBProcedure | Record<string, DBPro
   "/landing/signin/submit": 'check_signin',
   "/landing/signup/submit": 'check_signup',
   "/home": {
-    see_my_watchers: 'see_my_watchers',
-    see_my_works: 'see_my_works',
-    see_my_watched_artists: 'see_my_watched_artists',
-    see_my_liked_works: 'see_my_watched_artists',
+    see_watchers: 'see_watchers',
+    see_works: 'see_works',
+    see_watched_artists: 'see_watched_artists',
+    see_liked_works: 'see_liked_works',
   },
   "/home/works/firstSubmit": {},
-  "/home/works/firstSubmit/submit": 'submit_my_first_work',
+  "/home/works/firstSubmit/submit": 'submit_first_work',
   "/home/works/submit": {},
   "/home/works/submit/submit": 'submit_work',
   "/home/users/more": 'see_more_users',
   "/home/artists/more": 'see_more_artists',
   "/home/works/more": 'see_more_works',
+  "/home/works/liked/more": 'see_more_liked_works',
   "/profile/users/user/:userId": 'view_user',
   "/profile/artists/artist/:artistId": {
     view_artist: 'view_artist',
     view_works_of_artist: 'view_works_of_artist'
   },
+  "/profile/works/work/:workId/view": 'go_view_work',
+  "/profile/works/work/:userWorkId/review": 'go_review_work',
   "/profile/works/work/:workId": 'view_work',
-  "/profile/users/user/:userWorkId/ban": {},
-  "/profile/users/user/:userWorkId/ban/submit": 'ban_watcher',
+  "/profile/users/user/:userArtistId/ban": {},
+  "/profile/users/user/:userArtistId/ban/submit": 'ban_watcher',
   "/profile/artists/artist/:artistId/watch": 'watch_artist',
-  "/profile/artists/artist/:userArtistId/rewatch": 'watch_artist',
+  "/profile/artists/artist/:userArtistId/rewatch": 'rewatch_artist',
   "/profile/artists/artist/:userArtistId/unwatch": 'unwatch_artist',
-  "/profile/works/work/:workId/like": 'like_work',
-  "/profile/works/work/:userWorkId/relike": 'like_work',
+  "/profile/works/work/:userWorkId/like": 'like_work',
   "/profile/works/work/:userWorkId/unlike": 'unlike_work',
   "/signout": {},
-  "/signout/submit": 'signout',
+  "/signout/submit": {},
   "/delete": {},
-  "/delete/submit": 'delete'
+  "/delete/submit": 'delete_'
 
 }
 
@@ -57,8 +59,8 @@ function getDBprocedureFromRoute(route: RoutePath, session: SessionData): DBProc
   if (route === '/home') {
     if (session.artistId) {
       pro = {
-        see_my_watched_artists: 'see_my_watched_artists',
-        see_my_liked_works: 'see_my_watched_artists'
+        see_watched_artists: 'see_watched_artists',
+        see_liked_works: 'see_watched_artists'
       };
     }
   }
@@ -118,10 +120,10 @@ function getDBprocedureArgs<T extends DBProcedure>(
 ): DBProcedureArgsMappingType[DBProcedure] {
   switch (pro) {
     case "insert_user":
-      if (session.userId && session.reqTime && session.userName && bodyParams.pwd ){
+      if (session.userId && session.reqEpoch && session.userName && bodyParams.pwd ){
         const args:DBProcedureArgsMappingType["insert_user"] = [
         { userId: session.userId },
-        { time: session.reqTime },
+        { time: session.reqEpoch },
         { userName: session.userName },
         { pwd: hash(bodyParams.pwd) }
       ]
@@ -131,37 +133,37 @@ function getDBprocedureArgs<T extends DBProcedure>(
     case "insert_user_event":
       return [
         { userId: session.userId },
-        { time: session.reqTime },
-        { key: "create" },
+        { time: session.reqEpoch },
+        { key_: "create" },
       ];
       break;
     case "insert_artist":
       return [
         { artistId: session.artistId },
-        { time: session.reqTime },
+        { time: session.reqEpoch },
         { userId: session.userId },
       ];
       break;
     case "insert_artist_event":
       return [
         { artistId: session.artistId },
-        { time: session.reqTime },
-        { key: "create" },
+        { time: session.reqEpoch },
+        { key_: "create" },
       ];
       break;
     case "insert_work":
       return [
         { workId: params.workId },
         { artistId: session.artistId },
-        { time: session.reqTime },
+        { time: session.reqEpoch },
         { workName: bodyParams.workName },
       ];
       break;
     case "insert_work_event":
       return [
         { workId: params.workId },
-        { time: session.reqTime },
-        { key: "create" },
+        { time: session.reqEpoch },
+        { key_: "create" },
       ];
       break;
     case "insert_user_artist":
@@ -170,7 +172,7 @@ function getDBprocedureArgs<T extends DBProcedure>(
           { userArtistId: hash(merge(session.userId, params.artistId)) },
           { userId: session.userId },
           { artistId: session.artistId },
-          { time: session.reqTime },
+          { time: session.reqEpoch },
         ];
       } else {
         throw "Missing userId";
@@ -180,8 +182,8 @@ function getDBprocedureArgs<T extends DBProcedure>(
       if (session.userId) {
         return [
           { userArtistId: hash(merge(session.userId, params.artistId)) },
-          { time: session.reqTime },
-          { key: "create" },
+          { time: session.reqEpoch },
+          { key_: "create" },
         ];
       } else {
         throw "Missing userId";
@@ -193,7 +195,7 @@ function getDBprocedureArgs<T extends DBProcedure>(
           { userWorkId: hash(merge(session.userId, params.workId)) },
           { userId: session.userId },
           { workId: params.workId },
-          { time: session.reqTime },
+          { time: session.reqEpoch },
         ];
       } else {
         throw "Missing userId";
@@ -203,8 +205,8 @@ function getDBprocedureArgs<T extends DBProcedure>(
       if (session.userId) {
         return [
           { userWorkId: hash(merge(session.userId, params.workId)) },
-          { time: session.reqTime },
-          { key: "create" },
+          { time: session.reqEpoch },
+          { key_: "create" },
         ];
       } else {
         throw "Missing userId";
@@ -220,25 +222,25 @@ function getDBprocedureArgs<T extends DBProcedure>(
         { confirmedPwd: hash(bodyParams.confirmedPwd) },
       ];
       break;
-    case "see_my_watchers":
+    case "see_watchers":
       return [{ artistId: session.artistId }];
       break;
     case "see_more_users":
       return [{ artistId: session.artistId }];
       break;
-    case "see_my_works":
+    case "see_works":
       return [{ artistId: session.artistId }];
       break;
-    case "see_more_of_my_works":
+    case "see_more_liked_works":
       return [{ artistId: session.artistId }];
       break;
-    case "see_my_watched_artists":
+    case "see_watched_artists":
       return [{ userId: session.userId }];
       break;
     case "see_more_artists":
       return [{ userId: session.userId }];
       break;
-    case "see_my_liked_works":
+    case "see_liked_works":
       return [{ userId: session.userId }];
       break;
     case "see_more_works":
@@ -268,7 +270,7 @@ function getDBprocedureArgs<T extends DBProcedure>(
     case "withdraw_work":
       return [{ artistId: session.artistId }, { workId: params.workId }];
       break;
-    case "submit_my_first_work":
+    case "submit_first_work":
       return [{ userId: session.userId }, { workName: bodyParams.workName }];
       break;
     case "watch_artist":
@@ -285,14 +287,14 @@ function getDBprocedureArgs<T extends DBProcedure>(
       break;
     case "insert_into_requests_logs":
       return [
-        { time: session.reqTime },
+        { time: session.reqEpoch },
         { path: route.path },
         { methods: route.methods },
       ];
       break;
     case "insert_into_responses_logs":
       return [
-        { time: session.reqTime },
+        { time: session.reqEpoch },
         { path: session.path },
         { methods: route.methods },
         { error: error },
@@ -300,7 +302,7 @@ function getDBprocedureArgs<T extends DBProcedure>(
       break;
     case "insert_into_errors_logs":
       return [
-        { time: session.reqTime },
+        { time: session.reqEpoch },
         { path: session.path },
         { methods: route.methods },
         { error: error },
@@ -377,9 +379,9 @@ const buildErrorHandler = function (
 ): (err: Error) => void {
   function errorHandler(err: Error) {
     const no = getEpochString();
-    if (req.session.reqTime && req.session.path) {
+    if (req.session.reqEpoch && req.session.path) {
       const resQuery = queryPoolFromProcedure(pool, "insert_into_errors_logs", [
-        req.session.reqTime,
+        req.session.reqEpoch,
         no,
         req.session.path,
         err.message,
