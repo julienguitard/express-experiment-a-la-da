@@ -50,6 +50,17 @@ declare type RedirectionArgsMappingType = {
     "/profile/works/work/:workId":{}
 }
 
+declare type RouteEvent = 'create'
+|'delete'
+|'submit'
+|'withdraw'
+|'ban'
+|'watch'
+|'unwatch'
+|'view'
+|'like'
+|'unlike';
+
 declare type Verb = 'get' | 'post'
 declare type RoutePathParams = Record<
     RoutePath,
@@ -153,7 +164,7 @@ declare interface PhantomData {
     workName: string,
     userArtistId: string,
     userWorkId: string,
-    time: string,
+    epoch: string,
     key_: string,
 }
 
@@ -167,16 +178,16 @@ declare type DBProcedure =
     | keyof DBProcedureResultsMappingType;
 
 declare type DBProcedureArgsMappingType = {
-    insert_user: { userId: string , time: string , userName: string ,  pwd: string },
-    insert_user_event: { userId: string, time: string,key_: string },
-    insert_artist: { artistId: string,time: string,userId: string },
-    insert_artist_event: { artistId: string , time: string , key_: string },
-    insert_work:{ workId: string , artistId: string , time: string , workName: string },
-    insert_work_event: { workId: string,time: string,key_: string },
-    insert_user_artist: { userArtistId: string , userId: string , artistId: string , time: string },
-    insert_user_artist_event:{ userArtistId: string , time: string , key_: string },
-    insert_user_work: { userWorkId: string ,  userId: string , workId: string , time: string },
-    insert_user_work_event:{ userWorkId: string ,  time: string , key_: string },
+    insert_user: { userId: string , epoch: string , userName: string ,  pwd: string },
+    insert_user_event: { userId: string, epoch: string,key_: string },
+    insert_artist: { artistId: string,epoch: string,userId: string },
+    insert_artist_event: { artistId: string , epoch: string , key_: string },
+    insert_work:{ workId: string , artistId: string , epoch: string , workName: string },
+    insert_work_event: { workId: string,epoch: string,key_: string },
+    insert_user_artist: { userArtistId: string , userId: string , artistId: string , epoch: string },
+    insert_user_artist_event:{ userArtistId: string , epoch: string , key_: string },
+    insert_user_work: { userWorkId: string ,  userId: string , workId: string , epoch: string },
+    insert_user_work_event:{ userWorkId: string ,  epoch: string , key_: string },
     check_signin:{ userName: string,pwd: string },
     check_signup: { userName: string , pwd: string ,  confirmedPwd: string },
     see_watchers:{ artistId: string },
@@ -202,25 +213,25 @@ declare type DBProcedureArgsMappingType = {
     go_review_work:{ userWorkdId: string },
     like_work:{ userId: string,workId: string },
     unlike_work:{ userId: string,workId: string },
-    signout:{ userId: string,userName: string ,artistId?:string},
-    delete_:{ userId: string,userName: string ,artistId?:string},
-    insert_into_requests_logs: { time: string , path: string , methods: Array<string> },
-    insert_into_responses_logs: { time: string , path: string , methods: Array<string> ,  error: Error },
-    insert_into_errors_logs:{ time: string , path: string , methods: Array<string> , error: Error },
+    signout:{},
+    delete_:{ userId: string,epoch: string},
+    insert_into_requests_logs: { epoch: string , path: string , methods: Array<string> },
+    insert_into_responses_logs: { epoch: string , path: string , methods: Array<string> ,  error: Error },
+    insert_into_errors_logs:{ epoch: string , path: string , methods: Array<string> , error: Error },
     select_full_logs: {},
 }
 
 declare type DBProcedureResultsMappingType = {
-    insert_user: { userId: string , time: string , userName: string ,  pwd: string },
-    insert_user_event: { userId: string,time: string,key_: string },
-    insert_artist: { artistId: string,time: string,userId: string },
-    insert_artist_event: { artistId: string , time: string , key_: string },
-    insert_work:{ workId: string , artistId: string , time: string , workName: string },
-    insert_work_event: { workId: string,time: string,key_: string },
-    insert_user_artist: { userArtistId: string , userId: string , artistId: string , time: string },
-    insert_user_artist_event:{ userArtistId: string , time: string , key_: string },
-    insert_user_work: { userWorkId: string ,  userId: string , workId: string , time: string },
-    insert_user_work_event:{ userWorkId: string ,  time: string , key_: string },
+    insert_user: { userId: string , epoch: string , userName: string ,  pwd: string },
+    insert_user_event: { userId: string,epoch: string,key_: string },
+    insert_artist: { artistId: string,epoch: string,userId: string },
+    insert_artist_event: { artistId: string , epoch: string , key_: string },
+    insert_work:{ workId: string , artistId: string , epoch: string , workName: string },
+    insert_work_event: { workId: string,epoch: string,key_: string },
+    insert_user_artist: { userArtistId: string , userId: string , artistId: string , epoch: string },
+    insert_user_artist_event:{ userArtistId: string , epoch: string , key_: string },
+    insert_user_work: { userWorkId: string ,  userId: string , workId: string , epoch: string },
+    insert_user_work_event:{ userWorkId: string ,  epoch: string , key_: string },
     check_signin: { userId: string,userName: string,artistId?: string},
     check_signup: { userId: string,userName: string },
     see_watchers: { userId: { userName: string, userId: string }, ban: string },
@@ -243,10 +254,10 @@ declare type DBProcedureResultsMappingType = {
     unwatch_artist: { artistId: string },
     like_work: { workId: string },
     unlike_work: { workId: string },
-    insert_into_requests_logs: { requestId: string , time: string , path: string , methods: Array<string> },
-    insert_into_responses_logs:  { reponseId: string , time: string , requestId: string , status: string },
-    insert_into_errors_logs:  { errorId: string , time: string , requestId: string , message: string },
-    select_full_logs: { requestId: string , time: string , path: string , methods: Array<string> , errorId: string , time: string , message: string , reponseId: string , time: string , status: string }
+    insert_into_requests_logs: { requestId: string , epoch: string , path: string , methods: Array<string> },
+    insert_into_responses_logs:  { reponseId: string , epoch: string , requestId: string , status: string },
+    insert_into_errors_logs:  { errorId: string , epoch: string , requestId: string , message: string },
+    select_full_logs: { requestId: string , epoch: string , path: string , methods: Array<string> , errorId: string , epoch: string , message: string , reponseId: string , epoch: string , status: string }
 }
 
 declare type Controler =
@@ -306,6 +317,7 @@ declare interface CellProps {
 }
 
 export type {
+    RouteEvent,
     UbiquitousConcept,
     DBProcedure,
     DBProcedureArgsMappingType,
@@ -317,5 +329,6 @@ export type {
     RoutePath,
     RoutePathParams,
     RouteData,
-    Controler
+    Controler,
+    Verb
 }

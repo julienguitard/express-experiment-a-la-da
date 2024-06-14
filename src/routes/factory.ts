@@ -1,5 +1,7 @@
 import  {Router, RequestHandler,Request, Response, NextFunction} from 'express'
+import { RoutePath } from '../types';
 //import { RequestHandler } from 'express-serve-static-core';
+
 function setRouteMethod(rou:Router, 
   method:string, 
   route:string, 

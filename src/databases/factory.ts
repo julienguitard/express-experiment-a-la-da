@@ -10,11 +10,11 @@ function convertToSql(pro:DBProcedure,params:Array<string>|undefined):string {
 }
 
 
-function processQueryPoolArgs<T extends DBProcedure>(
-    pro: T,
+function processQueryPoolArgs<T extends keyof DBProcedureArgsMappingType>(
     args: DBProcedureArgsMappingType[T]
   ): Array < string > {
-    return Object.fromEntries(args).map((kv) => kv[1]);
+    return Object.entries(args).map((kv) => kv[1]);
+  
   }
 
   function parseSQLOutput(

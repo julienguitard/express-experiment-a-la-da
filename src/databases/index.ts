@@ -2,7 +2,7 @@ import dotenv_, { DotenvConfigOutput } from "dotenv";
 import pg, { PoolConfig, Pool, QueryResult } from "pg";
 import { DBProcedure, DBProcedureArgsMappingType } from "../types.js";
 import errorConsoleLog from "../utils/errorConsoleLog.js";
-import { convertToSql, parseSQLOutput } from "./factory.js";
+import { convertToSql, processQueryPoolArgs, parseSQLOutput} from "./factory.js";
 
 const dotenv: DotenvConfigOutput = dotenv_.config();
 const poolConfig: PoolConfig = {
@@ -37,6 +37,15 @@ async function queryPoolFromProcedure(
 ): Promise<QueryResult<any>> {
   const sql = convertToSql(pro, params);
   return queryPool(po, sql, params);
+}
+
+async function queryPoolFromProcedure_<T extends keyof DBProcedureArgsMappingType>(
+  po: Pool,
+  pro: T,
+  args: DBProcedureArgsMappingType[T]
+): Promise<QueryResult<any>> {
+  const params = processQueryPoolArgs(args);
+  return queryPoolFromProcedure(po, pro,params);
 }
 
 export { pool, queryPool, queryPoolFromProcedure };

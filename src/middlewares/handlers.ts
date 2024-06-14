@@ -4,6 +4,7 @@ import { queryPool, queryPoolFromProcedure } from "../databases/index.js";
 import { hash } from "../utils/hash.js";
 import { Session, SessionData } from "express-session";
 import {
+  RouteEvent,
   DBProcedure,
   DBProcedureArgsMappingType,
   DBProcedureResultsMappingType,
@@ -11,344 +12,201 @@ import {
 } from "../types";
 import { UbiquitousConcept } from "../types.js";
 
-const routeDBProcedureDict: Record<RoutePath, Array<DBProcedure>> = {
-  "/": [],
-  "/landing/signin": [],
-  "/landing/signup": [],
-  "/landing/signin/submit": ['check_signin'],
-  "/landing/signup/submit": ['check_signup'],
-  "/home": ['see_watchers','see_works','see_watched_artists','see_liked_works'],
-  "/home/works/firstSubmit": [],
-  "/home/works/firstSubmit/submit": ['submit_first_work'],
-  "/home/works/submit": [],
-  "/home/works/submit/submit": ['submit_work'],
-  "/home/works/withdraw": [],
-  "/home/works/withdraw/submit": ['withdraw_work'],
-  "/home/users/more": ['see_more_users'],
-  "/home/artists/more": ['see_more_artists'],
-  "/home/works/more": ['see_more_works'],
-  "/home/works/like/more": ['see_more_liked_works'],
-  "/profile/users/user/:userId": ['view_user'],
-  "/profile/artists/artist/:artistId": ['view_artist', 'view_works_of_artist'],
-  "/profile/works/work/:workId/view": ['go_view_work'],
-  "/profile/works/work/:userWorkId/review": ['go_review_work'],
-  "/profile/works/work/:workId": ['view_work'],
-  "/profile/users/user/:userArtistId/ban": [],
-  "/profile/users/user/:userArtistId/ban/submit": ['ban_watcher'],
-  "/profile/artists/artist/:artistId/watch": ['watch_artist'],
-  "/profile/artists/artist/:userArtistId/rewatch": ['rewatch_artist'],
-  "/profile/artists/artist/:userArtistId/unwatch": ['unwatch_artist'],
-  "/profile/works/work/:userWorkId/like": ['like_work'],
-  "/profile/works/work/:userWorkId/unlike": ['unlike_work'],
-  "/signout": [],
-  "/signout/submit": [],
-  "/delete": [],
-  "/delete/submit": ['delete_']
+function getEpochString(): string {
+  return (Date.now() / 1000).toString();
 }
 
-
-function getDBprocedureFromRoute(route: RoutePath, session: SessionData): DBProcedure | Record<string, DBProcedure> {
-  let pro = routeDBProcedureDict[route];
-  if (route === '/home') {
-    if (session.artistId) {
-      pro = {
-        see_watched_artists: 'see_watched_artists',
-        see_liked_works: 'see_watched_artists'
-      };
-    }
-  }
-  return pro;
-}
-
-
-type KeyFoo = 'a' | 'b';
-type Foo = {
-  a: {
-     userId: string ,
-     time: string ,
-     userName: string ,
-     pwd: string }
-     ,
-  b: { 
-    a: string 
-  }
-};
-
-type Foo_<T extends KeyFoo> = Foo[T];
-type ValueFoo = Foo[KeyFoo];
-
-
-function hoo<T extends KeyFoo>(k: T):ValueFoo {
-  switch (k) {
-    case 'a':
-      let foo: Foo['a'] = 
-        { userId: '' ,time: '' ,
-         userName: '' ,
-         pwd: '' }
-      
-      return foo;
-      break;
-    case 'b':
-      let goo: Foo['b'] = 
-        { a: '' }
-      return goo;
-      break;
-    default:
-      throw (Error('Unmatched case'));
-  }
-}
-
-const goo = Object.entries(hoo('a'));
-console.log(goo);
-
-function getDBprocedureArgs<T extends DBProcedure>(
+function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
   pro: T,
   route: Request["route"],
-  session: SessionData,
   params: Request["params"],
   bodyParams: Request["body"]["params"],
+  session: SessionData,
   hash: (s: string) => string,
+  extractEventFromRoute: (r:RoutePath) => RouteEvent, 
   merge: (u0: string, u1: string) => string,
   error?: Error
 ): DBProcedureArgsMappingType[DBProcedure] {
   switch (pro) {
-    case "insert_user":
-      if (session.userId && session.reqEpoch && session.userName && bodyParams.pwd ){
-        const args:DBProcedureArgsMappingType["insert_user"] = [
-        { userId: session.userId },
-        { time: session.reqEpoch },
-        { userName: session.userName },
-        { pwd: hash(bodyParams.pwd) }
-      ]
-      return args;
-    }
-      break;
-    case "insert_user_event":
-      return [
-        { userId: session.userId },
-        { time: session.reqEpoch },
-        { key_: "create" },
-      ];
-      break;
-    case "insert_artist":
-      return [
-        { artistId: session.artistId },
-        { time: session.reqEpoch },
-        { userId: session.userId },
-      ];
-      break;
-    case "insert_artist_event":
-      return [
-        { artistId: session.artistId },
-        { time: session.reqEpoch },
-        { key_: "create" },
-      ];
-      break;
-    case "insert_work":
-      return [
-        { workId: params.workId },
-        { artistId: session.artistId },
-        { time: session.reqEpoch },
-        { workName: bodyParams.workName },
-      ];
-      break;
-    case "insert_work_event":
-      return [
-        { workId: params.workId },
-        { time: session.reqEpoch },
-        { key_: "create" },
-      ];
-      break;
-    case "insert_user_artist":
-      if (session.userId) {
-        return [
-          { userArtistId: hash(merge(session.userId, params.artistId)) },
-          { userId: session.userId },
-          { artistId: session.artistId },
-          { time: session.reqEpoch },
-        ];
-      } else {
-        throw "Missing userId";
-      }
-      break;
-    case "insert_user_artist_event":
-      if (session.userId) {
-        return [
-          { userArtistId: hash(merge(session.userId, params.artistId)) },
-          { time: session.reqEpoch },
-          { key_: "create" },
-        ];
-      } else {
-        throw "Missing userId";
-      }
-      break;
-    case "insert_user_work":
-      if (session.userId) {
-        return [
-          { userWorkId: hash(merge(session.userId, params.workId)) },
-          { userId: session.userId },
-          { workId: params.workId },
-          { time: session.reqEpoch },
-        ];
-      } else {
-        throw "Missing userId";
-      }
-      break;
-    case "insert_user_work_event":
-      if (session.userId) {
-        return [
-          { userWorkId: hash(merge(session.userId, params.workId)) },
-          { time: session.reqEpoch },
-          { key_: "create" },
-        ];
-      } else {
-        throw "Missing userId";
-      }
-      break;
     case "check_signin":
-      return [{ userName: session.userName }, { pwd: hash(bodyParams.pwd) }];
-      break;
+      return {
+        userName: "string", 
+        pwd: "string" 
+      };
+
     case "check_signup":
-      return [
-        { userName: session.userName },
-        { pwd: hash(bodyParams.pwd) },
-        { confirmedPwd: hash(bodyParams.confirmedPwd) },
-      ];
-      break;
+      return   {
+      userId: hash(bodyParams.userName),
+      epoch: session.reqEpoch,
+      userName: bodyParams.userName,
+      pwd: hash(bodyParams.pwd)
+    };
+
     case "see_watchers":
-      return [{ artistId: session.artistId }];
-      break;
+      return { artistId: session.artistId };
+
     case "see_more_users":
-      return [{ artistId: session.artistId }];
-      break;
+      return { artistId: session.artistId };
+
     case "see_works":
-      return [{ artistId: session.artistId }];
-      break;
+      return { artistId: session.artistId };
+
     case "see_more_liked_works":
-      return [{ artistId: session.artistId }];
-      break;
+      return { artistId: session.userId };
+
     case "see_watched_artists":
-      return [{ userId: session.userId }];
-      break;
+      return { userId: session.userId };
+
     case "see_more_artists":
-      return [{ userId: session.userId }];
-      break;
+      return { userId: session.userId };
+
     case "see_liked_works":
-      return [{ userId: session.userId }];
-      break;
-    case "see_more_works":
-      return [{ userId: session.userId }];
-      break;
+      return { userId: session.userId };
+
+    case "see_more_liked_works":
+      return { userId: session.userId };
+
     case "view_user":
-      return [{ artistId: session.artistId }, { userId: session.userId }];
-      break;
+      return { artistId: session.artistId, userId: params.userId};
+
     case "view_artist":
-      return [{ artistId: session.artistId }, { userId: session.userId }];
-      break;
+      return { artistId: params.artistId, userId: session.userId };
+
     case "view_works_of_artist":
-      return [{ artistId: session.artistId }, { userId: session.userId }];
-      break;
+      return { artistId: params.artistId, userId: session.userId };
+
     case "view_work":
-      return [{ userId: session.userId }, { workId: params.workId }];
-      break;
+      return { userId: "string", workId: "string" };
+
     case "ban_watcher":
-      return [{ artistId: session.artistId }, { userId: session.userId }];
-      break;
+      return { artistId: session.artistId, userId: "string" };
+
     case "submit_work":
-      return [
-        { artistId: session.artistId },
-        { workName: bodyParams.workName },
-      ];
-      break;
-    case "withdraw_work":
-      return [{ artistId: session.artistId }, { workId: params.workId }];
-      break;
+      return { artistId: session.artistId, workName: "string" };
+
     case "submit_first_work":
-      return [{ userId: session.userId }, { workName: bodyParams.workName }];
-      break;
+      return { userId: session.userId, workName: "string" };
+
+    case "withdraw_work":
+      return { workId: "string" };
+
     case "watch_artist":
-      return [{ userId: session.userId }, { artistId: session.artistId }];
-      break;
+      return { userId: session.userId, artistId: params.artistId };
+
+    case "rewatch_artist":
+      return { userArtistId: "string" };
+
     case "unwatch_artist":
-      return [{ userId: session.userId }, { artistId: session.artistId }];
-      break;
+      return { userId: session.userId, artistId: params.artistId };
+
+    case "go_view_work":
+      return { userId: session.userId, workId: "string" };
+    case "go_review_work":
+      return { userWorkdId: "string" };
+
     case "like_work":
-      return [{ userId: session.userId }, { workId: params.workId }];
-      break;
+      return { userId: session.userId, workId: "string" };
+
     case "unlike_work":
-      return [{ userId: session.userId }, { workId: params.workId }];
-      break;
+      return { userId: session.userId, workId: "string" };
+
+    case "signout":
+      return {};
+
+    case "delete_":
+      return { 
+        userId: session.userId, 
+        epoch: session.reqEpoch};
+
     case "insert_into_requests_logs":
-      return [
-        { time: session.reqEpoch },
-        { path: route.path },
-        { methods: route.methods },
-      ];
-      break;
+      return { 
+        epoch : session.reqEpoch, 
+        path: route.path,
+        methods: route.methods
+      };
+
     case "insert_into_responses_logs":
-      return [
-        { time: session.reqEpoch },
-        { path: session.path },
-        { methods: route.methods },
-        { error: error },
-      ];
-      break;
+      return {
+        epoch : session.reqEpoch,
+        path: route.path,
+        methods: route.methods
+      };
+
     case "insert_into_errors_logs":
-      return [
-        { time: session.reqEpoch },
-        { path: session.path },
-        { methods: route.methods },
-        { error: error },
-      ];
-      break;
+      return {
+        epoch : session.reqEpoch,
+        path: route.path,
+        methods: route.methods,
+        error: Error('error'),
+      };
+
     case "select_full_logs":
-      return [];
-      break;
+      return {};
+
+    default:
+      return {};
   }
 }
 
-console.log()
+function updateRequestSession(
+  session: SessionData,
+  pro: DBProcedure,
+  output: QueryResult<any>
+): void {
+  switch (pro) {
+    case "check_signin":
+      if (output.rows.length === 0) {
+        if (output.rows[0]["artist_id"]) {
+          Object.defineProperty(session, "userId", output.rows[0]["user_id"]);
+          Object.defineProperty(
+            session,
+            "artistId",
+            output.rows[0]["artist_id"]
+          );
+        } else {
+          Object.defineProperty(session, "userId", output.rows[0]["user_id"]);
+        }
+      }
+      break;
+    case "check_signup":
+      if (output.rows.length === 0) {
+        Object.defineProperty(session, "userId", output.rows[0]["user_id"]);
+      }
+      break;
+    case "delete_":
+      delete session.userId;
+      if (session.artistId) {
+        delete session.artistId;
+      }
+      break;
+    default: {
+    }
+  }
+}
 
 async function getDBprocedureOuputs<T extends DBProcedures>(
   pool: Pool,
   pro: T,
   args: DBProcedureArgsMappingType[T]
 ): Promise<Array<DBProcedureResultsMappingType[T]>> {
-  const res = await queryPoolFromProcedure(pool, pro, args.map((k, v) => v[0])).rows;
+  const res = await queryPoolFromProcedure(
+    pool,
+    pro,
+    args.map((k, v) => v[0])
+  ).rows;
   return res;
-}
-
-
-function getEpochString(): string {
-  return (Date.now() / 1000).toString();
 }
 
 function convertToCellProps(field: string, cell: any): CellProps {
   let props = { value: cell, link: undefined };
   if (field === "user_id") {
-    Object.defineProperty(
-      props,
-      "link",
-      `/profile/users/user?${cell}`
-    );
+    Object.defineProperty(props, "link", `/profile/users/user?${cell}`);
   } else if (field === "artist_id") {
-    Object.defineProperty(
-      props,
-      "link",
-      `/profile/artists/artist?${cell}`
-    );
+    Object.defineProperty(props, "link", `/profile/artists/artist?${cell}`);
   } else if (field === "work_id") {
-    Object.defineProperty(
-      props,
-      "link",
-      `/profile/works/work?${cell}`
-    );
+    Object.defineProperty(props, "link", `/profile/works/work?${cell}`);
   } else if (field === "ban") {
-    Object.defineProperty(
-      props,
-      "link",
-      `/profile/users/user?${cell}/ban`
-    );
+    Object.defineProperty(props, "link", `/profile/users/user?${cell}/ban`);
   } else if (field === "withdraw") {
     Object.defineProperty(
       props,
@@ -356,15 +214,10 @@ function convertToCellProps(field: string, cell: any): CellProps {
       `/profile/works/work?${cell}/withdraw`
     );
   } else if (field === "unlike") {
-    Object.defineProperty(
-      props,
-      "link",
-      `/profile/works/work?${cell}/unlike`
-    );
+    Object.defineProperty(props, "link", `/profile/works/work?${cell}/unlike`);
   }
   return props;
 }
-
 
 const buildErrorHandler = function (
   req: Request,
@@ -403,16 +256,18 @@ async function checkAnswer(
   }
 }
 
-async function fallbackToIndex(
-  res: Response,
-): Promise<void> {
+async function fallbackToIndex(res: Response): Promise<void> {
   res.redirect("/");
 }
 
-async function fallbackToHome(
-  res: Response,
-): Promise<void> {
+async function fallbackToHome(res: Response): Promise<void> {
   res.redirect("/home");
 }
 
-export { getEpochString, checkAnswer, fallbackToIndex, fallbackToHome, buildErrorHandler };
+export {
+  getEpochString,
+  checkAnswer,
+  fallbackToIndex,
+  fallbackToHome,
+  buildErrorHandler,
+};

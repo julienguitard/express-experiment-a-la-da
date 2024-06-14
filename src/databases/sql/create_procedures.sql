@@ -690,7 +690,7 @@ SELECT * FROM insert_work_event(user_work_id, req_epoch, 'unlike')
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION delete (user_id TEXT, req_epoch TEXT) RETURNS users_events
+CREATE OR REPLACE FUNCTION delete_ (user_id TEXT, req_epoch TEXT) RETURNS users_events
 AS
 $$
 
