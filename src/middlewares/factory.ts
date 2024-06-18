@@ -224,19 +224,17 @@ function builder(rou: RoutePath): Controler {
 
 function builderFromRoutePath(
   routePath : RoutePath,
-  getRouteData :(rou:RoutePath) =>{dbProcedures: Array<DBProcedure>,redirect?:RoutePath,render?:EjsView,method?:Verb,event?:RouteEvent},
+  routeData :{dbProcedures: Array<DBProcedure>,redirect?:RoutePath,render?:EjsView,method?:Verb,event?:RouteEvent},
   hash:(s: string) => string,
 ):(req:Request,res:Response,next:NextFunction)=>void{
-  const data = getRouteData(routePath);
   function mdw(req:Request,res:Response,next:NextFunction):void{
-    for(let pro_ of Object.entries(data.dbProcedures)){
-      let pro = pro_[1];
+    for(let pro of routeData.dbProcedures){
       let args = getDBprocedureArgs(req,pro,hash);
       let output = queryPoolFromProcedure(pool,pro,args);
       output= output.then((ou)=>{console.log(parseSQLOutput(ou));return ou})
-      let _ = output.then((ou)=> updateRequestSession(req,pro,ou));
+      output = output.then((ou)=> {updateRequestSession(req,pro,ou); return ou});
     }
-    if (data.render){
+    if (routeData.render){
       if (routePath==='/home'){
         if (req.session.artistId){
           res.render('ArtistHome',req.session);
@@ -246,11 +244,11 @@ function builderFromRoutePath(
         }
       }
       else {
-          res.render(data.render,req.session);
+          res.render(routeData.render,req.session);
       }
     }
-    else if(data.redirect){
-        res.redirect(data.redirect);
+    else if(routeData.redirect){
+        res.redirect(routeData.redirect);
     }
     else {
     }
@@ -260,4 +258,4 @@ function builderFromRoutePath(
   
 
 
-export { buildControler, buildParametrizedControler, builder };
+export { buildControler, buildParametrizedControler, builder, builderFromRoutePath };

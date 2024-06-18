@@ -24,17 +24,18 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
 ): DBProcedureArgsMappingType[DBProcedure] {
   switch (pro) {
     case "check_signin":
+      console.log('req.body: '+ req.body)
       return {
-        userName: req.body.params.userName, 
-        pwd: req.body.params.pwd
+        userName: req.body.userName, 
+        pwd: req.body.pwd
       };
 
     case "check_signup":
       return   {
-      userId: hash(req.body.params.userName),
+      userId: hash(req.body.userName),
       reqEpoch: req.session.reqEpoch,
-      userName: req.body.params.userName,
-      pwd: hash(req.body.params.pwd)
+      userName: req.body.userName,
+      pwd: hash(req.body.pwd)
     };
 
     case "see_watchers":
@@ -59,19 +60,19 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
 
     case "submit_first_work":
       let artistId = hash('artist' + req.session.userId);
-      let workId = hash(artistId + req.body.params.workName);
+      let workId = hash(artistId + req.body.workName);
       return { 
         workId: workId, 
         artistId: artistId,
         reqEpoch:req.session.reqEpoch,
-        workName: req.body.params.workName };
+        workName: req.body.workName };
 
     case "submit_work":
       return { 
-        workId: hash(req.session.artistId + req.body.params.workName), 
+        workId: hash(req.session.artistId + req.body.workName), 
         artistId: req.session.artistId,
         reqEpoch:req.session.reqEpoch,
-        workName: req.body.params.workName };
+        workName: req.body.workName };
   
     case "withdraw_work":
       return { 
@@ -153,7 +154,6 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
     case "insert_into_requests_logs":
       return { 
         reqEpoch : req.session.reqEpoch, 
-        time : getEpochString(),
         route: req.route.path,
         methods: req.route.methods
       };
@@ -163,7 +163,7 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
         reqEpoch : req.session.reqEpoch, 
         time : getEpochString(),
         route: req.route.path,
-        statusCode: req.statusCode
+        statusCode: req.statusCode?.toString
       };
 
     case "insert_into_errors_logs":
@@ -171,7 +171,7 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
         reqEpoch : req.session.reqEpoch, 
         time : getEpochString(),
         route: req.route.path,
-        error: error   
+        error: error 
       };
 
     case "select_full_logs":
@@ -261,12 +261,8 @@ const buildErrorHandler = function (
   function errorHandler(err: Error) {
     const no = getEpochString();
     if (req.session.reqEpoch && req.session.path) {
-      const resQuery = queryPoolFromProcedure(pool, "insert_into_errors_logs", [
-        req.session.reqEpoch,
-        no,
-        req.session.path,
-        err.message,
-      ]);
+      const args = getDBprocedureArgs(req,"insert_into_errors_logs",hash,err)
+      const resQuery = queryPoolFromProcedure(pool, "insert_into_errors_logs", args);
       if (cb) {
         cb(err);
       }

@@ -28,11 +28,12 @@ const preRouterUsables:Array<RequestHandler> = [
   cors(),
   helmet(),
   sessionMiddleware,
-  bodyParser.urlencoded({ extended: false })
+  bodyParser.json()
+  //bodyParser.urlencoded({ extended: false })
 ];
 
 const postRouterUsables:Array<RequestHandler|ErrorRequestHandler>  = [
-  pageNotFoundControler
+ //TO DO pageNotFoundControler
 ]
 
 preRouterUsables.map((u) => app.use(u));

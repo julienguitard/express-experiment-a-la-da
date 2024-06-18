@@ -11,6 +11,7 @@ import {
   fallbackToIndex,
   fallbackToHome,
   buildErrorHandler,
+  getDBprocedureArgs,
 } from "./handlers";
 import { parseSQLOutput } from "../databases/factory";
 
@@ -79,22 +80,14 @@ const logToPostgresControler = function (
     .filter(([k, v]) => v)
     .map(([k, v]) => k)
     .join(",");
-  const reqData = queryPoolFromProcedure(pool, "insert_into_requests_logs", [
-    req.session.reqEpoch,
-    req.session.path,
-    meths,
-  ]);
+  let args = getDBprocedureArgs(req,"insert_into_requests_logs",hash)
+  const reqData = queryPoolFromProcedure(pool, "insert_into_requests_logs",args);
   const nextVoid = reqData.then((r) => {
     next();
   });
   const resData = nextVoid.then(() => {
-    let no = getEpochString();
-    return queryPoolFromProcedure(pool, "insert_into_responses_logs", [
-      req.session.reqEpoch ?? "",
-      no,
-      req.session.path ?? "unknown route path",
-      res.statusCode.toString(),
-    ]);
+    let args = getDBprocedureArgs(req,"insert_into_responses_logs",hash)
+    return queryPoolFromProcedure(pool, "insert_into_responses_logs", args);
   });
 };
 

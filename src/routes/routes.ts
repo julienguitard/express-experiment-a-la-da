@@ -1,4 +1,4 @@
-import {RoutePathParams,RouteData, DBProcedure, EjsView, RoutePath, Verb, RouteEvent} from "../types"
+import {RouteData, DBProcedure, EjsView, RoutePath, Verb, RouteEvent} from "../types"
 
 import {
   consoleControler,
@@ -6,11 +6,8 @@ import {
   logToPostgresControler,
 } from "../middlewares/index.js";
 
-import {
-  buildControler,
-  builder,
-  buildParametrizedControler,
-} from "../middlewares/factory.js";
+import {builderFromRoutePath} from "../middlewares/factory.js";
+import { hash } from '../utils/hash';
 
 const routeDBProcedureDict: Record<RoutePath, 
 {dbProcedures: Array<DBProcedure>,redirect?:RoutePath,render?:EjsView,method?:Verb,event?:RouteEvent}> = {
@@ -48,105 +45,10 @@ const routeDBProcedureDict: Record<RoutePath,
   "/delete/submit": {dbProcedures:['delete_'],redirect: "/home", method: "post",event:'delete'}
 }
 
-const routesParams: RoutePathParams = {
-  "/": {
-    render: "Index"
-  },
-  "/landing/signin": {
-    render: "Signin"
-  },
-  "/landing/signup": {
-    render: "Signup"
-  },
-  "/landing/signin/submit": {
-    redirect: "/home", method: "post"
-  },
-  "/landing/signup/submit": {
-    redirect: "/home", method: "post"
-  },
-  "/home": {
-    render: "ArtistHome"
-  },
-    "/home/users/more": {
-      render: "MoreUsers"
-    },
-    "/home/works/more": {
-      render: "MoreWorks"
-    },
-    "/home/artists/more": {
-      render: "MoreArtists"
-    },
-    "/home/works/like/more": {
-      render: "MoreWorks"
-    },
-    "/home/works/firstSubmit": {
-      render: "Submit"
-    },
-    "/home/works/firstSubmit/submit": {
-      redirect: "/home", method: "post"
-    },
-    "/home/works/submit": {
-      render: "Submit"
-    },
-    "/home/works/submit/submit": {
-      redirect: "/home", method: "post"
-    },
-    "/profile/users/user/:userId": {
-      render: "User",
-    },
-    "/profile/artists/artist/:artistId": {
-      render: "Artist",
-    },
-    "/profile/works/work/:workId/view": {
-      redirect: "/profile/works/work/:workId", method:"post"
-    },
-    "/profile/works/work/:userWorkId/review": {
-      redirect: "/profile/works/work/:workId", method:"post"
-    },
-  "/profile/works/work/:workId": {
-    render: "Work"
-  },
-  "/profile/users/user/:userArtistId/ban": {
-    render: "Ban"
-  },
-  "/profile/users/user/:userArtistId/ban/submit": {
-    redirect: "/home", method: "post"
-  },
-  "/profile/artists/artist/:artistId/watch": {
-    redirect: "/home", method: "post"
-  },
-  "/profile/artists/artist/:userArtistId/unwatch": {
-    redirect: "/home", method: "post"
-  },
-  "/profile/artists/artist/:userArtistId/rewatch": {
-    redirect: "/home", method: "post"
-  },
-  "/profile/works/work/:userWorkId/like": {
-    redirect: "/home", method: "post"
-  },
-  "/profile/works/work/:userWorkId/unlike": {
-    redirect: "/home", method: "post"
-  },
-  "/signout": {
-    render: "Signout",
-  },
-  "/signout/submit": {
-    redirect: "/", method: "post"
-  },
-  "/delete": {
-    render: "Delete",
-  },
-  "/delete/submit": {
-    redirect: "/", method: "post"
-  },
-};
 
-
-
-const routes:Array<RouteData> = Object.entries(routesParams).map(
+const routes:Array<RouteData> = Object.entries(routeDBProcedureDict).map(
   ([k, v],i) => {
-    if(i<5){
-      console.log('Get into builder')
+    console.log('Get into builder')
       return  {
         route: k,
         method: (v.method === undefined) ? "get" : v.method,
@@ -154,25 +56,12 @@ const routes:Array<RouteData> = Object.entries(routesParams).map(
           consoleControler,
           sessionFirstUpdateControler,
           logToPostgresControler,
-          builder(k),
+          builderFromRoutePath(k,v,hash),
         ],
       };
-    }
-    else {
-      return {
-        route: k,
-        method: (v.method === undefined) ? "get" : v.method,
-        controlers: [
-          consoleControler,
-          sessionFirstUpdateControler,
-          logToPostgresControler,
-          buildParametrizedControler(v),
-        ],
-      };
-    }
-    }
-    
+  }
 );
 
+console.log(routes);
 
 export { routes };
