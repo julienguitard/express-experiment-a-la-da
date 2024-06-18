@@ -128,7 +128,7 @@ The persistent objects are:
 
 The main tables in the schema are:
 
-- `users_core`: Stores core user information like ID, creation time, username, and password.
+- `users_core`: Stores core user information like ID, creation time, user_name, and password.
 - `users_events`: Stores events related to users, such as user ID, time, event key, and value.
 - `artists_core`: Stores core artist information like ID, user ID, and creation time.
 - `artists_events`: Stores events related to artists, such as artist ID, time, event key, and value.

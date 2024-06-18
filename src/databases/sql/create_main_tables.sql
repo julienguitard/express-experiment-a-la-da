@@ -56,7 +56,7 @@ id              VARCHAR(256) PRIMARY KEY,
 user_id         VARCHAR(256) REFERENCES users_core (id),
 artist_id       VARCHAR(256) REFERENCES artists_core (id),
 creation_time   TIMESTAMP,
-UNIQUE(user_id , artist_id)
+UNIQUE(user_id, artist_id)
 );
 
 CREATE TABLE IF NOT EXISTS users_artists_events
@@ -74,7 +74,7 @@ id              VARCHAR(256) PRIMARY KEY,
 user_id         VARCHAR(256) REFERENCES users_core (id),
 work_id         VARCHAR(256) REFERENCES works_core (id),
 creation_time   TIMESTAMP,
-UNIQUE(user_id , work_id)
+UNIQUE(user_id, work_id)
 );
 
 CREATE TABLE IF NOT EXISTS users_works_events

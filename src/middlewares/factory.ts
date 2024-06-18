@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { Session } from "../express-session";
 import pg, { PoolConfig, Pool, QueryResult } from "pg";
 import { pool, queryPool, queryPoolFromProcedure } from "../databases/index.js";
-import { RouteData, Controler, RoutePath, DBProcedure } from "../types";
+import { RouteData, Controler, RoutePath, DBProcedure, EjsView, RouteEvent, Verb } from "../types";
 import {
-  parseSQLOutput,
+  getDBprocedureArgs,
+  updateRequestSession,
   checkAnswer,
   fallbackToIndex,
   fallbackToHome,
@@ -15,6 +16,7 @@ import {promiseRecord} from "../utils/naturalTransformations";
 import {hash} from "../utils/hash";
 import {mergeInto,updateInto} from "../utils/objectTransformations";
 import { request } from "http";
+import { parseSQLOutput } from "../databases/factory";
 
 /*function buildControler(reqParamsHandler: (route: TypedRequest<TypedSession>["route"], session: TypedRequest<TypedSession>["session"], params: TypedRequest<TypedSession>["params"]) => Record<string, any>,
     dbHandler: (params: Record<string, any>) => Promise<QueryResult<any>>,
@@ -219,5 +221,43 @@ function builder(rou: RoutePath): Controler {
   }
   return mdw;
 }
+
+function builderFromRoutePath(
+  routePath : RoutePath,
+  getRouteData :(rou:RoutePath) =>{dbProcedures: Array<DBProcedure>,redirect?:RoutePath,render?:EjsView,method?:Verb,event?:RouteEvent},
+  hash:(s: string) => string,
+):(req:Request,res:Response,next:NextFunction)=>void{
+  const data = getRouteData(routePath);
+  function mdw(req:Request,res:Response,next:NextFunction):void{
+    for(let pro_ of Object.entries(data.dbProcedures)){
+      let pro = pro_[1];
+      let args = getDBprocedureArgs(req,pro,hash);
+      let output = queryPoolFromProcedure(pool,pro,args);
+      output= output.then((ou)=>{console.log(parseSQLOutput(ou));return ou})
+      let _ = output.then((ou)=> updateRequestSession(req,pro,ou));
+    }
+    if (data.render){
+      if (routePath==='/home'){
+        if (req.session.artistId){
+          res.render('ArtistHome',req.session);
+        }
+        else {
+          res.render('UserHome',req.session);
+        }
+      }
+      else {
+          res.render(data.render,req.session);
+      }
+    }
+    else if(data.redirect){
+        res.redirect(data.redirect);
+    }
+    else {
+    }
+  }
+  return mdw;
+}
+  
+
 
 export { buildControler, buildParametrizedControler, builder };

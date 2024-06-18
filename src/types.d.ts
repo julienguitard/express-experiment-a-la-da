@@ -164,7 +164,7 @@ declare interface PhantomData {
     workName: string,
     userArtistId: string,
     userWorkId: string,
-    epoch: string,
+    reqEpoch: string,
     key_: string,
 }
 
@@ -178,94 +178,90 @@ declare type DBProcedure =
     | keyof DBProcedureResultsMappingType;
 
 declare type DBProcedureArgsMappingType = {
-    insert_user: { userId: string , epoch: string , userName: string ,  pwd: string },
-    insert_user_event: { userId: string, epoch: string,key_: string },
-    insert_artist: { artistId: string,epoch: string,userId: string },
-    insert_artist_event: { artistId: string , epoch: string , key_: string },
-    insert_work:{ workId: string , artistId: string , epoch: string , workName: string },
-    insert_work_event: { workId: string,epoch: string,key_: string },
-    insert_user_artist: { userArtistId: string , userId: string , artistId: string , epoch: string },
-    insert_user_artist_event:{ userArtistId: string , epoch: string , key_: string },
-    insert_user_work: { userWorkId: string ,  userId: string , workId: string , epoch: string },
-    insert_user_work_event:{ userWorkId: string ,  epoch: string , key_: string },
+    insert_user: { userId: string, reqEpoch: string, userName: string,  pwd: string },
+    insert_user_event: { userId: string, reqEpoch: string,key_: string },
+    insert_artist: { artistId: string,userId: string,reqEpoch: string},
+    insert_artist_event: { artistId: string, reqEpoch: string, key_: string },
+    insert_work:{ workId: string, artistId: string, reqEpoch: string, workName: string },
+    insert_work_event: { workId: string,reqEpoch: string,key_: string },
+    insert_user_artist: { userArtistId: string, userId: string, artistId: string, reqEpoch: string },
+    insert_user_artist_event:{ userArtistId: string, reqEpoch: string, key_: string },
+    insert_user_work: { userWorkId: string,  userId: string, workId: string, reqEpoch: string },
+    insert_user_work_event:{ userWorkId: string,  reqEpoch: string, key_: string },
     check_signin:{ userName: string,pwd: string },
-    check_signup: { userName: string , pwd: string ,  confirmedPwd: string },
+    check_signup: { userId : string, reqEpoch:string, userName: string, pwd: string },
     see_watchers:{ artistId: string },
-    see_more_users:{ artistId: string },
     see_works:{ artistId: string },
-    see_more_liked_works: { artistId: string },
     see_watched_artists: { userId: string },
-    see_more_artists:{ userId: string },
     see_liked_works: { userId: string },
-    see_more_liked_works:{ userId: string },
-    view_user:{ artistId: string,userId: string },
-    view_artist:{ artistId: string,userId: string },
-    view_works_of_artist:{ artistId: string,userId: string },
-    view_work:{ userId: string,workId: string },
-    ban_watcher:{ artistId: string,userId: string },
-    submit_work: { artistId: string,workName: string },
-    submit_first_work: { userId: string,workName: string },
-    withdraw_work: {workId: string },
-    watch_artist:{ userId: string,artistId: string },
-    rewatch_artist:{ userArtistId: string},
+    submit_first_work: { workId: string, artistId: string,reqEpoch:string, workName: string },
+    submit_work: { workId: string, artistId: string,reqEpoch:string, workName: string },
+    withdraw_work:  { workId: string, reqEpoch:string },
+    see_more_users:{ artistId: string },//TO DO
+    see_more_liked_works: { artistId: string },//TO DO
+    see_more_artists:{ userId: string },//TO DO
+    see_more_liked_works:{ userId: string },//TO DO
+    view_user:{ artistId: string,userId: string },//TO DO
+    view_artist:{ artistId: string,userId: string },//TO DO
+    view_works_of_artist:{ artistId: string,userId: string },//TO DO
+    view_work:{ userId: string,workId: string },//TO DO
+    ban_watcher:{ userArtistId: string,reqEpoch:string},
+    watch_artist:{ userArtistId: string, userId: string,artistId: string, reqEpoch:string },
+    rewatch_artist:{ userArtistId: string,reqEpoch:string},
     unwatch_artist: { userId: string,artistId: string },
-    go_view_work:{ userId: string,workId: string };
-    go_review_work:{ userWorkdId: string },
-    like_work:{ userId: string,workId: string },
-    unlike_work:{ userId: string,workId: string },
-    signout:{},
-    delete_:{ userId: string,epoch: string},
-    insert_into_requests_logs: { epoch: string , path: string , methods: Array<string> },
-    insert_into_responses_logs: { epoch: string , path: string , methods: Array<string> ,  error: Error },
-    insert_into_errors_logs:{ epoch: string , path: string , methods: Array<string> , error: Error },
+    go_view_work:{ userId: string,workId: string };//TO DO
+    go_review_work:{ userWorkIdId: string },//TO DO
+    like_work:{ userWorkId: string, reqEpoch:string},
+    unlike_work:{ userWorkId: string,reqEpoch:string },
+    delete_:{ userId: string, reqEpoch: string},
+    insert_into_requests_logs: { reqEpoch: string, time_:string, route: string, methods: Array<string> },
+    insert_into_responses_logs: { reqEpoch: string, time_:string, route: string,  statusCode: string },
+    insert_into_errors_logs:{ reqEpoch: string, time_:string, route: string ,  message: string },
     select_full_logs: {},
 }
 
 declare type DBProcedureResultsMappingType = {
-    insert_user: { userId: string , epoch: string , userName: string ,  pwd: string },
-    insert_user_event: { userId: string,epoch: string,key_: string },
-    insert_artist: { artistId: string,epoch: string,userId: string },
-    insert_artist_event: { artistId: string , epoch: string , key_: string },
-    insert_work:{ workId: string , artistId: string , epoch: string , workName: string },
-    insert_work_event: { workId: string,epoch: string,key_: string },
-    insert_user_artist: { userArtistId: string , userId: string , artistId: string , epoch: string },
-    insert_user_artist_event:{ userArtistId: string , epoch: string , key_: string },
-    insert_user_work: { userWorkId: string ,  userId: string , workId: string , epoch: string },
-    insert_user_work_event:{ userWorkId: string ,  epoch: string , key_: string },
-    check_signin: { userId: string,userName: string,artistId?: string},
-    check_signup: { userId: string,userName: string },
-    see_watchers: { userId: { userName: string, userId: string }, ban: string },
+    insert_user: { userId: string, creationTime: string, userName: string,  pwd: string },
+    insert_user_event: { id:string, userId: string,time: string,key_: string, value:string },
+    insert_artist: { artistId: string, userId: string,creationTime: string},
+    insert_artist_event: { id:string, artistId: string,time: string,key_: string, value:string },
+    insert_work:{ workId: string, artistId: string, creationTime: string, workName: string },
+    insert_work_event: { id:string, wokId: string,time: string,key_: string, value:string },
+    insert_user_artist: { userArtistId: string, userId: string, artistId: string, creationTime: string },
+    insert_user_artist_event: { id:string,  userArtistId: string,time: string,key_: string, value:string },
+    insert_user_work: { userWorkId: string,  userId: string, workId: string, creationTime: string },
+    insert_user_work_event:{ id:string,  userWorkId: string,time: string,key_: string, value:string },
+    check_signin: { userId: string, artistId?: string, userName: string},
+    check_signup: { userId: string, userName: string },
+    see_watchers: { user: { userName: string, userId: string }, ban: string },
+    see_works: { work: { workName: string, workId: string }, withdraw: string },
+    see_watched_artists: { artist: { userName: string, artistId: string }, unwatch: string },
+    see_liked_works: { work: { workName: string, workId: string }, unlike: string },
+    submit_first_work: { workId: string, artistId: string, creationTime: string, workName: string },
+    submit_work: { workId: string, artistId: string, creationTime: string, workName: string },
+    withdraw_work: { id:string, workId: string,time: string,key_: string, value:string },
     see_more_users: { userId: { userName: string, userId: string } },
-    see_works: { workId: { workName: string, workId: string }, withdraw: string },
     see_more_liked_works: { workId: { workName: string, workId: string }, withdraw: string },
-    see_watched_artists: { artistId: { userName: string, artistId: string }, unwatch: string },
     see_more_artists:{ artistId: { userName: string, artistId: string }, watch: string },
-    see_liked_works: { workId: { workName: string, workId: string }, unlike: string },
     see_more_works: { workId: { workName: string, workId: string }, like: string },
     view_user: { userId: { userName: string, userId: string }, ban?: string },
     view_artist: { artistId: { userName: string, artistId: string }, watch: string },
     view_works_of_artists:{ workId: { workName: string, workId: string }, like: string },
     view_work: { workId: { workName: string, workId: string }, like: string },
-    ban_watcher: { userId: { userName: string, userId: string }, ban: string },
-    submit_work: { workId: string },
-    withdraw_work: { workId: string },
-    submit_first_work: { artistId: string,workId: string },
-    watch_artist: { artistId: string },
-    unwatch_artist: { artistId: string },
-    like_work: { workId: string },
-    unlike_work: { workId: string },
-    insert_into_requests_logs: { requestId: string , epoch: string , path: string , methods: Array<string> },
-    insert_into_responses_logs:  { reponseId: string , epoch: string , requestId: string , status: string },
-    insert_into_errors_logs:  { errorId: string , epoch: string , requestId: string , message: string },
-    select_full_logs: { requestId: string , epoch: string , path: string , methods: Array<string> , errorId: string , epoch: string , message: string , reponseId: string , epoch: string , status: string }
+    ban_watcher: { id:string, userArtistId: string,time: string,key_: string, value:string },
+    watch_artist:  { userArtistId: string, userId:string, artistId:string, creationTime: string },
+    rewatch_artist:  { id:string, userArtistId: string,time: string,key_: string, value:string },
+    unwatch_artist:  { id:string, userArtistId: string,time: string,key_: string, value:string },
+    like_work: {id:string, userWorkId: string,time: string,key_: string, value:string },
+    unlike_work: { id:string, userWorkId: string,time: string,key_: string, value:string },
+    delete_ : {id:string, userId: string,time: string,key_: string, value:string},
+    insert_into_requests_logs: { id: string, time_: string, route: string, methods: Array<string> },
+    insert_into_responses_logs:  { id: string, time_: string, requestId: string, statusCode: string },
+    insert_into_errors_logs:  { id: string, time_: string, requestId: string, message: string  },
+    select_full_logs: { requestId: string, time_: string, route: string, methods: Array<string>, errorId: string, errorTime: string, message: string, responseId: string, responseTime: string, statusCode: string }
 }
 
-declare type Controler =
-    (
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) => void;
+declare type Controler =((req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>, next: NextFunction) => void);
 
 declare interface ControlerCallbacks {
     reqParamsHandler: (req: Response) => ProcedureProps;
@@ -317,6 +313,7 @@ declare interface CellProps {
 }
 
 export type {
+    CellProps,
     RouteEvent,
     UbiquitousConcept,
     DBProcedure,

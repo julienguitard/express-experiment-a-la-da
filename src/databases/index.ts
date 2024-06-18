@@ -30,7 +30,7 @@ async function queryPool(
   return res;
 }
 
-async function queryPoolFromProcedure(
+async function queryPoolFromProcedure_(
   po: Pool,
   pro: DBProcedure,
   params: Array<string>
@@ -39,13 +39,13 @@ async function queryPoolFromProcedure(
   return queryPool(po, sql, params);
 }
 
-async function queryPoolFromProcedure_<T extends keyof DBProcedureArgsMappingType>(
+async function queryPoolFromProcedure<T extends keyof DBProcedureArgsMappingType>(
   po: Pool,
   pro: T,
   args: DBProcedureArgsMappingType[T]
 ): Promise<QueryResult<any>> {
   const params = processQueryPoolArgs(args);
-  return queryPoolFromProcedure(po, pro,params);
+  return queryPoolFromProcedure_(po, pro,params);
 }
 
 export { pool, queryPool, queryPoolFromProcedure };

@@ -26,20 +26,20 @@ const routeDBProcedureDict: Record<RoutePath,
   "/home/works/submit/submit": {dbProcedures:['submit_work'],redirect: "/home", method: "post",event:'submit'},
   "/home/works/withdraw": {dbProcedures:[]},
   "/home/works/withdraw/submit": {dbProcedures:['withdraw_work'],redirect: "/home", method: "post",event:'withdraw'},
-  "/home/users/more": {dbProcedures:['see_more_users']},
-  "/home/artists/more": {dbProcedures:['see_more_artists']},
-  "/home/works/more": {dbProcedures:['see_more_works']},
-  "/home/works/like/more": {dbProcedures:['see_more_liked_works']},
-  "/profile/users/user/:userId": {dbProcedures:['view_user']},
-  "/profile/artists/artist/:artistId": {dbProcedures:['view_artist', 'view_works_of_artist']},
-  "/profile/works/work/:workId/view": {dbProcedures:['go_view_work'],event:'view'},
-  "/profile/works/work/:userWorkId/review": {dbProcedures:['go_review_work'],event:'view'},
-  "/profile/works/work/:workId": {dbProcedures:['view_work']},
+  "/home/users/more": {dbProcedures:['see_more_users']},//TO DO
+  "/home/artists/more": {dbProcedures:['see_more_artists']},//TO DO
+  "/home/works/more": {dbProcedures:['see_more_works']},//TO DO
+  "/home/works/like/more": {dbProcedures:['see_more_liked_works']},//TO DO
+  "/profile/users/user/:userId": {dbProcedures:['view_user']},//TO DO
+  "/profile/artists/artist/:artistId": {dbProcedures:['view_artist', 'view_works_of_artist']},//TO DO
   "/profile/users/user/:userArtistId/ban": {dbProcedures:[]},
   "/profile/users/user/:userArtistId/ban/submit": {dbProcedures:['ban_watcher'],redirect: "/home", method: "post",event:'ban'},
   "/profile/artists/artist/:artistId/watch": {dbProcedures:['watch_artist'],event:'watch'},
   "/profile/artists/artist/:userArtistId/rewatch": {dbProcedures:['rewatch_artist'],event:'watch'},
   "/profile/artists/artist/:userArtistId/unwatch": {dbProcedures:['unwatch_artist'],event:'unwatch'},
+  "/profile/works/work/:workId/view": {dbProcedures:['go_view_work'],event:'view'},//TO DO
+  "/profile/works/work/:workId": {dbProcedures:['view_work']},//TO DO
+  "/profile/works/work/:userWorkId/review": {dbProcedures:['go_review_work'],event:'view'},//TO DO
   "/profile/works/work/:userWorkId/like": {dbProcedures:['like_work'],event:'like'},
   "/profile/works/work/:userWorkId/unlike": {dbProcedures:['unlike_work'],event:'unlike'},
   "/signout": {dbProcedures:[]},
