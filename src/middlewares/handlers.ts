@@ -64,6 +64,7 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
       return { 
         workId: workId, 
         artistId: artistId,
+        userId: req.session.userId,
         reqEpoch:req.session.reqEpoch,
         workName: req.body.workName };
 

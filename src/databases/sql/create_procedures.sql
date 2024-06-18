@@ -60,7 +60,7 @@ $$
 
 SELECT MD5(work_id||req_epoch||key_), 
 work_id, 
-req_epoch, 
+TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
 CASE
 WHEN key_ IN ('submit', 'view', 'like') THEN key_
 WHEN key_ = 'withdraw' THEN 'submit'
@@ -74,7 +74,7 @@ WHEN key_ = 'unlike' THEN -1
 ELSE 0
 END;
 
-$$LANGUAGE SQL;
+$$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION generate_user_artist (user_artist_id TEXT, user_id TEXT, artist_id TEXT, req_epoch TEXT) RETURNS users_artists_core
 AS
@@ -83,7 +83,7 @@ $$
 SELECT user_artist_id, 
 user_id, 
 artist_id, 
-req_epoch;
+TO_TIMESTAMP(CAST(req_epoch AS NUMERIC));
 
 $$ LANGUAGE SQL;
 
@@ -94,7 +94,7 @@ $$
 
 SELECT MD5(user_artist_id||req_epoch||key_), 
 user_artist_id, 
-req_epoch, 
+TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
 CASE
 WHEN key_ IN ('create', 'watch', 'ban') THEN key_
 WHEN key_ = 'unwatch' THEN 'watch'
@@ -106,7 +106,7 @@ WHEN key_ = 'unwatch' THEN -1
 ELSE 0
 END;
 
-$$LANGUAGE SQL;
+$$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION generate_user_work (user_work_id TEXT, user_id TEXT, artist_id TEXT, req_epoch TEXT) RETURNS users_works_core
 AS
@@ -115,7 +115,7 @@ $$
 SELECT user_work_id, 
 user_id, 
 artist_id, 
-req_epoch;
+TO_TIMESTAMP(CAST(req_epoch AS NUMERIC));
 
 $$ LANGUAGE SQL;
 
@@ -125,7 +125,7 @@ $$
 
 SELECT MD5(user_work_id||req_epoch||key_), 
 user_work_id, 
-req_epoch, 
+TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
 CASE
 WHEN key_ IN ('create', 'view', 'like') THEN key_
 WHEN key_ IN ('unview', 'unlike') THEN RIGHT(key_, LENGTH(key_ )-2)
@@ -217,7 +217,7 @@ SELECT g.id,
        g.user_id, 
        g.creation_time 
 FROM generate_artist (artist_id, user_id, req_epoch) g
-JOIN users_core c USING(user_id);
+JOIN users_core c ON g.user_id = c.id;
 
 INSERT INTO artists_events_buffer SELECT * FROM generate_artist_event (artist_id, req_epoch, 'create');
 
@@ -259,8 +259,8 @@ SELECT g.id,
        g._time, 
        g.key_, 
        g.value
-FROM generate_user_event (artist_id, req_epoch, key_) g
-JOIN artist_core c ON g.artist_id = c.id;
+FROM generate_artist_event (artist_id, req_epoch, key_) g
+JOIN artists_core c ON g.artist_id = c.id;
 
 MERGE INTO artists_events_buffer  eb
 USING artists_events e
@@ -288,7 +288,7 @@ SELECT g.id,
        g.creation_time, 
        g.work_name
 FROM generate_work (work_id, artist_id, req_epoch, work_name) g
-JOIN artist_core c ON c.id = g.artist_id;
+JOIN artists_core c ON c.id = g.artist_id;
 
 INSERT INTO works_events_buffer SELECT * FROM generate_work_event ($1, $3, 'submit');
 
@@ -331,7 +331,7 @@ SELECT g.id,
        g.key_, 
        g.value
 FROM generate_work_event (work_id, req_epoch, key_) g
-JOIN work_core c ON g.work_id = c.id;
+JOIN works_core c ON g.work_id = c.id;
 
 MERGE INTO works_events_buffer  eb
 USING works_events e
@@ -404,7 +404,7 @@ SELECT g.id,
        g.key_, 
        g.value
 FROM generate_user_artist_event (user_artist_id, req_epoch, key_) g
-JOIN user_artist_core c USING(user_artist_id);
+JOIN users_artists_core c ON g.user_artist_id = c.id;
 
 MERGE INTO users_artists_events_buffer  eb
 USING users_artists_events e
@@ -433,7 +433,7 @@ SELECT g.id,
        g.creation_time
 FROM generate_user_work (user_work_id, user_id, work_id, req_epoch) g
 JOIN users_core uc ON uc.id = g.user_id
-JOIN artists_work wc ON wc.id = g.work_id;
+JOIN works_core wc ON wc.id = g.work_id;
 
 INSERT INTO users_works_events_buffer SELECT * FROM generate_user_work_event (user_work_id, req_epoch, 'create');
 
@@ -477,7 +477,7 @@ SELECT g.id,
        g.key_, 
        g.value
 FROM generate_user_work_event (user_work_id, req_epoch, key_) g
-JOIN user_work_core c USING(user_work_id);
+JOIN users_works_core c  ON g.user_work_id = c.id;
 
 MERGE INTO users_works_events_buffer  eb
 USING users_works_events e
@@ -521,7 +521,7 @@ AS
 $$
 
 SELECT user_,
-       ban,
+       ban
 FROM seeable_watchers 
 WHERE artist_id = artist_id
 ORDER BY RANDOM()
@@ -535,7 +535,7 @@ $$
 
 SELECT work_,
        withdraw
-FROM seeable_liked_works 
+FROM seeable_works 
 WHERE artist_id = artist_id
 ORDER BY RANDOM()
 LIMIT 10;
@@ -548,7 +548,7 @@ $$
 
 SELECT artist,
        unwatch
-FROM more_seeable_artists
+FROM seeable_artists
 WHERE user_id = user_id
 ORDER BY RANDOM()
 LIMIT 10;
@@ -568,7 +568,7 @@ LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION submit_first_work (work_id TEXT, artist_id TEXT, req_epoch TEXT, work_name TEXT) RETURNS works_core
+CREATE OR REPLACE FUNCTION submit_first_work (work_id TEXT,  artist_id TEXT, user_id TEXT, req_epoch TEXT, work_name TEXT) RETURNS works_core
 AS
 $$
 
@@ -607,7 +607,7 @@ LIMIT 10
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_more_works (artist_id TEXT) RETURNS artists
+CREATE OR REPLACE FUNCTION see_more_works (artist_id TEXT) RETURNS artists_keys
 AS
 $$
 SELECT artist_id

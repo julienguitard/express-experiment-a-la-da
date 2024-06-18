@@ -194,7 +194,7 @@ declare type DBProcedureArgsMappingType = {
     see_works:{ artistId: string },
     see_watched_artists: { userId: string },
     see_liked_works: { userId: string },
-    submit_first_work: { workId: string, artistId: string,reqEpoch:string, workName: string },
+    submit_first_work: { workId: string, artistId: string,user_id:string, reqEpoch:string, workName: string },
     submit_work: { workId: string, artistId: string,reqEpoch:string, workName: string },
     withdraw_work:  { workId: string, reqEpoch:string },
     see_more_users:{ artistId: string },//TO DO

@@ -23,7 +23,7 @@ GROUP BY user_id,
          key_
 );
 
-CREATE OR REPLACE VIEW artists_key AS (
+CREATE OR REPLACE VIEW artists_keys AS (
 SELECT MD5(artist_id||key_) AS id,
        artist_id,
        user_id,
@@ -138,7 +138,7 @@ FROM users_keys
 CREATE OR REPLACE VIEW artists_keys_without_deleted AS
 (
 SELECT *
-FROM artist_keys
+FROM artists_keys
   JOIN non_deleted_users USING (user_id)
 );
 
@@ -190,7 +190,7 @@ FROM (SELECT t0.work_id,
 WHERE non_withdrawn = 1
 );
 
-CREATE OR REPLACE VIEW works_without_withdrawn AS
+CREATE OR REPLACE VIEW works_keys_without_withdrawn AS
 (
 SELECT *
 FROM works_keys_without_deleted
@@ -268,7 +268,7 @@ FROM (SELECT DISTINCT user_id,
       FROM users_keys_without_deleted) t0
   LEFT JOIN (SELECT DISTINCT artist_id,
                     user_id
-             FROM artists_without_deleted) t1 USING (user_id)
+             FROM artists_keys_without_deleted) t1 USING (user_id)
 
 );
 
@@ -384,7 +384,7 @@ FROM (SELECT user_artist_id,
             AND   value = 1) t0
         JOIN (SELECT artist_id,
                      user_name
-              FROM denormalized_users t1 USING (artist_id)))
+              FROM denormalized_users) t1 USING (artist_id))
 --WHERE user_id=$1 
 );
 
@@ -406,7 +406,7 @@ FROM (SELECT user_work_id,
       FROM (SELECT DISTINCT user_work_id,
                    work_id,
                    user_id
-            FROM users_works_without_banned
+            FROM users_works_keys_without_banned
             WHERE key_ = 'like'
             AND   value = 1) t0
         JOIN (SELECT DISTINCT work_id, work_name FROM works_without_withdrawn) t1 USING (work_id))
@@ -433,7 +433,7 @@ FROM (SELECT CASE
       FROM (SELECT DISTINCT user_id,
                    user_name
             FROM users_keys_without_deleted) t0
-        CROSS JOIN (SELECT DISTINCT artist_id FROM artists_without_deleted) t1
+        CROSS JOIN (SELECT DISTINCT artist_id FROM artists_keys_without_deleted) t1
         LEFT JOIN (SELECT DISTINCT user_artist_id,
                           artist_id,
                           user_id
@@ -487,7 +487,7 @@ FROM (SELECT CASE
                            user_name
                     FROM (SELECT DISTINCT artist_id,
                                  user_id
-                          FROM artists_without_deleted)
+                          FROM artists_keys_without_deleted)
                       JOIN (SELECT DISTINCT user_id, user_name FROM users_keys_without_deleted) USING (user_id)) t1
         LEFT JOIN (SELECT DISTINCT user_artist_id,
                           user_id,
@@ -525,11 +525,11 @@ FROM (SELECT CASE
       FROM (SELECT DISTINCT user_id FROM users_keys_without_deleted) t0
         CROSS JOIN (SELECT DISTINCT work_id,
                            work_name
-                    FROM works_without_withdrawn) t1
+                    FROM works_keys_without_withdrawn) t1
         LEFT JOIN (SELECT DISTINCT user_work_id,
                           user_id,
                           work_id
-                   FROM users_works_without_banned
+                   FROM users_works_keys_without_banned
                    WHERE key_ = 'like'
                    AND   value = 1) t2 USING (user_id,work_id))
 WHERE not_liked = 1
@@ -607,14 +607,14 @@ FROM (SELECT work_id,
   LEFT JOIN (SELECT DISTINCT user_work_id,
                     user_id,
                     work_id
-             FROM users_works_without_banned) USING (work_id)
+             FROM users_works_keys_without_banned) USING (work_id)
 --WHERE user_id=$1
 );
 
 CREATE OR REPLACE VIEW viewable_works_of_artist_ AS
 (
 SELECT work_,
-       like_,
+       like_
 FROM viewable_works_of_artist
 --WHERE user_id=$1
 ); 
