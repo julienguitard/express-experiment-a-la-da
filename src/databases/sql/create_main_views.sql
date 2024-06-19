@@ -248,7 +248,7 @@ FROM (SELECT t0.id,
       FROM users_works_keys_without_withdrawn t0
         JOIN (SELECT DISTINCT work_id,
                      artist_id
-              FROM works_without_withdrawn) t1 USING (work_id))
+              FROM works_keys_without_withdrawn) t1 USING (work_id))
   JOIN (SELECT DISTINCT user_id,
                artist_id
         FROM users_artists_keys_without_banned) USING (user_id,artist_id)
@@ -358,7 +358,7 @@ SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
 FROM (SELECT DISTINCT work_id,
              artist_id,
              work_name
-      FROM works_without_withdrawn)
+      FROM works_keys_without_withdrawn)
 --WHERE artist_id=$1 
 );
 CREATE OR REPLACE VIEW seeable_works_ AS (
@@ -409,7 +409,7 @@ FROM (SELECT user_work_id,
             FROM users_works_keys_without_banned
             WHERE key_ = 'like'
             AND   value = 1) t0
-        JOIN (SELECT DISTINCT work_id, work_name FROM works_without_withdrawn) t1 USING (work_id))
+        JOIN (SELECT DISTINCT work_id, work_name FROM works_keys_without_withdrawn) t1 USING (work_id))
 --WHERE user_id=$1 
 );
 
@@ -457,7 +457,7 @@ SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
 FROM (SELECT DISTINCT work_id,
              artist_id,
              work_name
-      FROM works_without_withdrawn)
+      FROM works_keys_without_withdrawn)
 --WHERE artist_id=$1 
 );
 
@@ -465,7 +465,6 @@ CREATE OR REPLACE VIEW more_of_seeable_works_ AS (
 SELECT work_,
        withdraw
 FROM more_of_seeable_works
-ORDER BY RANDOM()
 --WHERE artist_id=$1 
 );
 
@@ -602,7 +601,7 @@ FROM (SELECT work_id,
            FROM (SELECT DISTINCT work_id,
                         artist_id,
                         work_name
-                 FROM works_without_withdrawn)
+                 FROM works_keys_without_withdrawn)
         JOIN denormalized_users USING (artist_id))
   LEFT JOIN (SELECT DISTINCT user_work_id,
                     user_id,

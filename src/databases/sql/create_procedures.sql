@@ -2,10 +2,11 @@ CREATE OR REPLACE FUNCTION generate_user (user_id TEXT, req_epoch TEXT, user_nam
 AS
 $$
 
-SELECT user_id, 
-TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)), 
-user_name, 
-pwd; 
+SELECT user_id,
+       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
+       user_name,
+       pwd;
+
 
 $$ LANGUAGE SQL;
 
@@ -13,11 +14,11 @@ CREATE OR REPLACE FUNCTION generate_user_event (user_id TEXT, req_epoch TEXT, ke
 AS
 $$
 
-SELECT MD5(user_id||req_epoch||key_), 
-user_id, 
-TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)), 
-key_, 
-1;
+SELECT MD5(user_id||req_epoch||key_),
+       user_id,
+       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
+       key_,
+       1;
 
 $$ LANGUAGE SQL;
 
@@ -25,9 +26,9 @@ CREATE OR REPLACE FUNCTION generate_artist (artist_id TEXT, user_id TEXT, req_ep
 AS
 $$
 
-SELECT artist_id, 
-user_id, 
-TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)) 
+SELECT artist_id,
+       user_id,
+       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC))
 
 $$ LANGUAGE SQL;
 
@@ -35,11 +36,11 @@ CREATE OR REPLACE FUNCTION generate_artist_event (artist_id TEXT, req_epoch TEXT
 AS
 $$
 
-SELECT MD5(artist_id||req_epoch||key_), 
-artist_id, 
-TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)), 
-key_, 
-1;
+SELECT MD5(artist_id||req_epoch||key_),
+       artist_id,
+       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
+       key_,
+       1;
 
 $$ LANGUAGE SQL;
 
@@ -47,10 +48,10 @@ CREATE OR REPLACE FUNCTION generate_work (work_id TEXT, artist_id TEXT, req_epoc
 AS
 $$
 
-SELECT work_id, 
-artist_id, 
-TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)), 
-work_name 
+SELECT work_id,
+       artist_id,
+       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
+       work_name;
 
 $$ LANGUAGE SQL;
 
@@ -58,21 +59,22 @@ CREATE OR REPLACE FUNCTION generate_work_event (work_id TEXT, req_epoch TEXT, ke
 AS
 $$
 
-SELECT MD5(work_id||req_epoch||key_), 
-work_id, 
-TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
-CASE
-WHEN key_ IN ('submit', 'view', 'like') THEN key_
-WHEN key_ = 'withdraw' THEN 'submit'
-WHEN key_ = 'unlike' THEN 'like'
-ELSE CAST(NULL AS VARCHAR(256))
-END, 
-CASE
-WHEN key_ IN ('submit', 'view', 'like') THEN 1
-WHEN key_ = 'withdraw' THEN -1
-WHEN key_ = 'unlike' THEN -1
-ELSE 0
-END;
+SELECT MD5(work_id||req_epoch||key_),
+       work_id,
+       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
+       CASE
+         WHEN key_ IN ('submit','view','like') THEN key_
+         WHEN key_ = 'withdraw' THEN 'submit'
+         WHEN key_ = 'unlike' THEN 'like'
+         ELSE CAST(NULL AS VARCHAR(256))
+       END 
+,
+       CASE
+         WHEN key_ IN ('submit','view','like') THEN 1
+         WHEN key_ = 'withdraw' THEN -1
+         WHEN key_ = 'unlike' THEN -1
+         ELSE 0
+       END;
 
 $$ LANGUAGE SQL;
 
@@ -80,10 +82,10 @@ CREATE OR REPLACE FUNCTION generate_user_artist (user_artist_id TEXT, user_id TE
 AS
 $$
 
-SELECT user_artist_id, 
-user_id, 
-artist_id, 
-TO_TIMESTAMP(CAST(req_epoch AS NUMERIC));
+SELECT user_artist_id,
+       user_id,
+       artist_id,
+       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC));
 
 $$ LANGUAGE SQL;
 
@@ -92,19 +94,20 @@ CREATE OR REPLACE FUNCTION generate_user_artist_event (user_artist_id TEXT, req_
 AS
 $$
 
-SELECT MD5(user_artist_id||req_epoch||key_), 
-user_artist_id, 
-TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
-CASE
-WHEN key_ IN ('create', 'watch', 'ban') THEN key_
-WHEN key_ = 'unwatch' THEN 'watch'
-ELSE CAST(NULL AS VARCHAR(256))
-END, 
-CASE
-WHEN key_ IN ('create', 'watch', 'ban') THEN 1
-WHEN key_ = 'unwatch' THEN -1
-ELSE 0
-END;
+SELECT MD5(user_artist_id||req_epoch||key_),
+       user_artist_id,
+       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
+       CASE
+         WHEN key_ IN ('create','watch','ban') THEN key_
+         WHEN key_ = 'unwatch' THEN 'watch'
+         ELSE CAST(NULL AS VARCHAR(256))
+       END 
+,
+       CASE
+         WHEN key_ IN ('create','watch','ban') THEN 1
+         WHEN key_ = 'unwatch' THEN -1
+         ELSE 0
+       END;
 
 $$ LANGUAGE SQL;
 
@@ -112,10 +115,10 @@ CREATE OR REPLACE FUNCTION generate_user_work (user_work_id TEXT, user_id TEXT, 
 AS
 $$
 
-SELECT user_work_id, 
-user_id, 
-artist_id, 
-TO_TIMESTAMP(CAST(req_epoch AS NUMERIC));
+SELECT user_work_id,
+       user_id,
+       artist_id,
+       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC));
 
 $$ LANGUAGE SQL;
 
@@ -123,19 +126,20 @@ CREATE OR REPLACE FUNCTION generate_user_work_event(user_work_id TEXT, req_epoch
 AS
 $$
 
-SELECT MD5(user_work_id||req_epoch||key_), 
-user_work_id, 
-TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
-CASE
-WHEN key_ IN ('create', 'view', 'like') THEN key_
-WHEN key_ IN ('unview', 'unlike') THEN RIGHT(key_, LENGTH(key_ )-2)
-ELSE CAST(NULL AS VARCHAR(256))
-END, 
-CASE
-WHEN key_ IN ('create', 'view', 'like') THEN 1
-WHEN key_ IN ('unview', 'unlike') THEN -1
-ELSE 0
-END; 
+SELECT MD5(user_work_id||req_epoch||key_),
+       user_work_id,
+       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
+       CASE
+         WHEN key_ IN ('create','view','like') THEN key_
+         WHEN key_ IN ('unview','unlike') THEN RIGHT (key_,LENGTH(key_) -2)
+         ELSE CAST(NULL AS VARCHAR(256))
+       END 
+,
+       CASE
+         WHEN key_ IN ('create','view','like') THEN 1
+         WHEN key_ IN ('unview','unlike') THEN -1
+         ELSE 0
+       END;
 
 $$ LANGUAGE SQL;
 
@@ -143,37 +147,45 @@ CREATE OR REPLACE FUNCTION insert_user (user_id TEXT, req_epoch TEXT, user_name 
 AS
 $$
 
-DELETE FROM users_core_buffer;
+DELETE
+FROM users_core_buffer;
 
-DELETE FROM users_events_buffer;
+DELETE
+FROM users_events_buffer;
 
-INSERT INTO users_core_buffer SELECT * FROM generate_user (user_id, req_epoch, user_name, pwd);
+INSERT INTO users_core_buffer
+SELECT *
+FROM generate_user (user_id,req_epoch,user_name,pwd);
 
-INSERT INTO users_events_buffer SELECT * FROM generate_user_event (user_id, req_epoch, 'create');
+INSERT INTO users_events_buffer
+SELECT *
+FROM generate_user_event (user_id,req_epoch,'create');
 
 MERGE INTO users_core_buffer cb
-USING users_core c
-ON cb.user_name = c.user_name
+USING users_core c ON cb.user_name = c.user_name
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-MERGE INTO users_events_buffer  eb
-USING users_events e
-ON eb.user_id = e.user_id AND eb.key_ = e.key_ AND e.key_ = 'create'
+MERGE INTO users_events_buffer eb
+USING users_events e ON eb.user_id = e.user_id AND eb.key_ = e.key_ AND e.key_ = 'create'
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-INSERT INTO users_core SELECT * FROM users_core_buffer;
+INSERT INTO users_core
+SELECT *
+FROM users_core_buffer;
+
 INSERT INTO users_events
-SELECT eb.id, 
-eb.user_id, 
-eb._time, 
-eb.key_, 
-eb.value
+SELECT eb.id,
+       eb.user_id,
+       eb._time,
+       eb.key_,
+       eb.value
 FROM users_events_buffer eb
-JOIN users_core_buffer cb ON eb.user_id = cb.id;
+  JOIN users_core_buffer cb ON eb.user_id = cb.id;
 
-SELECT * FROM users_core_buffer;
+SELECT *
+FROM users_core_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -181,26 +193,29 @@ CREATE OR REPLACE FUNCTION insert_user_event (user_id TEXT, req_epoch TEXT, key_
 AS
 $$
 
-DELETE FROM users_events_buffer;
+DELETE
+FROM users_events_buffer;
 
-INSERT INTO users_events_buffer 
-SELECT g.id, 
-       g.user_id, 
-       g._time, 
-       g.key_, 
+INSERT INTO users_events_buffer
+SELECT g.id,
+       g.user_id,
+       g._time,
+       g.key_,
        g.value
-FROM generate_user_event (user_id, req_epoch, key_) g
-JOIN users_core c ON g.user_id = c.id;
+FROM generate_user_event (user_id,req_epoch,key_) g
+  JOIN users_core c ON g.user_id = c.id;
 
-MERGE INTO users_events_buffer  eb
-USING users_events e
-ON eb.user_id = e.user_id AND eb.key_ = e.key_ AND e.key_ = 'create'
+MERGE INTO users_events_buffer eb
+USING users_events e ON eb.user_id = e.user_id AND eb.key_ = e.key_ AND e.key_ = 'create'
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-INSERT INTO users_events SELECT * FROM users_events_buffer;
+INSERT INTO users_events
+SELECT *
+FROM users_events_buffer;
 
-SELECT * FROM users_events_buffer;
+SELECT *
+FROM users_events_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -208,42 +223,48 @@ CREATE OR REPLACE FUNCTION insert_artist (artist_id TEXT, user_id TEXT, req_epoc
 AS
 $$
 
-DELETE FROM artists_core_buffer;
+DELETE
+FROM artists_core_buffer;
 
-DELETE FROM artists_events_buffer;
+DELETE
+FROM artists_events_buffer;
 
-INSERT INTO artists_core_buffer 
-SELECT g.id, 
-       g.user_id, 
-       g.creation_time 
-FROM generate_artist (artist_id, user_id, req_epoch) g
-JOIN users_core c ON g.user_id = c.id;
+INSERT INTO artists_core_buffer
+SELECT g.id,
+       g.user_id,
+       g.creation_time
+FROM generate_artist (artist_id,user_id,req_epoch) g
+  JOIN users_core c ON g.user_id = c.id;
 
-INSERT INTO artists_events_buffer SELECT * FROM generate_artist_event (artist_id, req_epoch, 'create');
+INSERT INTO artists_events_buffer
+SELECT *
+FROM generate_artist_event (artist_id,req_epoch,'create');
 
 MERGE INTO artists_core_buffer cb
-USING artists_core c
-ON cb.user_id = c.user_id
+USING artists_core c ON cb.user_id = c.user_id
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-MERGE INTO artists_events_buffer  eb
-USING artists_events e
-ON eb.artist_id = e.artist_id AND eb.key_ = e.key_ AND e.key_ = 'create'
+MERGE INTO artists_events_buffer eb
+USING artists_events e ON eb.artist_id = e.artist_id AND eb.key_ = e.key_ AND e.key_ = 'create'
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-INSERT INTO artists_core SELECT * FROM artists_core_buffer;
+INSERT INTO artists_core
+SELECT *
+FROM artists_core_buffer;
+
 INSERT INTO artists_events
-SELECT eb.id, 
-eb.artist_id, 
-eb._time, 
-eb.key_, 
-eb.value
+SELECT eb.id,
+       eb.artist_id,
+       eb._time,
+       eb.key_,
+       eb.value
 FROM artists_events_buffer eb
-JOIN artists_core_buffer cb ON eb.artist_id = cb.id;
+  JOIN artists_core_buffer cb ON eb.artist_id = cb.id;
 
-SELECT * FROM artists_core_buffer;
+SELECT *
+FROM artists_core_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -251,26 +272,29 @@ CREATE OR REPLACE FUNCTION insert_artist_event (artist_id TEXT, req_epoch TEXT, 
 AS
 $$
 
-DELETE FROM artists_events_buffer;
+DELETE
+FROM artists_events_buffer;
 
-INSERT INTO artists_events_buffer 
-SELECT g.id, 
-       g.artist_id, 
-       g._time, 
-       g.key_, 
+INSERT INTO artists_events_buffer
+SELECT g.id,
+       g.artist_id,
+       g._time,
+       g.key_,
        g.value
-FROM generate_artist_event (artist_id, req_epoch, key_) g
-JOIN artists_core c ON g.artist_id = c.id;
+FROM generate_artist_event (artist_id,req_epoch,key_) g
+  JOIN artists_core c ON g.artist_id = c.id;
 
-MERGE INTO artists_events_buffer  eb
-USING artists_events e
-ON eb.artist_id = e.artist_id AND eb.key_ = e.key_ AND e.key_ = 'create'
+MERGE INTO artists_events_buffer eb
+USING artists_events e ON eb.artist_id = e.artist_id AND eb.key_ = e.key_ AND e.key_ = 'create'
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-INSERT INTO artists_events SELECT * FROM artists_events_buffer;
+INSERT INTO artists_events
+SELECT *
+FROM artists_events_buffer;
 
-SELECT * FROM artists_events_buffer;
+SELECT *
+FROM artists_events_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -278,43 +302,49 @@ CREATE OR REPLACE FUNCTION insert_work (work_id TEXT, artist_id TEXT, req_epoch 
 AS
 $$
 
-DELETE FROM works_core_buffer;
+DELETE
+FROM works_core_buffer;
 
-DELETE FROM works_events_buffer;
+DELETE
+FROM works_events_buffer;
 
-INSERT INTO works_core_buffer 
-SELECT g.id, 
-       g.artist_id, 
-       g.creation_time, 
+INSERT INTO works_core_buffer
+SELECT g.id,
+       g.artist_id,
+       g.creation_time,
        g.work_name
-FROM generate_work (work_id, artist_id, req_epoch, work_name) g
-JOIN artists_core c ON c.id = g.artist_id;
+FROM generate_work (work_id,artist_id,req_epoch,work_name) g
+  JOIN artists_core c ON c.id = g.artist_id;
 
-INSERT INTO works_events_buffer SELECT * FROM generate_work_event ($1, $3, 'submit');
+INSERT INTO works_events_buffer
+SELECT *
+FROM generate_work_event ($1,$3,'submit');
 
 MERGE INTO works_core_buffer cb
-USING works_core c
-ON cb.artist_id = c.artist_id AND cb.work_name = c.work_name
+USING works_core c ON cb.artist_id = c.artist_id AND cb.work_name = c.work_name
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-MERGE INTO works_events_buffer  eb
-USING works_events e
-ON eb.work_id = e.work_id AND eb.key_ = e.key_ AND e.key_ = 'submit'
+MERGE INTO works_events_buffer eb
+USING works_events e ON eb.work_id = e.work_id AND eb.key_ = e.key_ AND e.key_ = 'submit'
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-INSERT INTO works_core SELECT * FROM works_core_buffer;
+INSERT INTO works_core
+SELECT *
+FROM works_core_buffer;
+
 INSERT INTO works_events
-SELECT eb.id, 
-eb.work_id, 
-eb._time, 
-eb.key_, 
-eb.value
+SELECT eb.id,
+       eb.work_id,
+       eb._time,
+       eb.key_,
+       eb.value
 FROM works_events_buffer eb
-JOIN works_core_buffer cb ON eb.work_id = cb.id;
+  JOIN works_core_buffer cb ON eb.work_id = cb.id;
 
-SELECT * FROM works_core_buffer;
+SELECT *
+FROM works_core_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -322,26 +352,29 @@ CREATE OR REPLACE FUNCTION insert_work_event (work_id TEXT, req_epoch TEXT, key_
 AS
 $$
 
-DELETE FROM works_events_buffer;
+DELETE
+FROM works_events_buffer;
 
-INSERT INTO works_events_buffer 
-SELECT g.id, 
-       g.work_id, 
-       g._time, 
-       g.key_, 
+INSERT INTO works_events_buffer
+SELECT g.id,
+       g.work_id,
+       g._time,
+       g.key_,
        g.value
-FROM generate_work_event (work_id, req_epoch, key_) g
-JOIN works_core c ON g.work_id = c.id;
+FROM generate_work_event (work_id,req_epoch,key_) g
+  JOIN works_core c ON g.work_id = c.id;
 
-MERGE INTO works_events_buffer  eb
-USING works_events e
-ON eb.work_id = e.work_id AND eb.key_ = e.key_ AND e.key_ = 'submit' AND eb.value=1
+MERGE INTO works_events_buffer eb
+USING works_events e ON eb.work_id = e.work_id AND eb.key_ = e.key_ AND e.key_ = 'submit' AND eb.value = 1
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-INSERT INTO works_events SELECT * FROM works_events_buffer;
+INSERT INTO works_events
+SELECT *
+FROM works_events_buffer;
 
-SELECT * FROM works_events_buffer;
+SELECT *
+FROM works_events_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -349,45 +382,50 @@ CREATE OR REPLACE FUNCTION insert_user_artist (user_artist_id TEXT, user_id TEXT
 AS
 $$
 
-DELETE FROM users_artists_core_buffer;
+DELETE
+FROM users_artists_core_buffer;
 
-DELETE FROM users_artists_events_buffer;
+DELETE
+FROM users_artists_events_buffer;
 
-INSERT INTO users_artists_core_buffer 
-SELECT g.id, 
-       g.user_id, 
-       g.artist_id, 
+INSERT INTO users_artists_core_buffer
+SELECT g.id,
+       g.user_id,
+       g.artist_id,
        g.creation_time
-FROM generate_user_artist (user_artist_id, user_id, artist_id, req_epoch) g
-JOIN users_core uc ON uc.id = g.user_id
-JOIN artists_core ac ON ac.id = g.artist_id;
+FROM generate_user_artist (user_artist_id,user_id,artist_id,req_epoch) g
+  JOIN users_core uc ON uc.id = g.user_id
+  JOIN artists_core ac ON ac.id = g.artist_id;
 
-INSERT INTO users_artists_events_buffer SELECT * FROM generate_user_artist_event (user_artist_id, req_epoch, 'create');
+INSERT INTO users_artists_events_buffer
+SELECT *
+FROM generate_user_artist_event (user_artist_id,req_epoch,'create');
 
 MERGE INTO users_artists_core_buffer cb
-USING users_artists_core c
-ON cb.user_id = c.user_id AND cb.artist_id = c.artist_id
+USING users_artists_core c ON cb.user_id = c.user_id AND cb.artist_id = c.artist_id
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-MERGE INTO users_artists_events_buffer  eb
-USING users_artists_events e
-ON eb.user_artist_id = e.user_artist_id AND eb.key_ = e.key_ AND eb.key_ = 'create'
+MERGE INTO users_artists_events_buffer eb
+USING users_artists_events e ON eb.user_artist_id = e.user_artist_id AND eb.key_ = e.key_ AND eb.key_ = 'create'
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-INSERT INTO users_artists_core SELECT * FROM users_artists_core_buffer;
+INSERT INTO users_artists_core
+SELECT *
+FROM users_artists_core_buffer;
 
 INSERT INTO users_artists_events
-SELECT eb.id, 
-eb.user_artist_id, 
-eb._time, 
-eb.key_, 
-eb.value
+SELECT eb.id,
+       eb.user_artist_id,
+       eb._time,
+       eb.key_,
+       eb.value
 FROM users_artists_events_buffer eb
-JOIN users_artists_core_buffer cb ON eb.user_artist_id = cb.id;
+  JOIN users_artists_core_buffer cb ON eb.user_artist_id = cb.id;
 
-SELECT * FROM users_artists_core_buffer;
+SELECT *
+FROM users_artists_core_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -395,26 +433,29 @@ CREATE OR REPLACE FUNCTION insert_user_artist_event (user_artist_id TEXT, req_ep
 AS
 $$
 
-DELETE FROM users_artists_events_buffer;
+DELETE
+FROM users_artists_events_buffer;
 
-INSERT INTO users_artists_events_buffer 
-SELECT g.id, 
-       g.user_artist_id, 
-       g._time, 
-       g.key_, 
+INSERT INTO users_artists_events_buffer
+SELECT g.id,
+       g.user_artist_id,
+       g._time,
+       g.key_,
        g.value
-FROM generate_user_artist_event (user_artist_id, req_epoch, key_) g
-JOIN users_artists_core c ON g.user_artist_id = c.id;
+FROM generate_user_artist_event (user_artist_id,req_epoch,key_) g
+  JOIN users_artists_core c ON g.user_artist_id = c.id;
 
-MERGE INTO users_artists_events_buffer  eb
-USING users_artists_events e
-ON eb.user_artist_id = e.user_artist_id AND eb.key_ = e.key_ AND eb.key_ = 'create'
+MERGE INTO users_artists_events_buffer eb
+USING users_artists_events e ON eb.user_artist_id = e.user_artist_id AND eb.key_ = e.key_ AND eb.key_ = 'create'
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-INSERT INTO users_artists_events SELECT * FROM users_artists_events_buffer;
+INSERT INTO users_artists_events
+SELECT *
+FROM users_artists_events_buffer;
 
-SELECT * FROM users_artists_events_buffer;
+SELECT *
+FROM users_artists_events_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -422,45 +463,50 @@ CREATE OR REPLACE FUNCTION insert_user_work (user_work_id TEXT, user_id TEXT, wo
 AS
 $$
 
-DELETE FROM users_works_core_buffer;
+DELETE
+FROM users_works_core_buffer;
 
-DELETE FROM users_works_events_buffer;
+DELETE
+FROM users_works_events_buffer;
 
-INSERT INTO users_works_core_buffer 
-SELECT g.id, 
-       g.user_id, 
-       g.work_id, 
+INSERT INTO users_works_core_buffer
+SELECT g.id,
+       g.user_id,
+       g.work_id,
        g.creation_time
-FROM generate_user_work (user_work_id, user_id, work_id, req_epoch) g
-JOIN users_core uc ON uc.id = g.user_id
-JOIN works_core wc ON wc.id = g.work_id;
+FROM generate_user_work (user_work_id,user_id,work_id,req_epoch) g
+  JOIN users_core uc ON uc.id = g.user_id
+  JOIN works_core wc ON wc.id = g.work_id;
 
-INSERT INTO users_works_events_buffer SELECT * FROM generate_user_work_event (user_work_id, req_epoch, 'create');
+INSERT INTO users_works_events_buffer
+SELECT *
+FROM generate_user_work_event (user_work_id,req_epoch,'create');
 
 MERGE INTO users_works_core_buffer cb
-USING users_works_core c
-ON cb.user_id = c.user_id AND cb.work_id = c.work_id
+USING users_works_core c ON cb.user_id = c.user_id AND cb.work_id = c.work_id
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-MERGE INTO users_works_events_buffer  eb
-USING users_works_events e
-ON eb.user_work_id = e.user_work_id AND eb.key_ = e.key_ AND e.key_ = 'create'
+MERGE INTO users_works_events_buffer eb
+USING users_works_events e ON eb.user_work_id = e.user_work_id AND eb.key_ = e.key_ AND e.key_ = 'create'
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-INSERT INTO users_works_core SELECT * FROM users_works_core_buffer;
+INSERT INTO users_works_core
+SELECT *
+FROM users_works_core_buffer;
 
 INSERT INTO users_works_events
-SELECT eb.id, 
-eb.user_work_id, 
-eb._time, 
-eb.key_, 
-eb.value
+SELECT eb.id,
+       eb.user_work_id,
+       eb._time,
+       eb.key_,
+       eb.value
 FROM users_works_events_buffer eb
-JOIN users_works_core_buffer cb ON eb.user_work_id = cb.id;
+  JOIN users_works_core_buffer cb ON eb.user_work_id = cb.id;
 
-SELECT * FROM users_works_core_buffer;
+SELECT *
+FROM users_works_core_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -468,26 +514,29 @@ CREATE OR REPLACE FUNCTION insert_user_work_event (user_work_id TEXT, req_epoch 
 AS
 $$
 
-DELETE FROM users_works_events_buffer;
+DELETE
+FROM users_works_events_buffer;
 
-INSERT INTO users_works_events_buffer 
-SELECT g.id, 
-       g.user_work_id, 
-       g._time, 
-       g.key_, 
+INSERT INTO users_works_events_buffer
+SELECT g.id,
+       g.user_work_id,
+       g._time,
+       g.key_,
        g.value
-FROM generate_user_work_event (user_work_id, req_epoch, key_) g
-JOIN users_works_core c  ON g.user_work_id = c.id;
+FROM generate_user_work_event (user_work_id,req_epoch,key_) g
+  JOIN users_works_core c ON g.user_work_id = c.id;
 
-MERGE INTO users_works_events_buffer  eb
-USING users_works_events e
-ON eb.user_work_id = e.user_work_id AND eb.key_ = e.key_ AND eb.key_ = 'create'
+MERGE INTO users_works_events_buffer eb
+USING users_works_events e ON eb.user_work_id = e.user_work_id AND eb.key_ = e.key_ AND eb.key_ = 'create'
 WHEN MATCHED THEN DELETE
 WHEN NOT MATCHED THEN DO NOTHING;
 
-INSERT INTO users_works_events SELECT * FROM users_works_events_buffer;
+INSERT INTO users_works_events
+SELECT *
+FROM users_works_events_buffer;
 
-SELECT * FROM users_works_events_buffer;
+SELECT *
+FROM users_works_events_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -495,11 +544,12 @@ CREATE OR REPLACE FUNCTION check_signin (user_name TEXT, pwd TEXT) RETURNS check
 AS
 $$
 
-SELECT user_id, 
-       artist_id, 
-       user_name  
-FROM checkable_signins 
-WHERE user_name=user_name and pwd=pwd;
+SELECT user_id,
+       artist_id,
+       user_name
+FROM checkable_signins
+WHERE user_name = user_name
+AND   pwd = pwd;
 
 $$ LANGUAGE SQL;
 
@@ -607,11 +657,17 @@ LIMIT 10
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_more_works (artist_id TEXT) RETURNS artists_keys
+CREATE OR REPLACE FUNCTION see_more_works (artist_id TEXT) RETURNS more_of_seeable_works_ 
 AS
 $$
-SELECT artist_id
-ORDER BY RANDOM() LIMIT 10;
+
+SELECT work_,
+       withdraw
+FROM more_of_seeable_works
+WHERE artist_id = artist_id
+ORDER BY RANDOM() 
+LIMIT 10
+
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION see_more_artists (user_id TEXT) RETURNS more_seeable_artists_
@@ -619,8 +675,8 @@ AS
 $$
 
 SELECT artist,
-       unwatch
-FROM more_seeable_watchers
+       watch
+FROM more_seeable_artists
 WHERE user_id = user_id
 ORDER BY RANDOM() 
 LIMIT 10
@@ -629,49 +685,60 @@ $$ LANGUAGE SQL;
 
 
 
-CREATE OR REPLACE FUNCTION see_more_liked_works (user_id TEXT) RETURNS artists
+CREATE OR REPLACE FUNCTION see_more_liked_works (user_id TEXT) RETURNS more_seeable_liked_works_
 AS
 $$
-SELECT artist_id
-ORDER BY RANDOM() LIMIT 10;
+
+SELECT work_,
+       unlike
+FROM more_seeable_liked_works
+WHERE user_id=$1 ;
+
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION view_user (user_id TEXT) RETURNS checkable_signups_
+CREATE OR REPLACE FUNCTION view_user (user_id TEXT, artist_id TEXT) RETURNS more_seeable_watchers_
 AS
 $$
 
-SELECT user_id, 
-       user_name 
-FROM checkable_signups 
-WHERE user_id = user_id; 
+SELECT user_
+FROM more_seeable_watchers
+WHERE CAST(user_['user_id'] AS VARCHAR) = user_id AND artist_id = artist_id;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION view_artist (artist_id TEXT) RETURNS checkable_signins
+CREATE OR REPLACE FUNCTION view_artist (artist_id TEXT, user_id TEXT) RETURNS more_seeable_artists_
 AS
 $$
 
-SELECT user_id, 
-       artist_id, 
-       user_name  
-FROM checkable_signins 
-WHERE artist_id=artist_id;
+SELECT artist,
+       watch
+FROM more_seeable_artists
+WHERE CAST(artist['user_id'] AS VARCHAR) = artist_id AND user_id = user_id;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION view_works_of_artist (TEXT) RETURNS works
+CREATE OR REPLACE FUNCTION view_works_of_artist (work_id TEXT, user_id TEXT) RETURNS more_seeable_liked_works_
 AS
 $$
-SELECT $1
-ORDER BY RANDOM() LIMIT 10;
+
+SELECT work_,
+       unlike
+FROM more_seeable_liked_works
+WHERE CAST(work_['work_id'] AS VARCHAR) = work_id AND user_id = user_id;
+
+
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION view_work (TEXT) RETURNS works
+CREATE OR REPLACE FUNCTION view_work (work_id TEXT, artist_id TEXT)  RETURNS more_of_seeable_works_
 AS
 $$
-SELECT $1
-ORDER BY RANDOM() LIMIT 10;
+
+SELECT work_,
+       withdraw
+FROM more_of_seeable_works
+WHERE CAST(work_['work_id'] AS VARCHAR) = work_id AND artist_id = artist_id;
+
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION ban_watcher (user_artist_id TEXT, req_epoch TEXT) RETURNS users_artists_events
@@ -686,13 +753,13 @@ CREATE OR REPLACE FUNCTION watch_artist (user_artist_id TEXT, user_id TEXT, arti
 AS
 $$
 
-DELETE users_artists_buffer;
+DELETE FROM users_artists_core_buffer;
 
-INSERT INTO users_artists_buffer SELECT * FROM users_artists(user_artist_id, user_id, artist_id, req_epoch);
+SELECT * FROM insert_user_artist(user_artist_id, user_id, artist_id, req_epoch);
 
 SELECT * FROM insert_user_artist_event(user_artist_id, req_epoch, 'watch');
 
-SELECT * FROM users_artists_buffer;
+SELECT * FROM users_artists_core_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -712,18 +779,26 @@ SELECT * FROM insert_user_artist_event(user_artist_id, req_epoch, 'unwatch')
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION go_view_work (TEXT) RETURNS users_works
+CREATE OR REPLACE FUNCTION go_view_work (user_work_id TEXT, user_id TEXT, work_id TEXT, req_epoch TEXT) RETURNS users_works_core
 AS
 $$
-SELECT $1
-ORDER BY RANDOM() LIMIT 10;
+
+DELETE FROM users_works_core_buffer;
+
+SELECT * FROM insert_user_work(user_work_id, user_id, work_id, req_epoch);
+
+SELECT * FROM insert_user_work_event(user_work_id, req_epoch, 'view');
+
+SELECT * FROM users_works_core_buffer;
+
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION go_review_work (TEXT) RETURNS users_works
+CREATE OR REPLACE FUNCTION go_review_work (user_work_id TEXT, req_epoch TEXT) RETURNS users_works_events
 AS
 $$
-SELECT $1
-ORDER BY RANDOM() LIMIT 10;
+
+SELECT * FROM insert_user_work_event(user_work_id, req_epoch, 'view');
+
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION like_work (user_work_id TEXT, req_epoch TEXT) RETURNS users_works_events
