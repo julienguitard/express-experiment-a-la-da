@@ -48,7 +48,6 @@ const routeDBProcedureDict: Record<RoutePath,
 
 const routes:Array<RouteData> = Object.entries(routeDBProcedureDict).map(
   ([k, v],i) => {
-    console.log('Get into builder')
       return  {
         route: k,
         method: (v.method === undefined) ? "get" : v.method,
@@ -62,6 +61,5 @@ const routes:Array<RouteData> = Object.entries(routeDBProcedureDict).map(
   }
 );
 
-console.log(routes);
 
 export { routes };

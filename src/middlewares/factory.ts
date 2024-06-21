@@ -230,6 +230,7 @@ function builderFromRoutePath(
   function mdw(req:Request,res:Response,next:NextFunction):void{
     for(let pro of routeData.dbProcedures){
       let args = getDBprocedureArgs(req,pro,hash);
+      console.log('args:',args);
       let output = queryPoolFromProcedure(pool,pro,args);
       output= output.then((ou)=>{console.log(parseSQLOutput(ou));return ou})
       output = output.then((ou)=> {updateRequestSession(req,pro,ou); return ou});

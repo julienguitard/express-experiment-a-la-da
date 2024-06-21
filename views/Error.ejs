@@ -15,16 +15,16 @@
 </table></div>
 <a href="/home"> Get back </a>
 
-<%  if (userName) {  %>
+<%  try {  (userName) ; %>
   <p> Signed as <%= userName %> </p>
   <%  }
-  else { %>
+  catch(e) { %>
   <p> Not signed in </p>
   <%}
-  if (startTime) { %>
+  try {  (startTime) ; %>
   <p> Started browsing at <%= startTime  %> </p>
   <%  }
-  else { %>
+  catch(e) { %>
   <p> Started browsing now </p>
   <%  } %>
 

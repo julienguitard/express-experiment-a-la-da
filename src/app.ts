@@ -28,8 +28,8 @@ const preRouterUsables:Array<RequestHandler> = [
   cors(),
   helmet(),
   sessionMiddleware,
-  bodyParser.json()
-  //bodyParser.urlencoded({ extended: false })
+  //bodyParser.json()
+  bodyParser.urlencoded({ extended: false })
 ];
 
 const postRouterUsables:Array<RequestHandler|ErrorRequestHandler>  = [

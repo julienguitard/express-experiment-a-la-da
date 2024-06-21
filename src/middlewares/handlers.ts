@@ -22,12 +22,12 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
   hash: (s: string) => string,
   error?: Error
 ): DBProcedureArgsMappingType[DBProcedure] {
+  console.log('get args');
   switch (pro) {
     case "check_signin":
-      console.log('req.body: '+ req.body)
       return {
         userName: req.body.userName, 
-        pwd: req.body.pwd
+        pwd: hash(req.body.pwd)
       };
 
     case "check_signup":
@@ -188,6 +188,7 @@ function updateRequestSession(
   pro: DBProcedure,
   output: QueryResult<any>
 ): void {
+  console.log('updateRequestSession');
   switch (pro) {
     case "check_signin":
       if (output.rows.length === 0) {

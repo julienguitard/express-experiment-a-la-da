@@ -34,9 +34,6 @@ const consoleControler = function (
 function updateSessionInitially(session: SessionData, req: Request): void {
   session.reqEpoch = getEpochString();
   session.startTime = session.startTime ?? getEpochString();
-  session.userId = session.userId ?? "Admin";
-  session.userName = session.userName ?? "Admin";
-  session.artistId = session.artistId ?? "Admin";
   session.views = (session.views ?? 0) + 1;
 
   if (req.route) {

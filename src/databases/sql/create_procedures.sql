@@ -559,10 +559,10 @@ $$
 
 SELECT * FROM insert_user(user_id, req_epoch, user_name, pwd);
 
-SELECT user_id, 
-       user_name 
-FROM checkable_signups 
-WHERE user_id = user_id; 
+SELECT user_id,
+       user_name
+FROM checkable_signups
+WHERE user_id = user_id;
 
 $$ LANGUAGE SQL;
 
@@ -572,10 +572,9 @@ $$
 
 SELECT user_,
        ban
-FROM seeable_watchers 
+FROM seeable_watchers
 WHERE artist_id = artist_id
-ORDER BY RANDOM()
-LIMIT 10;
+ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
@@ -585,10 +584,9 @@ $$
 
 SELECT work_,
        withdraw
-FROM seeable_works 
+FROM seeable_works
 WHERE artist_id = artist_id
-ORDER BY RANDOM()
-LIMIT 10;
+ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
@@ -600,8 +598,7 @@ SELECT artist,
        unwatch
 FROM seeable_artists
 WHERE user_id = user_id
-ORDER BY RANDOM()
-LIMIT 10;
+ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
@@ -611,10 +608,9 @@ $$
 
 SELECT work_,
        unlike
-FROM seeable_liked_works 
+FROM seeable_liked_works
 WHERE user_id = user_id
-ORDER BY RANDOM()
-LIMIT 10;
+ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
@@ -622,9 +618,11 @@ CREATE OR REPLACE FUNCTION submit_first_work (work_id TEXT,  artist_id TEXT, use
 AS
 $$
 
-SELECT * FROM insert_artist(artist_id, user_id, req_epoch);
+SELECT *
+FROM insert_artist (artist_id,user_id,req_epoch);
 
-SELECT * FROM insert_work(work_id, artist_id, req_epoch, work_name)
+SELECT *
+FROM insert_work (work_id,artist_id,req_epoch,work_name);
 
 $$ LANGUAGE SQL;
 
@@ -632,7 +630,8 @@ CREATE OR REPLACE FUNCTION submit_work (work_id TEXT, artist_id TEXT, req_epoch 
 AS
 $$
 
-SELECT * FROM insert_work(work_id, artist_id, req_epoch, work_name);
+SELECT *
+FROM insert_work (work_id,artist_id,req_epoch,work_name);
 
 $$ LANGUAGE SQL;
 
@@ -640,7 +639,8 @@ CREATE OR REPLACE FUNCTION withdraw_work (work_id TEXT, req_epoch TEXT) RETURNS 
 AS
 $$
 
-SELECT * FROM insert_work_event(work_id, req_epoch, 'withdraw')
+SELECT *
+FROM insert_work_event (work_id,req_epoch,'withdraw')
 
 $$ LANGUAGE SQL;
 
@@ -652,8 +652,7 @@ $$
 SELECT user_
 FROM more_seeable_watchers
 WHERE artist_id = artist_id
-ORDER BY RANDOM() 
-LIMIT 10
+ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
@@ -665,8 +664,7 @@ SELECT work_,
        withdraw
 FROM more_of_seeable_works
 WHERE artist_id = artist_id
-ORDER BY RANDOM() 
-LIMIT 10
+ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
@@ -678,12 +676,9 @@ SELECT artist,
        watch
 FROM more_seeable_artists
 WHERE user_id = user_id
-ORDER BY RANDOM() 
-LIMIT 10
+ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
-
-
 
 CREATE OR REPLACE FUNCTION see_more_liked_works (user_id TEXT) RETURNS more_seeable_liked_works_
 AS
@@ -692,7 +687,7 @@ $$
 SELECT work_,
        unlike
 FROM more_seeable_liked_works
-WHERE user_id=$1 ;
+WHERE user_id = $1;
 
 $$ LANGUAGE SQL;
 
@@ -703,7 +698,8 @@ $$
 
 SELECT user_
 FROM more_seeable_watchers
-WHERE CAST(user_['user_id'] AS VARCHAR) = user_id AND artist_id = artist_id;
+WHERE CAST(user_['user_id'] AS VARCHAR) = user_id
+AND   artist_id = artist_id;
 
 $$ LANGUAGE SQL;
 
@@ -714,7 +710,8 @@ $$
 SELECT artist,
        watch
 FROM more_seeable_artists
-WHERE CAST(artist['user_id'] AS VARCHAR) = artist_id AND user_id = user_id;
+WHERE CAST(artist['user_id'] AS VARCHAR) = artist_id
+AND   user_id = user_id;
 
 $$ LANGUAGE SQL;
 
@@ -725,8 +722,8 @@ $$
 SELECT work_,
        unlike
 FROM more_seeable_liked_works
-WHERE CAST(work_['work_id'] AS VARCHAR) = work_id AND user_id = user_id;
-
+WHERE CAST(work_['work_id'] AS VARCHAR) = work_id
+AND   user_id = user_id;
 
 $$ LANGUAGE SQL;
 
@@ -737,7 +734,8 @@ $$
 SELECT work_,
        withdraw
 FROM more_of_seeable_works
-WHERE CAST(work_['work_id'] AS VARCHAR) = work_id AND artist_id = artist_id;
+WHERE CAST(work_['work_id'] AS VARCHAR) = work_id
+AND   artist_id = artist_id;
 
 $$ LANGUAGE SQL;
 
@@ -745,7 +743,8 @@ CREATE OR REPLACE FUNCTION ban_watcher (user_artist_id TEXT, req_epoch TEXT) RET
 AS
 $$
 
-SELECT * FROM insert_user_artist_event(user_artist_id, req_epoch, 'ban')
+SELECT *
+FROM insert_user_artist_event (user_artist_id,req_epoch,'ban')
 
 $$ LANGUAGE SQL;
 
@@ -753,13 +752,17 @@ CREATE OR REPLACE FUNCTION watch_artist (user_artist_id TEXT, user_id TEXT, arti
 AS
 $$
 
-DELETE FROM users_artists_core_buffer;
+DELETE
+FROM users_artists_core_buffer;
 
-SELECT * FROM insert_user_artist(user_artist_id, user_id, artist_id, req_epoch);
+SELECT *
+FROM insert_user_artist (user_artist_id,user_id,artist_id,req_epoch);
 
-SELECT * FROM insert_user_artist_event(user_artist_id, req_epoch, 'watch');
+SELECT *
+FROM insert_user_artist_event (user_artist_id,req_epoch,'watch');
 
-SELECT * FROM users_artists_core_buffer;
+SELECT *
+FROM users_artists_core_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -767,7 +770,8 @@ CREATE OR REPLACE FUNCTION rewatch_artist (user_artist_id TEXT, req_epoch TEXT) 
 AS
 $$
 
-SELECT * FROM insert_user_artist_event(user_artist_id, req_epoch, 'watch')
+SELECT *
+FROM insert_user_artist_event (user_artist_id,req_epoch,'watch')
 
 $$ LANGUAGE SQL;
 
@@ -775,7 +779,8 @@ CREATE OR REPLACE FUNCTION unwatch_artist (user_artist_id TEXT, req_epoch TEXT) 
 AS
 $$
 
-SELECT * FROM insert_user_artist_event(user_artist_id, req_epoch, 'unwatch')
+SELECT *
+FROM insert_user_artist_event (user_artist_id,req_epoch,'unwatch')
 
 $$ LANGUAGE SQL;
 
@@ -783,13 +788,17 @@ CREATE OR REPLACE FUNCTION go_view_work (user_work_id TEXT, user_id TEXT, work_i
 AS
 $$
 
-DELETE FROM users_works_core_buffer;
+DELETE
+FROM users_works_core_buffer;
 
-SELECT * FROM insert_user_work(user_work_id, user_id, work_id, req_epoch);
+SELECT *
+FROM insert_user_work (user_work_id,user_id,work_id,req_epoch);
 
-SELECT * FROM insert_user_work_event(user_work_id, req_epoch, 'view');
+SELECT *
+FROM insert_user_work_event (user_work_id,req_epoch,'view');
 
-SELECT * FROM users_works_core_buffer;
+SELECT *
+FROM users_works_core_buffer;
 
 $$ LANGUAGE SQL;
 
@@ -797,7 +806,8 @@ CREATE OR REPLACE FUNCTION go_review_work (user_work_id TEXT, req_epoch TEXT) RE
 AS
 $$
 
-SELECT * FROM insert_user_work_event(user_work_id, req_epoch, 'view');
+SELECT *
+FROM insert_user_work_event (user_work_id,req_epoch,'view');
 
 $$ LANGUAGE SQL;
 
@@ -805,7 +815,8 @@ CREATE OR REPLACE FUNCTION like_work (user_work_id TEXT, req_epoch TEXT) RETURNS
 AS
 $$
 
-SELECT * FROM insert_work_event(user_work_id, req_epoch, 'like')
+SELECT *
+FROM insert_work_event (user_work_id,req_epoch,'like')
 
 $$ LANGUAGE SQL;
 
@@ -813,7 +824,8 @@ CREATE OR REPLACE FUNCTION unlike_work (user_work_id TEXT, req_epoch TEXT) RETUR
 AS
 $$
 
-SELECT * FROM insert_work_event(user_work_id, req_epoch, 'unlike')
+SELECT *
+FROM insert_work_event (user_work_id,req_epoch,'unlike')
 
 $$ LANGUAGE SQL;
 
@@ -822,16 +834,19 @@ CREATE OR REPLACE FUNCTION delete_ (user_id TEXT, req_epoch TEXT) RETURNS users_
 AS
 $$
 
-SELECT * FROM insert_user_event(user_id, req_epoch, 'delete')
+SELECT *
+FROM insert_user_event (user_id,req_epoch,'delete')
 
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION insert_into_requests_logs (time_ TEXT,route TEXT, methods TEXT) RETURNS requests_logs
 AS
 $$
+
 INSERT INTO requests_logs
 (
-  SELECT*FROM generate_requests_logs_event(time_, route, methods)
+SELECT *
+FROM generate_requests_logs_event (time_,route,methods)
 );
 
 SELECT *
@@ -842,9 +857,11 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION insert_into_responses_logs (request_time TEXT,time_ TEXT,route TEXT, status_code TEXT) RETURNS responses_logs
 AS
 $$
+
 INSERT INTO responses_logs
 (
-  SELECT*FROM generate_responses_logs_event(request_time, time_, route, status_code)
+SELECT *
+FROM generate_responses_logs_event (request_time,time_,route,status_code)
 );
 
 SELECT *
@@ -856,9 +873,11 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION insert_into_errors_logs (request_time TEXT,time_ TEXT,route TEXT, message TEXT) RETURNS errors_logs
 AS
 $$
+
 INSERT INTO errors_logs
 (
-  SELECT*FROM generate_errors_logs_event(request_time, time_, route, message)
+SELECT *
+FROM generate_errors_logs_event (request_time,time_,route,message)
 );
 
 SELECT *
@@ -869,7 +888,6 @@ $$ LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION select_full_logs () RETURNS full_logs
 AS
 $$
-
 
 SELECT *
 FROM full_logs ORDER BY time_ DESC LIMIT 100;
