@@ -40,7 +40,7 @@ const routeDBProcedureDict: Record<RoutePath,
   "/profile/works/work/:userWorkId/like": {dbProcedures:['like_work'],event:'like'},
   "/profile/works/work/:userWorkId/unlike": {dbProcedures:['unlike_work'],event:'unlike'},
   "/signout": {dbProcedures:[], render:"Signout"},
-  "/signout/submit": {dbProcedures:[],redirect: "/", method: "post"},
+  "/signout/submit": {dbProcedures:[],redirect: "/", method: "get"},
   "/delete": {dbProcedures:[], render:"Delete"},
   "/delete/submit": {dbProcedures:['delete_'],redirect: "/", method: "post",event:'delete'}
 }

@@ -213,6 +213,7 @@ function updateSessionFromProcedure(
         break;
     case "delete_":
       delete req.session.userId;
+      delete req.session.userName;
       if (req.session.artistId) {
         delete req.session.artistId;
       }
@@ -230,6 +231,7 @@ function updateSessionFromRoutePath(
   switch (routePath) {
     case "/signout/submit":
       delete req.session.userId;
+      delete req.session.userName;
       if (req.session.artistId) {
         delete req.session.artistId;
       }
