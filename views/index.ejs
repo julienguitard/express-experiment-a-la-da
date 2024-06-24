@@ -17,7 +17,7 @@
 
 
 <% try { (userName); %>
-<p> Signed as <%= userName %> </p>
+<p> Signed in as <%= userName %> <br> <a href="/signout"> Sign out </a> </p>
 <%  }
 catch(e) { %>
 <p> Not signed in </p>

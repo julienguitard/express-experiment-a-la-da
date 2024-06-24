@@ -1,3 +1,4 @@
+
 function mergeInto<T extends string, U>(destObj: Record<T, U>): (obj: Record<T, U>) => Record<T, U> {
     function merging(obj: Record<T, U>): Record<T, U> {
         return { ...destObj, ...obj }
@@ -22,4 +23,4 @@ function updateInto<T extends string, U>(destObj: Record<T, U>, props: Array<T>)
     return update;
 }
 
-export {mergeInto,updateInto}
+export {mergeInto, updateInto}

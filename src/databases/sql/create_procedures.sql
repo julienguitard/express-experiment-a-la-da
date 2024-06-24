@@ -1,149 +1,149 @@
-CREATE OR REPLACE FUNCTION generate_user (user_id TEXT, req_epoch TEXT, user_name TEXT, pwd TEXT) RETURNS users_core
+CREATE OR REPLACE FUNCTION generate_user (user_id_arg TEXT, req_epoch_arg TEXT, user_name_arg TEXT, pwd_arg TEXT) RETURNS SETOF users_core
 AS
 $$
 
-SELECT user_id,
-       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
-       user_name,
-       pwd;
+SELECT user_id_arg,
+       TO_TIMESTAMP(CAST(req_epoch_arg AS NUMERIC)),
+       user_name_arg,
+       pwd_arg;
 
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION generate_user_event (user_id TEXT, req_epoch TEXT, key_ TEXT) RETURNS users_events
+CREATE OR REPLACE FUNCTION generate_user_event (user_id_arg TEXT, req_epoch_arg TEXT, key__arg TEXT) RETURNS SETOF users_events
 AS
 $$
 
-SELECT MD5(user_id||req_epoch||key_),
-       user_id,
-       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
-       key_,
+SELECT MD5(user_id_arg||req_epoch_arg||key__arg),
+       user_id_arg,
+       TO_TIMESTAMP(CAST(req_epoch_arg AS NUMERIC)),
+       key__arg,
        1;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION generate_artist (artist_id TEXT, user_id TEXT, req_epoch TEXT) RETURNS artists_core
+CREATE OR REPLACE FUNCTION generate_artist (artist_id_arg TEXT, user_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF artists_core
 AS
 $$
 
-SELECT artist_id,
-       user_id,
-       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC))
+SELECT artist_id_arg,
+       user_id_arg,
+       TO_TIMESTAMP(CAST(req_epoch_arg AS NUMERIC))
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION generate_artist_event (artist_id TEXT, req_epoch TEXT, key_ TEXT) RETURNS artists_events
+CREATE OR REPLACE FUNCTION generate_artist_event (artist_id_arg TEXT, req_epoch_arg TEXT, key__arg TEXT) RETURNS SETOF artists_events
 AS
 $$
 
-SELECT MD5(artist_id||req_epoch||key_),
-       artist_id,
-       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
-       key_,
+SELECT MD5(artist_id_arg||req_epoch_arg||key__arg),
+       artist_id_arg,
+       TO_TIMESTAMP(CAST(req_epoch_arg AS NUMERIC)),
+       key__arg,
        1;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION generate_work (work_id TEXT, artist_id TEXT, req_epoch TEXT, work_name TEXT) RETURNS works_core
+CREATE OR REPLACE FUNCTION generate_work (work_id_arg TEXT, artist_id_arg TEXT, req_epoch_arg TEXT, work_name_arg TEXT) RETURNS SETOF works_core
 AS
 $$
 
-SELECT work_id,
-       artist_id,
-       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
-       work_name;
+SELECT work_id_arg,
+       artist_id_arg,
+       TO_TIMESTAMP(CAST(req_epoch_arg AS NUMERIC)),
+       work_name_arg;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION generate_work_event (work_id TEXT, req_epoch TEXT, key_ TEXT)  RETURNS works_events
+CREATE OR REPLACE FUNCTION generate_work_event (work_id_arg TEXT, req_epoch_arg TEXT, key__arg TEXT)  RETURNS SETOF works_events
 AS
 $$
 
-SELECT MD5(work_id||req_epoch||key_),
-       work_id,
-       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
+SELECT MD5(work_id_arg||req_epoch_arg||key__arg),
+       work_id_arg,
+       TO_TIMESTAMP(CAST(req_epoch_arg AS NUMERIC)),
        CASE
-         WHEN key_ IN ('submit','view','like') THEN key_
-         WHEN key_ = 'withdraw' THEN 'submit'
-         WHEN key_ = 'unlike' THEN 'like'
+         WHEN key__arg IN ('submit','view','like') THEN key__arg
+         WHEN key__arg = 'withdraw' THEN 'submit'
+         WHEN key__arg = 'unlike' THEN 'like'
          ELSE CAST(NULL AS VARCHAR(256))
        END 
 ,
        CASE
-         WHEN key_ IN ('submit','view','like') THEN 1
-         WHEN key_ = 'withdraw' THEN -1
-         WHEN key_ = 'unlike' THEN -1
+         WHEN key__arg IN ('submit','view','like') THEN 1
+         WHEN key__arg = 'withdraw' THEN -1
+         WHEN key__arg = 'unlike' THEN -1
          ELSE 0
        END;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION generate_user_artist (user_artist_id TEXT, user_id TEXT, artist_id TEXT, req_epoch TEXT) RETURNS users_artists_core
+CREATE OR REPLACE FUNCTION generate_user_artist (user_artist_id_arg TEXT, user_id_arg TEXT, artist_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_artists_core
 AS
 $$
 
-SELECT user_artist_id,
-       user_id,
-       artist_id,
-       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC));
+SELECT user_artist_id_arg,
+       user_id_arg,
+       artist_id_arg,
+       TO_TIMESTAMP(CAST(req_epoch_arg AS NUMERIC));
 
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION generate_user_artist_event (user_artist_id TEXT, req_epoch TEXT, key_ TEXT) RETURNS users_artists_events
+CREATE OR REPLACE FUNCTION generate_user_artist_event (user_artist_id_arg TEXT, req_epoch_arg TEXT, key__arg TEXT) RETURNS SETOF users_artists_events
 AS
 $$
 
-SELECT MD5(user_artist_id||req_epoch||key_),
-       user_artist_id,
-       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
+SELECT MD5(user_artist_id_arg||req_epoch_arg||key__arg),
+       user_artist_id_arg,
+       TO_TIMESTAMP(CAST(req_epoch_arg AS NUMERIC)),
        CASE
-         WHEN key_ IN ('create','watch','ban') THEN key_
-         WHEN key_ = 'unwatch' THEN 'watch'
+         WHEN key__arg IN ('create','watch','ban') THEN key__arg
+         WHEN key__arg = 'unwatch' THEN 'watch'
          ELSE CAST(NULL AS VARCHAR(256))
        END 
 ,
        CASE
-         WHEN key_ IN ('create','watch','ban') THEN 1
-         WHEN key_ = 'unwatch' THEN -1
+         WHEN key__arg IN ('create','watch','ban') THEN 1
+         WHEN key__arg = 'unwatch' THEN -1
          ELSE 0
        END;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION generate_user_work (user_work_id TEXT, user_id TEXT, artist_id TEXT, req_epoch TEXT) RETURNS users_works_core
+CREATE OR REPLACE FUNCTION generate_user_work (user_work_id_arg TEXT, user_id_arg TEXT, artist_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_works_core
 AS
 $$
 
-SELECT user_work_id,
-       user_id,
-       artist_id,
-       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC));
+SELECT user_work_id_arg,
+       user_id_arg,
+       artist_id_arg,
+       TO_TIMESTAMP(CAST(req_epoch_arg AS NUMERIC));
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION generate_user_work_event(user_work_id TEXT, req_epoch TEXT, key_ TEXT) RETURNS users_works_events
+CREATE OR REPLACE FUNCTION generate_user_work_event(user_work_id_arg TEXT, req_epoch_arg TEXT, key__arg TEXT) RETURNS SETOF users_works_events
 AS
 $$
 
-SELECT MD5(user_work_id||req_epoch||key_),
-       user_work_id,
-       TO_TIMESTAMP(CAST(req_epoch AS NUMERIC)),
+SELECT MD5(user_work_id_arg||req_epoch_arg||key__arg),
+       user_work_id_arg,
+       TO_TIMESTAMP(CAST(req_epoch_arg AS NUMERIC)),
        CASE
-         WHEN key_ IN ('create','view','like') THEN key_
-         WHEN key_ IN ('unview','unlike') THEN RIGHT (key_,LENGTH(key_) -2)
+         WHEN key__arg IN ('create','view','like') THEN key__arg
+         WHEN key__arg IN ('unview','unlike') THEN RIGHT (key__arg,LENGTH(key__arg) -2)
          ELSE CAST(NULL AS VARCHAR(256))
        END 
 ,
        CASE
-         WHEN key_ IN ('create','view','like') THEN 1
-         WHEN key_ IN ('unview','unlike') THEN -1
+         WHEN key__arg IN ('create','view','like') THEN 1
+         WHEN key__arg IN ('unview','unlike') THEN -1
          ELSE 0
        END;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_user (user_id TEXT, req_epoch TEXT, user_name TEXT, pwd TEXT) RETURNS users_core
+CREATE OR REPLACE FUNCTION insert_user (user_id_arg TEXT, req_epoch_arg TEXT, user_name_arg TEXT, pwd_arg TEXT) RETURNS SETOF users_core
 AS
 $$
 
@@ -155,11 +155,11 @@ FROM users_events_buffer;
 
 INSERT INTO users_core_buffer
 SELECT *
-FROM generate_user (user_id,req_epoch,user_name,pwd);
+FROM generate_user (user_id_arg,req_epoch_arg ,user_name_arg ,pwd_arg);
 
 INSERT INTO users_events_buffer
 SELECT *
-FROM generate_user_event (user_id,req_epoch,'create');
+FROM generate_user_event (user_id_arg ,req_epoch_arg ,'create');
 
 MERGE INTO users_core_buffer cb
 USING users_core c ON cb.user_name = c.user_name
@@ -189,7 +189,7 @@ FROM users_core_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_user_event (user_id TEXT, req_epoch TEXT, key_ TEXT) RETURNS users_events
+CREATE OR REPLACE FUNCTION insert_user_event (user_id_arg TEXT, req_epoch_arg TEXT, key__arg TEXT) RETURNS SETOF users_events
 AS
 $$
 
@@ -202,7 +202,7 @@ SELECT g.id,
        g._time,
        g.key_,
        g.value
-FROM generate_user_event (user_id,req_epoch,key_) g
+FROM generate_user_event (user_id_arg,req_epoch_arg,key__arg) g
   JOIN users_core c ON g.user_id = c.id;
 
 MERGE INTO users_events_buffer eb
@@ -219,7 +219,7 @@ FROM users_events_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_artist (artist_id TEXT, user_id TEXT, req_epoch TEXT) RETURNS artists_core
+CREATE OR REPLACE FUNCTION insert_artist (artist_id_arg TEXT, user_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF artists_core
 AS
 $$
 
@@ -233,12 +233,12 @@ INSERT INTO artists_core_buffer
 SELECT g.id,
        g.user_id,
        g.creation_time
-FROM generate_artist (artist_id,user_id,req_epoch) g
+FROM generate_artist (artist_id_arg,user_id_arg,req_epoch_arg) g
   JOIN users_core c ON g.user_id = c.id;
 
 INSERT INTO artists_events_buffer
 SELECT *
-FROM generate_artist_event (artist_id,req_epoch,'create');
+FROM generate_artist_event (artist_id_arg,req_epoch_arg,'create');
 
 MERGE INTO artists_core_buffer cb
 USING artists_core c ON cb.user_id = c.user_id
@@ -268,7 +268,7 @@ FROM artists_core_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_artist_event (artist_id TEXT, req_epoch TEXT, key_ TEXT)  RETURNS artists_events
+CREATE OR REPLACE FUNCTION insert_artist_event (artist_id_arg TEXT, req_epoch_arg TEXT, key__arg TEXT)  RETURNS SETOF artists_events
 AS
 $$
 
@@ -281,7 +281,7 @@ SELECT g.id,
        g._time,
        g.key_,
        g.value
-FROM generate_artist_event (artist_id,req_epoch,key_) g
+FROM generate_artist_event (artist_id_arg,req_epoch_arg,key__arg) g
   JOIN artists_core c ON g.artist_id = c.id;
 
 MERGE INTO artists_events_buffer eb
@@ -298,7 +298,7 @@ FROM artists_events_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_work (work_id TEXT, artist_id TEXT, req_epoch TEXT, work_name TEXT) RETURNS works_core
+CREATE OR REPLACE FUNCTION insert_work (work_id_arg TEXT, artist_id_arg TEXT, req_epoch_arg TEXT, work_name_arg TEXT) RETURNS SETOF works_core
 AS
 $$
 
@@ -313,12 +313,12 @@ SELECT g.id,
        g.artist_id,
        g.creation_time,
        g.work_name
-FROM generate_work (work_id,artist_id,req_epoch,work_name) g
+FROM generate_work (work_id_arg,artist_id_arg,req_epoch_arg,work_name_arg) g
   JOIN artists_core c ON c.id = g.artist_id;
 
 INSERT INTO works_events_buffer
 SELECT *
-FROM generate_work_event ($1,$3,'submit');
+FROM generate_work_event (work_id_arg ,req_epoch_arg,'submit');
 
 MERGE INTO works_core_buffer cb
 USING works_core c ON cb.artist_id = c.artist_id AND cb.work_name = c.work_name
@@ -348,7 +348,7 @@ FROM works_core_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_work_event (work_id TEXT, req_epoch TEXT, key_ TEXT) RETURNS works_events
+CREATE OR REPLACE FUNCTION insert_work_event (work_id_arg TEXT, req_epoch_arg TEXT, key__arg TEXT) RETURNS SETOF works_events
 AS
 $$
 
@@ -361,7 +361,7 @@ SELECT g.id,
        g._time,
        g.key_,
        g.value
-FROM generate_work_event (work_id,req_epoch,key_) g
+FROM generate_work_event (work_id_arg,req_epoch_arg,key__arg) g
   JOIN works_core c ON g.work_id = c.id;
 
 MERGE INTO works_events_buffer eb
@@ -378,7 +378,7 @@ FROM works_events_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_user_artist (user_artist_id TEXT, user_id TEXT, artist_id TEXT, req_epoch TEXT) RETURNS users_artists_core
+CREATE OR REPLACE FUNCTION insert_user_artist (user_artist_id_arg TEXT, user_id_arg TEXT, artist_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_artists_core
 AS
 $$
 
@@ -393,13 +393,13 @@ SELECT g.id,
        g.user_id,
        g.artist_id,
        g.creation_time
-FROM generate_user_artist (user_artist_id,user_id,artist_id,req_epoch) g
+FROM generate_user_artist (user_artist_id_arg,user_id_arg,artist_id_arg,req_epoch_arg) g
   JOIN users_core uc ON uc.id = g.user_id
   JOIN artists_core ac ON ac.id = g.artist_id;
 
 INSERT INTO users_artists_events_buffer
 SELECT *
-FROM generate_user_artist_event (user_artist_id,req_epoch,'create');
+FROM generate_user_artist_event (user_artist_id_arg,req_epoch_arg,'create');
 
 MERGE INTO users_artists_core_buffer cb
 USING users_artists_core c ON cb.user_id = c.user_id AND cb.artist_id = c.artist_id
@@ -429,7 +429,7 @@ FROM users_artists_core_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_user_artist_event (user_artist_id TEXT, req_epoch TEXT, key_ TEXT) RETURNS users_artists_events
+CREATE OR REPLACE FUNCTION insert_user_artist_event (user_artist_id_arg TEXT, req_epoch_arg TEXT, key__arg TEXT) RETURNS SETOF users_artists_events
 AS
 $$
 
@@ -442,7 +442,7 @@ SELECT g.id,
        g._time,
        g.key_,
        g.value
-FROM generate_user_artist_event (user_artist_id,req_epoch,key_) g
+FROM generate_user_artist_event (user_artist_id_arg,req_epoch_arg,key__arg) g
   JOIN users_artists_core c ON g.user_artist_id = c.id;
 
 MERGE INTO users_artists_events_buffer eb
@@ -459,7 +459,7 @@ FROM users_artists_events_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_user_work (user_work_id TEXT, user_id TEXT, work_id TEXT, req_epoch TEXT) RETURNS users_works_core
+CREATE OR REPLACE FUNCTION insert_user_work (user_work_id_arg TEXT, user_id_arg TEXT, work_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_works_core
 AS
 $$
 
@@ -474,13 +474,13 @@ SELECT g.id,
        g.user_id,
        g.work_id,
        g.creation_time
-FROM generate_user_work (user_work_id,user_id,work_id,req_epoch) g
+FROM generate_user_work (user_work_id_arg,user_id_arg,work_id_arg,req_epoch_arg) g
   JOIN users_core uc ON uc.id = g.user_id
   JOIN works_core wc ON wc.id = g.work_id;
 
 INSERT INTO users_works_events_buffer
 SELECT *
-FROM generate_user_work_event (user_work_id,req_epoch,'create');
+FROM generate_user_work_event (user_work_id_arg,req_epoch_arg,'create');
 
 MERGE INTO users_works_core_buffer cb
 USING users_works_core c ON cb.user_id = c.user_id AND cb.work_id = c.work_id
@@ -510,7 +510,7 @@ FROM users_works_core_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_user_work_event (user_work_id TEXT, req_epoch TEXT, key_ TEXT) RETURNS users_works_events
+CREATE OR REPLACE FUNCTION insert_user_work_event (user_work_id_arg TEXT, req_epoch_arg TEXT, key__arg TEXT) RETURNS SETOF users_works_events
 AS
 $$
 
@@ -523,7 +523,7 @@ SELECT g.id,
        g._time,
        g.key_,
        g.value
-FROM generate_user_work_event (user_work_id,req_epoch,key_) g
+FROM generate_user_work_event (user_work_id_arg,req_epoch_arg,key__arg) g
   JOIN users_works_core c ON g.user_work_id = c.id;
 
 MERGE INTO users_works_events_buffer eb
@@ -540,7 +540,7 @@ FROM users_works_events_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION check_signin (user_name TEXT, pwd TEXT) RETURNS checkable_signins_
+CREATE OR REPLACE FUNCTION check_signin (user_name_arg TEXT, pwd_arg TEXT) RETURNS SETOF checkable_signins_
 AS
 $$
 
@@ -548,207 +548,207 @@ SELECT user_id,
        artist_id,
        user_name
 FROM checkable_signins
-WHERE user_name = user_name
-AND   pwd = pwd;
+WHERE user_name = user_name_arg
+AND   pwd = pwd_arg;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION check_signup (user_id TEXT, req_epoch TEXT, user_name TEXT, pwd TEXT) RETURNS checkable_signups_
+CREATE OR REPLACE FUNCTION check_signup (user_id_arg TEXT, req_epoch_arg TEXT, user_name_arg TEXT, pwd_arg TEXT, confirmed_pwd_arg TEXT) RETURNS SETOF checkable_signups_
 AS
 $$
 
-SELECT * FROM insert_user(user_id, req_epoch, user_name, pwd);
+SELECT * FROM insert_user(user_id_arg, req_epoch_arg, user_name_arg, pwd_arg);
 
 SELECT user_id,
        user_name
 FROM checkable_signups
-WHERE user_id = user_id;
+WHERE user_id = user_id_arg;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_watchers (artist_id TEXT) RETURNS seeable_watchers_
+CREATE OR REPLACE FUNCTION see_watchers (artist_id_arg TEXT) RETURNS SETOF seeable_watchers_
 AS
 $$
 
 SELECT user_,
        ban
 FROM seeable_watchers
-WHERE artist_id = artist_id
+WHERE artist_id = artist_id_arg
 ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_works (artist_id TEXT) RETURNS seeable_works_ 
+CREATE OR REPLACE FUNCTION see_works (artist_id_arg TEXT) RETURNS SETOF seeable_works_ 
 AS
 $$
 
 SELECT work_,
        withdraw
 FROM seeable_works
-WHERE artist_id = artist_id
+WHERE artist_id = artist_id_arg
 ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_watched_artists (user_id TEXT) RETURNS seeable_artists_
+CREATE OR REPLACE FUNCTION see_watched_artists (user_id_arg TEXT) RETURNS SETOF seeable_artists_
 AS
 $$
 
 SELECT artist,
        unwatch
 FROM seeable_artists
-WHERE user_id = user_id
+WHERE user_id = user_id_arg
 ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_liked_works (user_id TEXT) RETURNS seeable_liked_works_
+CREATE OR REPLACE FUNCTION see_liked_works (user_id_arg TEXT) RETURNS SETOF seeable_liked_works_
 AS
 $$
 
 SELECT work_,
        unlike
 FROM seeable_liked_works
-WHERE user_id = user_id
+WHERE user_id = user_id_arg
 ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION submit_first_work (work_id TEXT,  artist_id TEXT, user_id TEXT, req_epoch TEXT, work_name TEXT) RETURNS works_core
+CREATE OR REPLACE FUNCTION submit_first_work (work_id_arg TEXT,  artist_id_arg TEXT, user_id_arg TEXT, req_epoch_arg TEXT, work_name_arg TEXT) RETURNS SETOF works_core
 AS
 $$
 
 SELECT *
-FROM insert_artist (artist_id,user_id,req_epoch);
+FROM insert_artist (artist_id_arg ,user_id_arg ,req_epoch_arg );
 
 SELECT *
-FROM insert_work (work_id,artist_id,req_epoch,work_name);
+FROM insert_work (work_id_arg,artist_id_arg,req_epoch_arg,work_name_arg );
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION submit_work (work_id TEXT, artist_id TEXT, req_epoch TEXT, work_name TEXT) RETURNS works_core
+CREATE OR REPLACE FUNCTION submit_work (work_id_arg TEXT, artist_id_arg TEXT, req_epoch_arg TEXT, work_name_arg TEXT) RETURNS SETOF works_core
 AS
 $$
 
 SELECT *
-FROM insert_work (work_id,artist_id,req_epoch,work_name);
+FROM insert_work (work_id_arg,artist_id_arg,req_epoch_arg,work_name_arg );
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION withdraw_work (work_id TEXT, req_epoch TEXT) RETURNS works_events
+CREATE OR REPLACE FUNCTION withdraw_work (work_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF works_events
 AS
 $$
 
 SELECT *
-FROM insert_work_event (work_id,req_epoch,'withdraw')
+FROM insert_work_event (work_id_arg,req_epoch_arg,'withdraw')
 
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION see_more_users (artist_id TEXT) RETURNS more_seeable_watchers_
+CREATE OR REPLACE FUNCTION see_more_users (artist_id_arg TEXT) RETURNS SETOF more_seeable_watchers_
 AS
 $$
 
 SELECT user_
 FROM more_seeable_watchers
-WHERE artist_id = artist_id
+WHERE artist_id = artist_id_arg
 ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_more_works (artist_id TEXT) RETURNS more_of_seeable_works_ 
+CREATE OR REPLACE FUNCTION see_more_works (artist_id_arg TEXT) RETURNS SETOF more_of_seeable_works_ 
 AS
 $$
 
 SELECT work_,
        withdraw
 FROM more_of_seeable_works
-WHERE artist_id = artist_id
+WHERE artist_id = artist_id_arg
 ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_more_artists (user_id TEXT) RETURNS more_seeable_artists_
+CREATE OR REPLACE FUNCTION see_more_artists (user_id_arg TEXT) RETURNS SETOF more_seeable_artists_
 AS
 $$
 
 SELECT artist,
        watch
 FROM more_seeable_artists
-WHERE user_id = user_id
+WHERE user_id = user_id_arg
 ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_more_liked_works (user_id TEXT) RETURNS more_seeable_liked_works_
+CREATE OR REPLACE FUNCTION see_more_liked_works (user_id_arg TEXT) RETURNS SETOF more_seeable_liked_works_
 AS
 $$
 
 SELECT work_,
        unlike
 FROM more_seeable_liked_works
-WHERE user_id = $1;
+WHERE user_id = user_id_arg ;
 
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION view_user (user_id TEXT, artist_id TEXT) RETURNS more_seeable_watchers_
+CREATE OR REPLACE FUNCTION view_user (user_id_arg TEXT, artist_id_arg TEXT) RETURNS SETOF more_seeable_watchers_
 AS
 $$
 
 SELECT user_
 FROM more_seeable_watchers
-WHERE CAST(user_['user_id'] AS VARCHAR) = user_id
-AND   artist_id = artist_id;
+WHERE CAST(user_['user_id'] AS VARCHAR) = user_id_arg
+AND   artist_id = artist_id_arg;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION view_artist (artist_id TEXT, user_id TEXT) RETURNS more_seeable_artists_
+CREATE OR REPLACE FUNCTION view_artist (artist_id_arg TEXT, user_id_arg TEXT) RETURNS SETOF more_seeable_artists_
 AS
 $$
 
 SELECT artist,
        watch
 FROM more_seeable_artists
-WHERE CAST(artist['user_id'] AS VARCHAR) = artist_id
-AND   user_id = user_id;
+WHERE CAST(artist['user_id'] AS VARCHAR) = artist_id_arg
+AND   user_id = user_id_arg;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION view_works_of_artist (work_id TEXT, user_id TEXT) RETURNS more_seeable_liked_works_
+CREATE OR REPLACE FUNCTION view_works_of_artist (work_id_arg TEXT, user_id_arg TEXT) RETURNS SETOF more_seeable_liked_works_
 AS
 $$
 
 SELECT work_,
        unlike
 FROM more_seeable_liked_works
-WHERE CAST(work_['work_id'] AS VARCHAR) = work_id
-AND   user_id = user_id;
+WHERE CAST(work_['work_id'] AS VARCHAR) = work_id_arg
+AND   user_id = user_id_arg;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION view_work (work_id TEXT, artist_id TEXT)  RETURNS more_of_seeable_works_
+CREATE OR REPLACE FUNCTION view_work (work_id_arg TEXT, artist_id_arg TEXT)  RETURNS SETOF more_of_seeable_works_
 AS
 $$
 
 SELECT work_,
        withdraw
 FROM more_of_seeable_works
-WHERE CAST(work_['work_id'] AS VARCHAR) = work_id
-AND   artist_id = artist_id;
+WHERE CAST(work_['work_id'] AS VARCHAR) = work_id_arg
+AND   artist_id = artist_id_arg;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION ban_watcher (user_artist_id TEXT, req_epoch TEXT) RETURNS users_artists_events
+CREATE OR REPLACE FUNCTION ban_watcher (user_artist_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_artists_events
 AS
 $$
 
 SELECT *
-FROM insert_user_artist_event (user_artist_id,req_epoch,'ban')
+FROM insert_user_artist_event (user_artist_id_arg,req_epoch_arg,'ban')
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION watch_artist (user_artist_id TEXT, user_id TEXT, artist_id TEXT, req_epoch TEXT) RETURNS users_artists_core
+CREATE OR REPLACE FUNCTION watch_artist (user_artist_id_arg TEXT, user_id_arg TEXT, artist_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_artists_core
 AS
 $$
 
@@ -756,35 +756,35 @@ DELETE
 FROM users_artists_core_buffer;
 
 SELECT *
-FROM insert_user_artist (user_artist_id,user_id,artist_id,req_epoch);
+FROM insert_user_artist (user_artist_id_arg,user_id_arg,artist_id_arg,req_epoch_arg);
 
 SELECT *
-FROM insert_user_artist_event (user_artist_id,req_epoch,'watch');
+FROM insert_user_artist_event (user_artist_id_arg,req_epoch_arg,'watch');
 
 SELECT *
 FROM users_artists_core_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION rewatch_artist (user_artist_id TEXT, req_epoch TEXT) RETURNS  users_artists_events
+CREATE OR REPLACE FUNCTION rewatch_artist (user_artist_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF  users_artists_events
 AS
 $$
 
 SELECT *
-FROM insert_user_artist_event (user_artist_id,req_epoch,'watch')
+FROM insert_user_artist_event (user_artist_id_arg,req_epoch_arg,'watch')
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION unwatch_artist (user_artist_id TEXT, req_epoch TEXT) RETURNS users_artists_events
+CREATE OR REPLACE FUNCTION unwatch_artist (user_artist_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_artists_events
 AS
 $$
 
 SELECT *
-FROM insert_user_artist_event (user_artist_id,req_epoch,'unwatch')
+FROM insert_user_artist_event (user_artist_id_arg,req_epoch_arg,'unwatch')
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION go_view_work (user_work_id TEXT, user_id TEXT, work_id TEXT, req_epoch TEXT) RETURNS users_works_core
+CREATE OR REPLACE FUNCTION go_view_work (user_work_id_arg TEXT, user_id_arg TEXT, work_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_works_core
 AS
 $$
 
@@ -792,100 +792,127 @@ DELETE
 FROM users_works_core_buffer;
 
 SELECT *
-FROM insert_user_work (user_work_id,user_id,work_id,req_epoch);
+FROM insert_user_work (user_work_id_arg,user_id_arg,work_id_arg,req_epoch_arg);
 
 SELECT *
-FROM insert_user_work_event (user_work_id,req_epoch,'view');
+FROM insert_user_work_event (user_work_id_arg,req_epoch_arg,'view');
 
 SELECT *
 FROM users_works_core_buffer;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION go_review_work (user_work_id TEXT, req_epoch TEXT) RETURNS users_works_events
+CREATE OR REPLACE FUNCTION go_review_work (user_work_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_works_events
 AS
 $$
 
 SELECT *
-FROM insert_user_work_event (user_work_id,req_epoch,'view');
+FROM insert_user_work_event (user_work_id_arg,req_epoch_arg,'view');
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION like_work (user_work_id TEXT, req_epoch TEXT) RETURNS users_works_events
+CREATE OR REPLACE FUNCTION like_work (user_work_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_works_events
 AS
 $$
 
 SELECT *
-FROM insert_work_event (user_work_id,req_epoch,'like')
+FROM insert_work_event (user_work_id_arg,req_epoch_arg,'like')
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION unlike_work (user_work_id TEXT, req_epoch TEXT) RETURNS users_works_events
+CREATE OR REPLACE FUNCTION unlike_work (user_work_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_works_events
 AS
 $$
 
 SELECT *
-FROM insert_work_event (user_work_id,req_epoch,'unlike')
+FROM insert_work_event (user_work_id_arg,req_epoch_arg,'unlike')
 
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION delete_ (user_id TEXT, req_epoch TEXT) RETURNS users_events
+CREATE OR REPLACE FUNCTION delete_ (user_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_events
 AS
 $$
 
 SELECT *
-FROM insert_user_event (user_id,req_epoch,'delete')
+FROM insert_user_event (user_id_arg,req_epoch_arg,'delete')
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_into_requests_logs (time_ TEXT,route TEXT, methods TEXT) RETURNS requests_logs
+CREATE FUNCTION generate_requests_logs_event (time__arg TEXT,route_arg TEXT, methods_arg TEXT) RETURNS SETOF requests_logs
+AS
+$$
+SELECT MD5(CONCAT (time__arg,route_arg)) AS id,
+       TO_TIMESTAMP(CAST(time__arg AS NUMERIC)) AS time_,
+       route_arg,
+       methods_arg
+$$ LANGUAGE SQL;
+
+CREATE FUNCTION generate_responses_logs_event (request_time_arg TEXT,time__arg TEXT,route_arg TEXT, status_code_arg TEXT) RETURNS SETOF responses_logs
+AS
+$$
+SELECT MD5(CONCAT (CONCAT (time__arg,route_arg),status_code_arg)) AS id,
+       TO_TIMESTAMP(CAST(time__arg AS NUMERIC)) AS time_,
+       MD5(CONCAT (request_time_arg,route_arg)) AS request_id,
+       status_code_arg
+$$ LANGUAGE SQL;
+
+CREATE FUNCTION generate_errors_logs_event (request_time_arg TEXT,time__arg TEXT,route_arg TEXT, message_arg TEXT) RETURNS SETOF errors_logs
+AS
+$$
+SELECT MD5(CONCAT (CONCAT (time__arg,route_arg),message_arg)) AS id,
+       TO_TIMESTAMP(CAST(time__arg AS NUMERIC)) AS time_,
+       MD5(CONCAT (request_time_arg,route_arg)) AS request_id,
+       message_arg
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION insert_into_requests_logs (time__arg TEXT,route_arg TEXT, methods_arg TEXT) RETURNS SETOF requests_logs
 AS
 $$
 
 INSERT INTO requests_logs
 (
 SELECT *
-FROM generate_requests_logs_event (time_,route,methods)
+FROM generate_requests_logs_event (time__arg,route_arg,methods_arg)
 );
 
 SELECT *
-FROM generate_requests_logs_event (time_, route, methods);
+FROM generate_requests_logs_event (time__arg, route_arg, methods_arg);
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION insert_into_responses_logs (request_time TEXT,time_ TEXT,route TEXT, status_code TEXT) RETURNS responses_logs
+CREATE OR REPLACE FUNCTION insert_into_responses_logs (request_time_arg TEXT,time__arg TEXT,route_arg TEXT, status_code_arg TEXT) RETURNS SETOF responses_logs
 AS
 $$
 
 INSERT INTO responses_logs
 (
 SELECT *
-FROM generate_responses_logs_event (request_time,time_,route,status_code)
+FROM generate_responses_logs_event (request_time_arg,time__arg,route_arg,status_code_arg)
 );
 
 SELECT *
-FROM generate_responses_logs_event (request_time, time_, route, status_code);
+FROM generate_responses_logs_event (request_time_arg, time__arg, route_arg, status_code_arg);
 
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION insert_into_errors_logs (request_time TEXT,time_ TEXT,route TEXT, message TEXT) RETURNS errors_logs
+CREATE OR REPLACE FUNCTION insert_into_errors_logs (request_time_arg TEXT,time__arg TEXT,route_arg TEXT, message_arg TEXT) RETURNS SETOF errors_logs
 AS
 $$
 
 INSERT INTO errors_logs
 (
 SELECT *
-FROM generate_errors_logs_event (request_time,time_,route,message)
+FROM generate_errors_logs_event (request_time_arg,time__arg,route_arg,message_arg)
 );
 
 SELECT *
-FROM generate_errors_logs_event (request_time, time_, route, message);
+FROM generate_errors_logs_event (request_time_arg, time__arg, route_arg, message_arg);
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION select_full_logs () RETURNS full_logs
+CREATE OR REPLACE FUNCTION select_full_logs () RETURNS SETOF full_logs
 AS
 $$
 

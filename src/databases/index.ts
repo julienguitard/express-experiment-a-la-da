@@ -23,29 +23,48 @@ const pool: Pool = new pg.Pool(poolConfig);
 async function queryPool(
   po: Pool,
   sql: string,
-  params: Array<string>
+  params: Array<string>,
+  cb?:(ou:QueryResult<any>)=>any
 ): Promise<QueryResult<any>> {
   const res = po.query(sql, params);
-  res.then((r)=>console.log('results is',parseSQLOutput(r)));
-  return res;
+  if (cb){
+    return res.then((ou)=>cb(ou));
+  }
+  else {
+    return res;
+  }
 }
 
 async function queryPoolFromProcedure_(
   po: Pool,
   pro: DBProcedure,
-  params: Array<string>
+  params: Array<string>,
+  cb?:(ou:QueryResult<any>)=>any
 ): Promise<QueryResult<any>> {
   const sql = convertToSql(pro, params);
-  return queryPool(po, sql, params);
+  if (cb){
+    return queryPool(po, sql, params, cb);
+  }
+  else {
+    return queryPool(po, sql, params);
+  }
+  
 }
 
 async function queryPoolFromProcedure<T extends keyof DBProcedureArgsMappingType>(
   po: Pool,
   pro: T,
-  args: DBProcedureArgsMappingType[T]
+  args: DBProcedureArgsMappingType[T],
+  cb?:(ou:QueryResult<any>)=>any
 ): Promise<QueryResult<any>> {
   const params = processQueryPoolArgs(args);
-  return queryPoolFromProcedure_(po, pro,params);
+  console.log('pro: '+pro);
+  if (cb){
+      return queryPoolFromProcedure_(po, pro,params, cb);
+  }
+  else {
+    return queryPoolFromProcedure_(po, pro,params);
+  }
 }
 
 export { pool, queryPool, queryPoolFromProcedure };

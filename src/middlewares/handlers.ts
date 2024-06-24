@@ -35,7 +35,8 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
       userId: hash(req.body.userName),
       reqEpoch: req.session.reqEpoch,
       userName: req.body.userName,
-      pwd: hash(req.body.pwd)
+      pwd: hash(req.body.pwd),
+      confirmedPwd: hash(req.body.confirmedPwd)
     };
 
     case "see_watchers":
@@ -183,32 +184,33 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
   }
 }
 
-function updateRequestSession(
+function updateSessionFromProcedure(
   req: Request,
   pro: DBProcedure,
   output: QueryResult<any>
 ): void {
-  console.log('updateRequestSession');
   switch (pro) {
     case "check_signin":
-      if (output.rows.length === 0) {
-        if (output.rows[0]["artist_id"]) {
-          Object.defineProperty(req.session, "userId", output.rows[0]["user_id"]);
-          Object.defineProperty(
-            req.session,
-            "artistId",
-            output.rows[0]["artist_id"]
-          );
-        } else {
-          Object.defineProperty(req.session, "userId", output.rows[0]["user_id"]);
-        }
-      }
+      if (output.rows.length === 1) {
+        req.session.userId=output.rows[0]["user_id"];
+        req.session.artistId=output.rows[0]["artist_id"];
+        req.session.userName=output.rows[0]["user_name"];
+        console.log('Session updated: ' + req.session);
+        } 
       break;
     case "check_signup":
-      if (output.rows.length === 0) {
-        Object.defineProperty(req.session, "userId", output.rows[0]["user_id"]);
+      if (output.rows.length === 1) {
+        req.session.userId=output.rows[0]["user_id"];
+        req.session.userName=output.rows[0]["user_name"];
+        console.log('Session updated: ' + req.session);
       }
       break;
+    case "submit_first_work":
+        if (output.rows.length === 1) {
+          req.session.artistId=output.rows[0]["artist_id"];
+          console.log('Session updated: ' + req.session);
+        }
+        break;
     case "delete_":
       delete req.session.userId;
       if (req.session.artistId) {
@@ -216,6 +218,24 @@ function updateRequestSession(
       }
       break;
     default: {
+      console.log('Session not updated');
+    }
+  }
+}
+
+function updateSessionFromRoutePath(
+  req: Request,
+  routePath: RoutePath
+): void {
+  switch (routePath) {
+    case "/signout/submit":
+      delete req.session.userId;
+      if (req.session.artistId) {
+        delete req.session.artistId;
+      }
+      break;
+    default: {
+      console.log('Session not updated');
     }
   }
 }
@@ -300,7 +320,8 @@ async function fallbackToHome(res: Response): Promise<void> {
 export {
   getEpochString,
   getDBprocedureArgs,
-  updateRequestSession,
+  updateSessionFromProcedure,
+  updateSessionFromRoutePath,
   checkAnswer,
   fallbackToIndex,
   fallbackToHome,

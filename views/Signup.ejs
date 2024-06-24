@@ -17,10 +17,10 @@
   <input type="submit" value="Submit" class="insert">
 </form>
 
-<a href="/landing/signin"> Sign up </a>
+<a href="/landing/signin"> Sign in </a>
 
 <%  try {  (userName) ; %>
-  <p> Signed as <%= userName %> </p>
+  <p> Signed in as <%= userName %> <br> <a href="/signout"> Sign out </a> </p>
   <%  }
   catch(e) { %>
   <p> Not signed in </p>

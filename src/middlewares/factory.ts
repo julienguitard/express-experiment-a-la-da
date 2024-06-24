@@ -5,18 +5,21 @@ import { pool, queryPool, queryPoolFromProcedure } from "../databases/index.js";
 import { RouteData, Controler, RoutePath, DBProcedure, EjsView, RouteEvent, Verb } from "../types";
 import {
   getDBprocedureArgs,
-  updateRequestSession,
+  updateSessionFromProcedure,
+  updateSessionFromRoutePath,
   checkAnswer,
   fallbackToIndex,
   fallbackToHome,
   buildErrorHandler,
   getEpochString,
 } from "./handlers";
-import {promiseRecord} from "../utils/naturalTransformations";
+import {mapDict, promiseRecord} from "../utils/naturalTransformations";
 import {hash} from "../utils/hash";
 import {mergeInto,updateInto} from "../utils/objectTransformations";
 import { request } from "http";
 import { parseSQLOutput } from "../databases/factory";
+import { map } from "../../purescript/output/Data.Functor";
+import { cp } from "fs";
 
 /*function buildControler(reqParamsHandler: (route: TypedRequest<TypedSession>["route"], session: TypedRequest<TypedSession>["session"], params: TypedRequest<TypedSession>["params"]) => Record<string, any>,
     dbHandler: (params: Record<string, any>) => Promise<QueryResult<any>>,
@@ -228,31 +231,42 @@ function builderFromRoutePath(
   hash:(s: string) => string,
 ):(req:Request,res:Response,next:NextFunction)=>void{
   function mdw(req:Request,res:Response,next:NextFunction):void{
-    for(let pro of routeData.dbProcedures){
+    const promises:Promise<QueryResult<any>>[] = routeData.dbProcedures.map((pro:DBProcedure)=>{
       let args = getDBprocedureArgs(req,pro,hash);
       console.log('args:',args);
       let output = queryPoolFromProcedure(pool,pro,args);
-      output= output.then((ou)=>{console.log(parseSQLOutput(ou));return ou})
-      output = output.then((ou)=> {updateRequestSession(req,pro,ou); return ou});
-    }
-    if (routeData.render){
-      if (routePath==='/home'){
-        if (req.session.artistId){
-          res.render('ArtistHome',req.session);
+      output= output.then((ou)=>{console.log(parseSQLOutput(ou));return ou});
+      output = output.then((ou)=> {updateSessionFromProcedure(req,pro,ou);console.log(req.session); return ou});
+      return output;
+    })
+    let promise = Promise.all(promises);
+    promise = promise.then((r) => {updateSessionFromRoutePath(req,routePath);console.log(req.session); return r})
+    promise.then((r)=>{
+      if (routeData.render){
+        console.log('rendering');
+        if (routePath==='/home'){
+          if (req.session.artistId){
+            res.render('ArtistHome',req.session);
+          }
+          else if (req.session.userId) {
+            res.render('UserHome',req.session);
+          }
+          else {
+            res.send('No session data');
+          }
         }
         else {
-          res.render('UserHome',req.session);
+            res.render(routeData.render,req.session);
         }
       }
-      else {
-          res.render(routeData.render,req.session);
-      }
-    }
-    else if(routeData.redirect){
+      else if(routeData.redirect){
+        console.log('redirect');
         res.redirect(routeData.redirect);
-    }
-    else {
-    }
+      }
+      else {
+        console.log('Must be either render or redirect');
+      }
+    })
   }
   return mdw;
 }

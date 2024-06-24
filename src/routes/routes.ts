@@ -16,8 +16,8 @@ const routeDBProcedureDict: Record<RoutePath,
   "/landing/signup": {dbProcedures:[],render: "Signup"},
   "/landing/signin/submit": {dbProcedures:['check_signin'],redirect: "/home", method: "post"},
   "/landing/signup/submit": {dbProcedures:['check_signup'],redirect: "/home", method: "post", event:'create'},
-  "/home": {dbProcedures:['see_watchers','see_works','see_watched_artists','see_liked_works']},
-  "/home/works/firstSubmit": {dbProcedures:[]},
+  "/home": {dbProcedures:['see_watched_artists','see_liked_works'], render: "UserHome"},//TO DO {dbProcedures:['see_watchers','see_works','see_watched_artists','see_liked_works']}
+  "/home/works/firstSubmit": {dbProcedures:[], render:"Submit"},
   "/home/works/firstSubmit/submit": {dbProcedures:['submit_first_work'],redirect: "/home", method: "post",event:'submit'},
   "/home/works/submit": {dbProcedures:[]},
   "/home/works/submit/submit": {dbProcedures:['submit_work'],redirect: "/home", method: "post",event:'submit'},
@@ -39,10 +39,10 @@ const routeDBProcedureDict: Record<RoutePath,
   "/profile/works/work/:userWorkId/review": {dbProcedures:['go_review_work'],event:'view'},//TO DO
   "/profile/works/work/:userWorkId/like": {dbProcedures:['like_work'],event:'like'},
   "/profile/works/work/:userWorkId/unlike": {dbProcedures:['unlike_work'],event:'unlike'},
-  "/signout": {dbProcedures:[]},
-  "/signout/submit": {dbProcedures:[],redirect: "/home", method: "post"},
-  "/delete": {dbProcedures:[]},
-  "/delete/submit": {dbProcedures:['delete_'],redirect: "/home", method: "post",event:'delete'}
+  "/signout": {dbProcedures:[], render:"Signout"},
+  "/signout/submit": {dbProcedures:[],redirect: "/", method: "post"},
+  "/delete": {dbProcedures:[], render:"Delete"},
+  "/delete/submit": {dbProcedures:['delete_'],redirect: "/", method: "post",event:'delete'}
 }
 
 
