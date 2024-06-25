@@ -1,65 +1,657 @@
-import {RouteData, DBProcedure, EjsView, RoutePath, Verb, RouteEvent} from "../types"
-
+import {
+  RouteData,
+  DBProcedure,
+  EjsView,
+  RoutePath,
+  Verb,
+  RouteEvent,
+  RoutePathLevelData,
+} from "../types";
+import { SessionLevel } from "../express-session";
 import {
   consoleControler,
   sessionFirstUpdateControler,
   logToPostgresControler,
 } from "../middlewares/index.js";
 
-import {builderFromRoutePath} from "../middlewares/factory.js";
-import { hash } from '../utils/hash';
+import { builderFromRoutePath } from "../middlewares/factory.js";
+import { hash } from "../utils/hash";
 
-const routeDBProcedureDict: Record<RoutePath, 
-{dbProcedures: Array<DBProcedure>,redirect?:RoutePath,render?:EjsView,method?:Verb,event?:RouteEvent}> = {
-  "/": {dbProcedures:[],render: "Index"},
-  "/landing/signin": {dbProcedures:[],render: "Signin"},
-  "/landing/signup": {dbProcedures:[],render: "Signup"},
-  "/landing/signin/submit": {dbProcedures:['check_signin'],redirect: "/home", method: "post"},
-  "/landing/signup/submit": {dbProcedures:['check_signup'],redirect: "/home", method: "post", event:'create'},
-  "/home": {dbProcedures:['see_watched_artists','see_liked_works'], render: "UserHome"},//TO DO {dbProcedures:['see_watchers','see_works','see_watched_artists','see_liked_works']}
-  "/home/works/firstSubmit": {dbProcedures:[], render:"Submit"},
-  "/home/works/firstSubmit/submit": {dbProcedures:['submit_first_work'],redirect: "/home", method: "post",event:'submit'},
-  "/home/works/submit": {dbProcedures:[]},
-  "/home/works/submit/submit": {dbProcedures:['submit_work'],redirect: "/home", method: "post",event:'submit'},
-  "/home/works/withdraw": {dbProcedures:[]},
-  "/home/works/withdraw/submit": {dbProcedures:['withdraw_work'],redirect: "/home", method: "post",event:'withdraw'},
-  "/home/users/more": {dbProcedures:['see_more_users']},//TO DO
-  "/home/artists/more": {dbProcedures:['see_more_artists']},//TO DO
-  "/home/works/more": {dbProcedures:['see_more_works']},//TO DO
-  "/home/works/like/more": {dbProcedures:['see_more_liked_works']},//TO DO
-  "/profile/users/user/:userId": {dbProcedures:['view_user']},//TO DO
-  "/profile/artists/artist/:artistId": {dbProcedures:['view_artist', 'view_works_of_artist']},//TO DO
-  "/profile/users/user/:userArtistId/ban": {dbProcedures:[]},
-  "/profile/users/user/:userArtistId/ban/submit": {dbProcedures:['ban_watcher'],redirect: "/home", method: "post",event:'ban'},
-  "/profile/artists/artist/:artistId/watch": {dbProcedures:['watch_artist'],event:'watch'},
-  "/profile/artists/artist/:userArtistId/rewatch": {dbProcedures:['rewatch_artist'],event:'watch'},
-  "/profile/artists/artist/:userArtistId/unwatch": {dbProcedures:['unwatch_artist'],event:'unwatch'},
-  "/profile/works/work/:workId/view": {dbProcedures:['go_view_work'],event:'view'},//TO DO
-  "/profile/works/work/:workId": {dbProcedures:['view_work']},//TO DO
-  "/profile/works/work/:userWorkId/review": {dbProcedures:['go_review_work'],event:'view'},//TO DO
-  "/profile/works/work/:userWorkId/like": {dbProcedures:['like_work'],event:'like'},
-  "/profile/works/work/:userWorkId/unlike": {dbProcedures:['unlike_work'],event:'unlike'},
-  "/signout": {dbProcedures:[], render:"Signout"},
-  "/signout/submit": {dbProcedures:[],redirect: "/", method: "get"},
-  "/delete": {dbProcedures:[], render:"Delete"},
-  "/delete/submit": {dbProcedures:['delete_'],redirect: "/", method: "post",event:'delete'}
-}
+const routeDBProcedureDict_: Record<RoutePath, RoutePathLevelData> = {
+  "/": { dbProcedures: [], render: "Index" },
+  "/landing/signin": { dbProcedures: [], render: "Signin" },
+  "/landing/signup": { dbProcedures: [], render: "Signup" },
+  "/landing/signin/submit": {
+    dbProcedures: ["check_signin"],
+    redirect: "/home",
+    method: "post",
+    fallback: "/",
+  },
+  "/landing/signup/submit": {
+    dbProcedures: ["check_signup"],
+    redirect: "/home",
+    method: "post",
+    event: "create",
+    fallback: "/",
+  },
+  "/home": {
+    dbProcedures: ["see_watched_artists", "see_liked_works"],
+    render: "UserHome",
+    fallback: "/",
+  }, //TO DO {dbProcedures:['see_watchers','see_works','see_watched_artists','see_liked_works']}
+  "/home/works/firstSubmit": { dbProcedures: [], render: "Submit" },
+  "/home/works/firstSubmit/submit": {
+    dbProcedures: ["submit_first_work"],
+    redirect: "/home",
+    method: "post",
+    event: "submit",
+    fallback: "/home",
+  },
+  "/home/works/submit": { dbProcedures: [], render: "Submit" },
+  "/home/works/submit/submit": {
+    dbProcedures: ["submit_work"],
+    redirect: "/home",
+    method: "post",
+    event: "submit",
+    fallback: "/home",
+  },
+  "/home/works/withdraw": { dbProcedures: [] },
+  "/home/works/withdraw/submit": {
+    dbProcedures: ["withdraw_work"],
+    redirect: "/home",
+    method: "post",
+    event: "withdraw",
+    fallback: "/home",
+  },
+  "/home/users/more": { dbProcedures: ["see_more_users"], fallback: "/home" }, //TO DO
+  "/home/artists/more": {
+    dbProcedures: ["see_more_artists"],
+    fallback: "/home",
+  }, //TO DO
+  "/home/works/more": { dbProcedures: ["see_more_works"], fallback: "/home" }, //TO DO
+  "/home/works/like/more": {
+    dbProcedures: ["see_more_liked_works"],
+    fallback: "/home",
+  }, //TO DO
+  "/profile/users/user/:userId": {
+    dbProcedures: ["view_user"],
+    fallback: "/home",
+  }, //TO DO
+  "/profile/artists/artist/:artistId": {
+    dbProcedures: ["view_artist", "view_works_of_artist"],
+    fallback: "/home",
+  }, //TO DO
+  "/profile/users/user/:userArtistId/ban": { dbProcedures: [] },
+  "/profile/users/user/:userArtistId/ban/submit": {
+    dbProcedures: ["ban_watcher"],
+    redirect: "/home",
+    method: "post",
+    event: "ban",
+    fallback: "/home",
+  },
+  "/profile/artists/artist/:artistId/watch": {
+    dbProcedures: ["watch_artist"],
+    event: "watch",
+    fallback: "/home",
+  },
+  "/profile/artists/artist/:userArtistId/rewatch": {
+    dbProcedures: ["rewatch_artist"],
+    event: "watch",
+    fallback: "/home",
+  },
+  "/profile/artists/artist/:userArtistId/unwatch": {
+    dbProcedures: ["unwatch_artist"],
+    event: "unwatch",
+    fallback: "/home",
+  },
+  "/profile/works/work/:workId/view": {
+    dbProcedures: ["go_view_work"],
+    event: "view",
+    fallback: "/home",
+  }, //TO DO
+  "/profile/works/work/:workId": {
+    dbProcedures: ["view_work"],
+    fallback: "/home",
+  }, //TO DO
+  "/profile/works/work/:userWorkId/review": {
+    dbProcedures: ["go_review_work"],
+    event: "view",
+    fallback: "/home",
+  }, //TO DO
+  "/profile/works/work/:userWorkId/like": {
+    dbProcedures: ["like_work"],
+    event: "like",
+    fallback: "/home",
+  },
+  "/profile/works/work/:userWorkId/unlike": {
+    dbProcedures: ["unlike_work"],
+    event: "unlike",
+    fallback: "/home",
+  },
+  "/signout": { dbProcedures: [], render: "Signout" },
+  "/signout/submit": { dbProcedures: [], redirect: "/", method: "get" },
+  "/delete": { dbProcedures: [], render: "Delete" },
+  "/delete/submit": {
+    dbProcedures: ["delete_"],
+    redirect: "/",
+    method: "post",
+    event: "delete",
+    fallback: "/signout",
+  },
+};
 
+const routeDBProcedureDict: Record<
+  RoutePath,
+  Record<SessionLevel, RoutePathLevelData>
+> = {
+  "/": {
+    NotSignedin: {
+      dbProcedures: [],
+      render: "Index",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+  },
+  "/landing/signin": {
+    NotSignedin: {
+      dbProcedures: [],
+      render: "Signin",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+  },
+  "/landing/signup": {
+    NotSignedin: {
+      dbProcedures: [],
+      render: "Signup",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+  },
+  "/landing/signin/submit": {
+    NotSignedin: {
+      dbProcedures: ["check_signin"],
+      redirect: "/home",
+      method: "post",
+      fallback: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+  },
+  "/landing/signup/submit": {
+    NotSignedin: {
+      dbProcedures: ["check_signup"],
+      redirect: "/home",
+      method: "post",
+      event: "create",
+      fallback: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+  },
+  "/home": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["see_watched_artists", "see_liked_works"],
+      render: "UserHome",
+      fallback: "/",
+    },
+    SignedinAsArtist: {
+      dbProcedures: [
+        "see_watchers",
+        "see_works",
+        "see_watched_artists",
+        "see_liked_works",
+      ],
+      render: "ArtistHome",
+      fallback: "/",
+    },
+  },
+  "/home/works/firstSubmit": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedInAsUser: {
+      dbProcedures: [],
+      render: "Submit",
+    },
+    SignedinAsArtist: {
+      dbProcedures: [],
+      redirect: "/home/works/submit",
+    },
+  },
+  "/home/works/firstSubmit/submit": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["submit_first_work"],
+      redirect: "/home",
+      method: "post",
+      event: "submit",
+      fallback: "/home",
+    },
+    SignedInAsArtist: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+  },
+  "/home/works/submit": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home/works/firstSubmit",
+    },
+    SignedInAsArtist: {
+      dbProcedures: [],
+      render: "Submit",
+    },
+  },
+  "/home/works/submit/submit": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedInAsArtist: {
+      dbProcedures: ["submit_work"],
+      redirect: "/home",
+      method: "post",
+      event: "submit",
+      fallback: "/home",
+    },
+  },
+  "/home/works/withdraw": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedInAsArtist: {
+      dbProcedures: [],
+      render: "Withdraw",
+    },
+  },
+  "/home/works/withdraw/submit": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedInAsArtist: {
+      dbProcedures: ["withdraw_work"],
+      redirect: "/home",
+      method: "post",
+      event: "withdraw",
+      fallback: "/home",
+    },
+  },
+  "/home/users/more": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedInAsArtist: {
+      dbProcedures: ["see_more_users"],
+      fallback: "/home",
+    }, //TO DO
+  },
+  "/home/artists/more": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["see_more_artists"],
+      fallback: "/home",
+    }, //TO DO
+    SignedinAsArtist: {
+      dbProcedures: ["see_more_artists"],
+      fallback: "/home",
+    }, //TO DO
+  },
+  "/home/works/more": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["see_more_works"],
+      fallback: "/home",
+    },
+  }, //TO DO
+  "/home/works/like/more": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["see_more_liked_works"],
+      fallback: "/home",
+    }, //TO DO
+    SignedinAsArtist: {
+      dbProcedures: ["see_more_liked_works"],
+      fallback: "/home",
+    }, //TO DO
+  },
+  "/profile/users/user/:userId": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    }, //TO DO
+    SignedinAsArtist: {
+      dbProcedures: ["view_user"],
+      fallback: "/home",
+    }, //TO DO
+  },
+  "/profile/artists/artist/:artistId": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["view_artist", "view_works_of_artist"],
+      fallback: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["view_artist", "view_works_of_artist"],
+      fallback: "/home",
+    },
+  }, //TO DO
+  "/profile/users/user/:userArtistId/ban": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: [],
+    },
+  },
+  "/profile/users/user/:userArtistId/ban/submit": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["ban_watcher"],
+      redirect: "/home",
+      method: "post",
+      event: "ban",
+      fallback: "/home",
+    },
+  },
+  "/profile/artists/artist/:artistId/watch": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["watch_artist"],
+      event: "watch",
+      fallback: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["watch_artist"],
+      event: "watch",
+      fallback: "/home",
+    },
+  },
+  "/profile/artists/artist/:userArtistId/rewatch": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["rewatch_artist"],
+      event: "watch",
+      fallback: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["rewatch_artist"],
+      event: "watch",
+      fallback: "/home",
+    },
+  },
+  "/profile/artists/artist/:userArtistId/unwatch": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["unwatch_artist"],
+      event: "unwatch",
+      fallback: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["unwatch_artist"],
+      event: "unwatch",
+      fallback: "/home",
+    },
+  },
+  "/profile/works/work/:workId/view": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["go_view_work"],
+      event: "view",
+      fallback: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["go_view_work"],
+      event: "view",
+      fallback: "/home",
+    },
+  }, //TO DO
+  "/profile/works/work/:workId": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["view_work"],
+      fallback: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["view_work"],
+      fallback: "/home",
+    },
+  }, //TO DO
+  "/profile/works/work/:userWorkId/review": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["go_review_work"],
+      event: "view",
+      fallback: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["go_review_work"],
+      event: "view",
+      fallback: "/home",
+    },
+  }, //TO DO
+  "/profile/works/work/:userWorkId/like": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["like_work"],
+      event: "like",
+      fallback: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["like_work"],
+      event: "like",
+      fallback: "/home",
+    },
+  },
+  "/profile/works/work/:userWorkId/unlike": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["unlike_work"],
+      event: "unlike",
+      fallback: "/home",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["unlike_work"],
+      event: "unlike",
+      fallback: "/home",
+    },
+  },
+  "/signout": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      render: "Signout",
+    },
+    SignedinAsArtist: {
+      dbProcedures: [],
+      render: "Signout",
+    },
+  },
+  "/signout/submit": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      redirect: "/",
+      method: "get",
+    },
+    SignedinAsArtist: {
+      dbProcedures: [],
+      redirect: "/",
+      method: "get",
+    },
+  },
+  "/delete": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: [],
+      render: "Delete",
+    },
+    SignedinAsArtist: {
+      dbProcedures: [],
+      render: "Delete",
+    },
+  },
+  "/delete/submit": {
+    NotSignedin: {
+      dbProcedures: [],
+      redirect: "/",
+    },
+    SignedinAsUser: {
+      dbProcedures: ["delete_"],
+      redirect: "/",
+      method: "post",
+      event: "delete",
+      fallback: "/signout",
+    },
+    SignedinAsArtist: {
+      dbProcedures: ["delete_"],
+      redirect: "/",
+      method: "post",
+      event: "delete",
+      fallback: "/signout",
+    },
+  },
+};
 
-const routes:Array<RouteData> = Object.entries(routeDBProcedureDict).map(
-  ([k, v],i) => {
-      return  {
-        route: k,
-        method: (v.method === undefined) ? "get" : v.method,
-        controlers: [
-          consoleControler,
-          sessionFirstUpdateControler,
-          logToPostgresControler,
-          builderFromRoutePath(k,v,hash),
-        ],
-      };
+const routes: Array<RouteData> = Object.entries(routeDBProcedureDict).map(
+  ([k, v], i) => {
+    return {
+      route: k,
+      method: (Object.entries(v).filter(([vk,vv]) => (vv.method === 'post')).length > 0)?'post':'get',
+      controlers: [
+        consoleControler,
+        sessionFirstUpdateControler,
+        logToPostgresControler,
+        builderFromRoutePath(k, v, hash),
+      ],
+    };
   }
 );
-
 
 export { routes };

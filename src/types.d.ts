@@ -3,7 +3,7 @@ import { Request, Reponse, Error, NextFunction } from "express";
 import { Pool, QueryResult } from "pg";
 import { Session, SessionData } from "./express-session";
 
-declare type OneMore<T> = [T, Array<T>];
+/*declare type OneMore<T> = [T, Array<T>];*/
 
 
 declare type RoutePath =
@@ -62,10 +62,13 @@ declare type RouteEvent = 'create'
 |'unlike';
 
 declare type Verb = 'get' | 'post'
-declare type RoutePathParams = Record<
-    RoutePath,
-    { render: EjsView } | ({ redirect: Redirection } & { method?: Verb })
->;
+declare type RoutePathLevelData = {
+    dbProcedures: Array<DBProcedure>,
+    redirect?:RoutePath,
+    render?:EjsView,
+    method?:Verb,
+    event?:RouteEvent,
+    fallback?:RoutePath}
 
 declare type RouteData = {
     route: RoutePath;
@@ -263,49 +266,14 @@ declare type DBProcedureResultsMappingType = {
 
 declare type Controler =((req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>, next: NextFunction) => void);
 
-declare interface ControlerCallbacks {
-    reqParamsHandler: (req: Response) => ProcedureProps;
-    dbHandler?: (props: ProcedureProp) => Promise<OneMore<QueryResult<any>>>;
-    propsBuilder: (r: OneMore<QueryResult<any>>) => RenderableProps;
-    outputCallback: (res: Response, props: RenderableProps) => void;
-}
 
-declare function buildControler(cbs: ControlerCallbacks): Controler;
 
-declare type ProcedureProps = Record<UbiquitousConcept, string>;
-
-declare function requestParamsHandlerSourcer(
-    req: Response,
-    c: UbiquitousConcept,
-    s: Source
-): string;
-
-declare function requestParamsHandlerBuilder(
-    sourcer: (req: Response, c: UbiquitousConcept, s: Source) => string,
-    concepts: Record<UbiquitousConcept, Source>
-);
 declare type Source = "unit" | "route" | "session" | "body" | "params";
 
 declare interface DBHandlerParams {
     pool: Pool;
     procedures: Array<DBProcedure>;
 }
-
-declare function DataPropsBuilderGenerator(): (
-    r: OneMore<QueryResult<any>>
-) => DataRenderableProps;
-declare function UrlPropsBuilderConstantGenerator(
-    url: string
-): (r: OneMore<QueryResult<any>>) => UrlRenderableProps;
-
-declare interface propsBuilderParams {
-    pool: Pool;
-    renderable: Renderable;
-}
-
-declare function outputCallbackGenerator(
-    renderable: Renderable
-): (res: Response, props: RenderableProps) => void;
 
 declare interface CellProps {
     value: any;
@@ -324,7 +292,7 @@ export type {
     Redirection,
     RedirectionArgsMappingType,
     RoutePath,
-    RoutePathParams,
+    RoutePathLevelData,
     RouteData,
     Controler,
     Verb

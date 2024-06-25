@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Pool, QueryResult } from "pg";
 import { queryPool, queryPoolFromProcedure } from "../databases/index.js";
 import { hash } from "../utils/hash.js";
-import { Session, SessionData } from "express-session";
+import { Session, SessionData, SessionLevel } from "express-session";
 import {
   RouteEvent,
   DBProcedure,
@@ -11,9 +11,51 @@ import {
   RoutePath,
   CellProps
 } from "../types";
+import { loadEnvFile } from "process";
 
 function getEpochString(): string {
   return (Date.now() / 1000).toString();
+}
+
+function updateSessionInitially(session: SessionData, req: Request): void {
+  session.reqEpoch = getEpochString();
+  session.startTime = session.startTime ?? getEpochString();
+  session.views = (session.views ?? 0) + 1;
+
+  if (req.route) {
+    session.path = req.route.path;
+  } else {
+    session.path = "Unknown route";
+  }
+}
+
+function getSessionLevel(session:SessionData):SessionLevel {
+  let level:SessionLevel = 'NotSignedin';
+  if (session.artistId) {
+    level = 'SignedinAsArtist'; 
+  } else if (session.userId) {
+    level = 'SignedinAsUser';
+  } else {
+  }
+  return level;
+}
+
+async function  assertDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
+  req: Request,
+  pro: T,
+  args:DBProcedureArgsMappingType[T]
+):Promise<DBProcedureArgsMappingType[T]> {
+  switch (pro) {
+    case "check_signup":
+      if (req.body.pwd===req.body.confirmedPwd){
+        return await args;
+      }
+      else {
+        throw Error('Args, not validated');
+      }
+    default:
+      return await args;
+  }
 }
 
 function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
@@ -31,13 +73,14 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
       };
 
     case "check_signup":
-      return   {
-      userId: hash(req.body.userName),
-      reqEpoch: req.session.reqEpoch,
-      userName: req.body.userName,
-      pwd: hash(req.body.pwd),
-      confirmedPwd: hash(req.body.confirmedPwd)
-    };
+   
+      return  {
+        userId: hash(req.body.userName),
+        reqEpoch: req.session.reqEpoch,
+        userName: req.body.userName,
+        pwd: hash(req.body.pwd),
+        confirmedPwd: hash(req.body.confirmedPwd)
+      }
 
     case "see_watchers":
       return { 
@@ -184,6 +227,66 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
   }
 }
 
+function transformDBprocedureOutputs<T extends keyof DBProcedureArgsMappingType>(
+  pro: T,
+  r:QueryResult<any>
+): DBProcedureArgsMappingType[DBProcedure] {
+  switch (pro) {
+    case "see_watchers":
+      return { 
+        artistId: req.session.artistId
+      };
+    
+    case "see_works":
+        return {
+          artistId: req.session.artistId
+        };
+
+    case "see_watched_artists":
+      return { 
+        userId: req.session.userId
+       };
+
+    case "see_liked_works":
+        return {
+          userId: req.session.userId
+        };
+
+    case "see_more_users"://TO DO
+      return { artistId: req.session.artistId };
+
+    case "see_more_liked_works"://TO DO
+      return { artistId: req.session.userId };
+
+    case "see_more_artists"://TO DO
+      return { userId: req.session.userId };
+
+    case "see_more_liked_works"://TO DO
+      return { userId: req.session.userId };
+
+    case "view_user"://TO DO
+      return { artistId: req.session.artistId, userId: req.params.userId};
+
+    case "view_artist"://TO DO
+      return { artistId: req.params.artistId, userId: req.session.userId };
+
+    case "view_works_of_artist"://TO DO
+      return { artistId: req.params.artistId, userId: req.session.userId };
+
+    case "view_work"://TO DO
+      return { userId: "string", workId: "string" };
+
+    case "go_view_work"://TO DO
+      return { userId: req.session.userId, workId: "string" };
+    case "go_review_work"://TO DO
+      return { userWorkIdId: "string" }
+
+    default:
+      return r;
+  }
+}
+
+
 function updateSessionFromProcedure(
   req: Request,
   pro: DBProcedure,
@@ -242,17 +345,17 @@ function updateSessionFromRoutePath(
   }
 }
 
-async function getDBprocedureOuputs<T extends DBProcedure>(
-  pool: Pool,
-  pro: T,
-  args: DBProcedureArgsMappingType[T]
-): Promise<Array<DBProcedureResultsMappingType[DBProcedure]>> {
-  const res = await queryPoolFromProcedure(
-    pool,
-    pro,
-    args.map((k, v) => v[0])
-  ).rows;
-  return res;
+function manageFallbackFromRoutePath(
+  res: Response,
+  routePath: RoutePath,
+  fallback? : RoutePath
+): void {
+  if (fallback){
+    res.redirect(fallback);
+  }
+  else {
+    res.redirect('Error');
+  }
 }
 
 function convertToCellProps(field: string, cell: any): CellProps {
@@ -295,37 +398,16 @@ const buildErrorHandler = function (
   return errorHandler;
 };
 
-async function checkAnswer(
-  req: Request,
-  res: Response,
-  data: QueryResult<any>
-): Promise<void> {
-  if (data.rows.length === 1) {
-    req.session.userId = data.rows[0].userId;
-    req.session.userName = data.rows[0].userName;
-    req.session.artistId =
-      data.rows[0].artistId === "undefined" ? undefined : data.rows[0].artistId;
-    res.redirect("/home");
-  } else {
-    throw Error("Failed identification");
-  }
-}
 
-async function fallbackToIndex(res: Response): Promise<void> {
-  res.redirect("/");
-}
-
-async function fallbackToHome(res: Response): Promise<void> {
-  res.redirect("/home");
-}
 
 export {
   getEpochString,
+  updateSessionInitially,
+  getSessionLevel,
+  assertDBprocedureArgs,
   getDBprocedureArgs,
   updateSessionFromProcedure,
   updateSessionFromRoutePath,
-  checkAnswer,
-  fallbackToIndex,
-  fallbackToHome,
+  manageFallbackFromRoutePath,
   buildErrorHandler,
 };

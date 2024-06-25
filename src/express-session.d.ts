@@ -17,7 +17,9 @@ declare module 'express-session' {
       procedureOutput?:ProcedureOuput<QueryResult>,
       views?:number
     }
+
+    declare type SessionLevel = 'NotSignedin'| 'SignedinAsUser'|'SignedinAsArtist';
  
 }
 
-export type {Session,  SessionData};
+export type {Session,  SessionData, SessionLevel};

@@ -7,9 +7,7 @@ import { hash } from "../utils/hash";
 import { UbiquitousConcept } from "../types";
 import {
   getEpochString,
-  checkAnswer,
-  fallbackToIndex,
-  fallbackToHome,
+  updateSessionInitially,
   buildErrorHandler,
   getDBprocedureArgs,
 } from "./handlers";
@@ -30,18 +28,6 @@ const consoleControler = function (
   );
   next();
 };
-
-function updateSessionInitially(session: SessionData, req: Request): void {
-  session.reqEpoch = getEpochString();
-  session.startTime = session.startTime ?? getEpochString();
-  session.views = (session.views ?? 0) + 1;
-
-  if (req.route) {
-    session.path = req.route.path;
-  } else {
-    session.path = "Unknown route";
-  }
-}
 
 const sessionFirstUpdateControler = function (
   req: Request,
@@ -127,235 +113,11 @@ const pageNotFoundControler = function (
   next(createError(404));
 };
 
-
-const signinSubmitControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  const sqlOutput = queryPoolFromProcedure(pool, "check_signin", [
-    req.body.userName,
-    hash(req.body.pwd),
-  ])
-    .then((data) => checkAnswer(req, res, data))
-    .catch((err) => fallbackToIndex(req, res, err))
-    .finally(next);
-};
-
-async function checkConfirmedPwd(req: Request): Promise<Request> {
-  if (req.body.pwd === req.body.confirmedPwd) {
-    return req;
-  } else {
-    throw "Unmacthing password";
-  }
-}
-
-const signupSubmitControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  checkConfirmedPwd(req)
-    .then((req) =>
-      queryPoolFromProcedure(pool, "insert_user", [
-        hash(req.body.userName),
-        getEpochString(),
-        req.body.userName,
-        hash(req.body.pwd),
-      ])
-    )
-    .then((data) => checkAnswer(req, res, data))
-    .catch((err) => fallbackToIndex(req, res, err))
-    .finally(next);
-};
-
-async function getReqData(
-  req: Request
-): Promise<Record<UbiquitousConcept, string>> {
-  const reqData = {};
-  if (req.session.startTime) {
-    Object.defineProperty(reqData, "startTime", req.session.startTime);
-  }
-  if (req.session.userId) {
-    Object.defineProperty(reqData, "userId", req.session.userId);
-  }
-  if (req.session.userName) {
-    Object.defineProperty(reqData, "userName", req.session.userName);
-  }
-  if (req.session.artistId) {
-    Object.defineProperty(reqData, "artistId", req.session.artistId);
-  }
-  return reqData;
-}
-
-const getHomeControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  getReqData(req)
-    .then((reqData) => {
-      return {
-        startTime: reqData.startTime,
-        userName: reqData.userName,
-        artistId: reqData.artistId,
-        myWatchers:
-          reqData.artistId === undefined
-            ? undefined
-            : queryPoolFromProcedure(pool, "see_watchers", [
-                reqData.artistId,
-              ]),
-        myWorks:
-          reqData.artistId === undefined
-            ? undefined
-            : queryPoolFromProcedure(pool, "see_works", [reqData.artistId]),
-        myWatchedArtists: queryPoolFromProcedure(
-          pool,
-          "see_watched_artists",
-          req.session.userId ? [req.session.userId] : undefined
-        ),
-        myLikedWorks: queryPoolFromProcedure(
-          pool,
-          "see_liked_works",
-          req.session.userId ? [req.session.userId] : undefined
-        ),
-      };
-    })
-    .then((ou) =>
-      ou.artistId === undefined
-        ? res.render("./UserHome", ou)
-        : res.render("./ArtistHome", ou)
-    )
-    .catch((err) => fallbackToIndex(req, res, err))
-    .finally(next);
-};
-
-const banControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  getReqData(req)
-    .then((reqData) =>
-      queryPoolFromProcedure(pool, "ban_watcher", [
-        reqData.artistId,
-        req.params.userId,
-      ])
-    )
-    .then((ou) => res.redirect(req.route.path))
-    .catch((err) => fallbackToHome(req, res, err))
-    .finally(next);
-};
-
-const submitControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  getReqData(req)
-    .then((reqData) =>
-      queryPoolFromProcedure(pool, "submit_work", [
-        reqData.artistId,
-        req.params.workName,
-      ])
-    )
-    .then((ou) => res.redirect(req.route.path))
-    .catch((err) => fallbackToHome(req, res, err))
-    .finally(next);
-};
-
-const withdrawControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  getReqData(req)
-    .then((reqData) =>
-      queryPoolFromProcedure(pool, "withdraw_work", [
-        reqData.artistId,
-        req.params.workId,
-      ])
-    )
-    .then((ou) => res.redirect(req.route.path))
-    .catch((err) => fallbackToHome(req, res, err))
-    .finally(next);
-};
-
-const watchControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  getReqData(req)
-    .then((reqData) =>
-      queryPoolFromProcedure(pool, "watch_artist", [
-        reqData.userId,
-        req.params.artistId,
-      ])
-    )
-    .then((ou) => res.redirect(req.route.path))
-    .catch((err) => fallbackToHome(req, res, err))
-    .finally(next);
-};
-
-const unwatchControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  getReqData(req)
-    .then((reqData) =>
-      queryPoolFromProcedure(pool, "unwatch_artist", [
-        reqData.userId,
-        req.params.artistId,
-      ])
-    )
-    .then((ou) => res.redirect(req.route.path))
-    .catch((err) => fallbackToHome(req, res, err))
-    .finally(next);
-};
-
-const likeControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  getReqData(req)
-    .then((reqData) =>
-      queryPoolFromProcedure(pool, "like_work", [
-        reqData.userId,
-        req.params.workId,
-      ])
-    )
-    .then((ou) => res.redirect(req.route.path))
-    .catch((err) => fallbackToHome(req, res, err))
-    .finally(next);
-};
-const unlikeControler = function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  getReqData(req)
-    .then((reqData) =>
-      queryPoolFromProcedure(pool, "unlike_work", [
-        reqData.userId,
-        req.params.workId,
-      ])
-    )
-    .then((ou) => res.redirect(req.route.path))
-    .catch((err) => fallbackToHome(req, res, err))
-    .finally(next);
-};
-
-
 export {
   sessionFirstUpdateControler,
   consoleControler,
   logToPostgresControler,
   showLogsControler,
   showLogsTableControler,
-  pageNotFoundControler,
-  signinSubmitControler,
-  signupSubmitControler,
+  pageNotFoundControler
 };
