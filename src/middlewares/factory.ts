@@ -26,22 +26,27 @@ function builderFromRoutePath(
   function mdw(req:Request,res:Response,next:NextFunction):void{
     const level = getSessionLevel(req.session);
     const routePathSessionData = routePathData[level];
-    const promises:Promise<QueryResult<any>>[] = routePathSessionData.dbProcedures.map((pro:DBProcedure)=>{
-      let args = assertDBprocedureArgs(req, pro, getDBprocedureArgs(req,pro,hash));
-      let output = args.then((a)=>{
-        console.log(a);
-        return queryPoolFromProcedure(pool,pro,a)
-      });
-      output= output.then((ou)=>{console.log(parseSQLOutput(ou));return ou});
-      output = output.then((ou)=> {updateSessionFromProcedure(req,pro,ou);console.log(req.session); return ou});
-      return output;
-    })
-    let promise = Promise.all(promises);
-    promise = promise.then((r) => {updateSessionFromRoutePath(req,routePath);console.log(req.session); return r})
+    const promises:Record<DBProcedure,Promise<QueryResult<any>>> = Object.fromEntries(routePathSessionData.dbProcedures.map(
+      (pro:DBProcedure)=>{
+        let args = assertDBprocedureArgs(req, pro, getDBprocedureArgs(req,pro,hash));
+        let output = args.then((a)=>{
+          return queryPoolFromProcedure(pool,pro,a)
+        });
+        output= output.then((ou)=>{
+          console.log('ou: ' + parseSQLOutput(ou,(s,v)=>JSON.stringify(v)).rows);
+          return ou});
+        output = output.then((ou)=> {
+          updateSessionFromProcedure(req,pro,ou);
+          return ou});
+        return [pro,output];
+      }))
+    let promise = promiseRecord(promises);
+    promise = promise.then((r) => {
+      updateSessionFromRoutePath(req,routePath);
+      return r})
     promise.then((r)=>{
       if (routePathSessionData.render){
         console.log('rendering');
-        console.log(mergeInto(req.session)(r));
         res.render(routePathSessionData.render,mergeInto(req.session)(r));
       }
       else if(routePathSessionData.redirect){
@@ -51,7 +56,10 @@ function builderFromRoutePath(
       else {
         console.log('Must be either render or redirect');
       }
-    }).catch((e)=>{(routePathSessionData.fallback)?res.redirect(routePathSessionData.fallback):res.render('Error',e);})
+    }).catch((e)=>{
+      console.log('Fallback: '+e);
+      return(routePathSessionData.fallback)?res.redirect(routePathSessionData.fallback):res.render('Error',e);
+    })
   }
   return mdw;
 }

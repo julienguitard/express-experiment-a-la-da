@@ -36,7 +36,6 @@ const sessionFirstUpdateControler = function (
 ) {
   if (req.session) {
     updateSessionInitially(req.session, req);
-    console.log(req.session);
   } else {
     throw Error("Session not initialized");
   }
@@ -81,7 +80,6 @@ const showLogsControler = function (
 ): void {
   const resData = queryPoolFromProcedure(pool, "select_full_logs", []).then(
     (data) => {
-      console.log(data.fields, data.rows);
       res.json({ data: parseSQLOutput(data) });
     }
   );
@@ -94,7 +92,6 @@ const showLogsTableControler = function (
 ): void {
   const resData = queryPoolFromProcedure(pool, "select_full_logs", []).then(
     (data) => {
-      console.log(parseSQLOutput(data));
       const props = {
         footer: { views: req.session.views, userName: "self" },
         data: parseSQLOutput(data),

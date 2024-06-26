@@ -64,7 +64,6 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
   hash: (s: string) => string,
   error?: Error
 ): DBProcedureArgsMappingType[DBProcedure] {
-  console.log('get args');
   switch (pro) {
     case "check_signin":
       return {
@@ -73,7 +72,6 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
       };
 
     case "check_signup":
-   
       return  {
         userId: hash(req.body.userName),
         reqEpoch: req.session.reqEpoch,
@@ -298,20 +296,17 @@ function updateSessionFromProcedure(
         req.session.userId=output.rows[0]["user_id"];
         req.session.artistId=output.rows[0]["artist_id"];
         req.session.userName=output.rows[0]["user_name"];
-        console.log('Session updated: ' + req.session);
         } 
       break;
     case "check_signup":
       if (output.rows.length === 1) {
         req.session.userId=output.rows[0]["user_id"];
         req.session.userName=output.rows[0]["user_name"];
-        console.log('Session updated: ' + req.session);
       }
       break;
     case "submit_first_work":
         if (output.rows.length === 1) {
           req.session.artistId=output.rows[0]["artist_id"];
-          console.log('Session updated: ' + req.session);
         }
         break;
     case "delete_":

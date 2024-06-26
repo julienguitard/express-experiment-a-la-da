@@ -8,49 +8,45 @@
 </head>
 
 <div>
-    <h1>My watched artists</h1>
-  <div class=table-container><table>
-    <tr>
-    <th>Artist name</th>
-    <th>Watch/Unwatch</th>
-    </tr>
-    <tr>
-      <td><a href="/profile/artists/artist/1e0bb3ab006e8f93efdfc385c1e13722"> Jill </a></td>
-      <td><a href="/profile/artists/artist/1e0bb3ab006e8f93efdfc385c1e13722/unwatch"> Unwatch </a></td>
-    </tr> 
-    <tr>
-      <td><a href="/profile/artists/artist/61d6184592315a39b8f8bb9553700436"> Joan </a></td>
-      <td><a href="/profile/artists/artist/61d6184592315a39b8f8bb9553700436/unwatch"> Unwatch </a></td>
-    </tr>
-  </table>
-  <a href="/home"> <button class="view"> Reshuffle </button> </a> 
-  <a href="/home/artists/more"> <button class="view"> See more </button> </a>
-</div>
+  <h1>My watched artists</h1>
+  <div class=table-container>
+    <table>
+      <tr>
+        <th>Artist name</th>
+        <th>Watch/Unwatch</th>
+      </tr>
+      <% for(r of see_watched_artists.rows) { %>
+      <tr>
+        <td><a href="/profile/artists/artist/<%= r.artist.artist_id %>"> <%= r.artist.user_name %></a></td>
+        <td><a href="/profile/artists/artist/<%= r.unwatch%>/unwatch"> Unwatch </a></td>
+      </tr>
+      <% } %>
+    </table>
+    <a href="/home"> <button class="view"> Reshuffle </button> </a>
+    <a href="/home/artists/more"> <button class="view"> See more </button> </a>
+  </div>
 </div>
 
 <div>
-    <h1>My liked works</h1>
-  <div class=table-container><table>
-    <tr>
-    <td>Work name</td>
-    <th>Artist name</th>
-    <th>Like/Unlike</th>
-    </tr>
-    <tr>
-      <td><a href="/profile/works/work/ad8a727b09600707339c4a4531208b8"> Jill debut </a></td>
-      <td><a href="/profile/artists/artist/1e0bb3ab006e8f93efdfc385c1e13722"> Jill </a></td>
-      <td><a href="/profile/works/work/ad8a727b09600707339c4a4531208b8/unlike"> Unlike </a></td>
-    </tr>
-    <tr>
-      <td><a href="/profile/works/work"> Joan masterpiece </a></td>
-      <td><a href="/profile/artists/artist/61d6184592315a39b8f8bb9553700436"> Joan </a></td>
-      <td><a href="/profile/works/work/ad8a727b09600707339c4a4531208b8/unlike"> Unlike </a></td>
-    </tr>
-  </table>
-  <a href="/home"> <button class="view"> Reshuffle </button> </a> 
+  <h1>My liked works</h1>
+  <div class=table-container>
+    <table>
+      <tr>
+        <td>Work name</td>
+        <th>Unlike</th>
+      </tr>
+      <% for(r of see_liked_works.rows) { %>
+      <tr>
+        <td><a href="/profile/artists/artist/<%= r.work_.work_id %>"> <%= r.work_.work_name %></a></td>
+        <td><a href="/profile/works/works/<%= r.unlike%>/unlike"> Unlike </a></td>
+      </tr>
+      <% } %>
+    </table>
+  </div>
+  <a href="/home"> <button class="view"> Reshuffle </button> </a>
   <a href="/home/works/more"> <button class="view"> See more </button> </a>
 </div>
-</div>
+
 
 <a href="/home/works/firstSubmit"> Submit my first work </a>
 
