@@ -7,8 +7,13 @@
   <title>Sandbox</title>
 </head>
 
+
+<form action="/home/works/withdraw/<%= params.workId %>/submit" method="post">
+  <input type="submit" value="Confirm withdrawing" class="delete-update">
+</form>
+<br>
 <a href="/home"> Get back </a>
-<a href="/profile/works/work/408661a97a79ce10a01ff23f5cc64b1a/withdraw/submit"> Confirm unliking work </a>
+
 
 <p> Signed in as <%= userName %> <br> <a href="/signout"> Sign out </a> </p>
 <p> Started browsing at <%= startTime %> </p>

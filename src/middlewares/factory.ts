@@ -26,10 +26,12 @@ function builderFromRoutePath(
   function mdw(req:Request,res:Response,next:NextFunction):void{
     const level = getSessionLevel(req.session);
     const routePathSessionData = routePathData[level];
+    console.log('routePathSessionData: ' + level + Object.entries(routePathData));
     const promises:Record<DBProcedure,Promise<QueryResult<any>>> = Object.fromEntries(routePathSessionData.dbProcedures.map(
       (pro:DBProcedure)=>{
         let args = assertDBprocedureArgs(req, pro, getDBprocedureArgs(req,pro,hash));
         let output = args.then((a)=>{
+          console.log('pro,args: '+pro+','+ Object.entries(a));
           return queryPoolFromProcedure(pool,pro,a)
         });
         output= output.then((ou)=>{

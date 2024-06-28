@@ -27,6 +27,11 @@ function updateSessionInitially(session: SessionData, req: Request): void {
   } else {
     session.path = "Unknown route";
   }
+
+  if (session.params){
+    delete session.params;
+  }
+
 }
 
 function getSessionLevel(session:SessionData):SessionLevel {
@@ -144,7 +149,7 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
       return { artistId: req.params.artistId, userId: req.session.userId };
 
     case "view_work"://TO DO
-      return { userId: "string", workId: "string" };
+      return { workId: req.params.workId, artistId:req.session.artistId };
 
     case "ban_watcher":
       return { 
@@ -335,7 +340,9 @@ function updateSessionFromRoutePath(
       }
       break;
     default: {
-      console.log('Session not updated');
+      if (req.params) {
+        req.session.params = req.params;
+      }
     }
   }
 }

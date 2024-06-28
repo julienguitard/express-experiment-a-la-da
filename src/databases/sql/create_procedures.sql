@@ -698,7 +698,7 @@ $$
 
 SELECT user_
 FROM more_seeable_watchers
-WHERE CAST(user_['user_id'] AS VARCHAR) = user_id_arg
+WHERE TRIM('"' FROM CAST(user_['user_id'] AS VARCHAR(256))) = user_id_arg
 AND   artist_id = artist_id_arg;
 
 $$ LANGUAGE SQL;
@@ -710,7 +710,7 @@ $$
 SELECT artist,
        watch
 FROM more_seeable_artists
-WHERE CAST(artist['user_id'] AS VARCHAR) = artist_id_arg
+WHERE TRIM('"' FROM CAST(artist['user_id'] AS VARCHAR(256))) = artist_id_arg
 AND   user_id = user_id_arg;
 
 $$ LANGUAGE SQL;
@@ -722,19 +722,19 @@ $$
 SELECT work_,
        unlike
 FROM more_seeable_liked_works
-WHERE CAST(work_['work_id'] AS VARCHAR) = work_id_arg
+WHERE TRIM('"' FROM CAST(work_['work_id'] AS VARCHAR(256))) = work_id_arg
 AND   user_id = user_id_arg;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION view_work (work_id_arg TEXT, artist_id_arg TEXT)  RETURNS SETOF more_of_seeable_works_
+CREATE OR REPLACE FUNCTION view_work (work_id_arg TEXT, artist_id_arg TEXT)  RETURNS SETOF seeable_works_
 AS
 $$
 
 SELECT work_,
        withdraw
-FROM more_of_seeable_works
-WHERE CAST(work_['work_id'] AS VARCHAR) = work_id_arg
+FROM seeable_works
+WHERE TRIM('"' FROM CAST(work_['work_id'] AS VARCHAR(256))) = work_id_arg
 AND   artist_id = artist_id_arg;
 
 $$ LANGUAGE SQL;

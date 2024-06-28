@@ -15,7 +15,8 @@ declare module 'express-session' {
       userName?:string,
       artistId?:string,
       procedureOutput?:ProcedureOuput<QueryResult>,
-      views?:number
+      views?:number,
+      params?:any
     }
 
     declare type SessionLevel = 'NotSignedin'| 'SignedinAsUser'|'SignedinAsArtist';

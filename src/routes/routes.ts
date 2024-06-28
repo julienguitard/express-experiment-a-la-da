@@ -122,7 +122,7 @@ const routeDBProcedureDict: Record<
       dbProcedures: [],
       redirect: "/",
     },
-    SignedInAsUser: {
+    SignedinAsUser: {
       dbProcedures: [],
       render: "Submit",
     },
@@ -143,7 +143,7 @@ const routeDBProcedureDict: Record<
       event: "submit",
       fallback: "/home",
     },
-    SignedInAsArtist: {
+    SignedinAsArtist: {
       dbProcedures: [],
       redirect: "/home",
     },
@@ -157,7 +157,7 @@ const routeDBProcedureDict: Record<
       dbProcedures: [],
       redirect: "/home/works/firstSubmit",
     },
-    SignedInAsArtist: {
+    SignedinAsArtist: {
       dbProcedures: [],
       render: "Submit",
     },
@@ -171,7 +171,7 @@ const routeDBProcedureDict: Record<
       dbProcedures: [],
       redirect: "/home",
     },
-    SignedInAsArtist: {
+    SignedinAsArtist: {
       dbProcedures: ["submit_work"],
       redirect: "/home",
       method: "post",
@@ -179,7 +179,7 @@ const routeDBProcedureDict: Record<
       fallback: "/home",
     },
   },
-  "/home/works/withdraw": {
+  "/home/works/withdraw/:workId": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",
@@ -188,12 +188,12 @@ const routeDBProcedureDict: Record<
       dbProcedures: [],
       redirect: "/home",
     },
-    SignedInAsArtist: {
+    SignedinAsArtist: {
       dbProcedures: [],
       render: "Withdraw",
     },
   },
-  "/home/works/withdraw/submit": {
+  "/home/works/withdraw/:workId/submit": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",
@@ -202,7 +202,7 @@ const routeDBProcedureDict: Record<
       dbProcedures: [],
       redirect: "/home",
     },
-    SignedInAsArtist: {
+    SignedinAsArtist: {
       dbProcedures: ["withdraw_work"],
       redirect: "/home",
       method: "post",
@@ -219,7 +219,7 @@ const routeDBProcedureDict: Record<
       dbProcedures: [],
       redirect: "/home",
     },
-    SignedInAsArtist: {
+    SignedinAsArtist: {
       dbProcedures: ["see_more_users"],
       fallback: "/home",
     }, //TO DO
@@ -395,10 +395,11 @@ const routeDBProcedureDict: Record<
     },
     SignedinAsUser: {
       dbProcedures: ["view_work"],
-      fallback: "/home",
+      redirect: "/home",
     },
     SignedinAsArtist: {
       dbProcedures: ["view_work"],
+      render : "Work",
       fallback: "/home",
     },
   }, //TO DO
