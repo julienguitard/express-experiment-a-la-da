@@ -13,10 +13,7 @@ declare type RoutePath =
     | "/landing/signin/submit"
     | "/landing/signup/submit"
     | "/home"
-    | "/home/users/more"
-    | "/home/works/more"
     | "/home/artists/more"
-    | "/home/works/like/more"
     | "/home/works/more"
     | "/home/works/firstSubmit"
     | "/home/works/firstSubmit/submit"
@@ -135,17 +132,13 @@ declare type EjsViewPropsMappingType = {
         userId: { userName: string, userId: string },
         ban: string,
     },
-    MoreUsers: Array<{
-        userId: { userName: string, userId: string },
-        ban: string,
-    }>,
     MoreArtists: Array<{
         artistId: { userName: string, artistId: string },
         watch: string,
     }>,
     MoreWorks: Array<{
         workId: { workName: string, workId: string },
-        like: string,
+        artistId: { userName: string, artistId: string },
     }>,
 }
 
@@ -200,10 +193,8 @@ declare type DBProcedureArgsMappingType = {
     submit_first_work: { workId: string, artistId: string,user_id:string, reqEpoch:string, workName: string },
     submit_work: { workId: string, artistId: string,reqEpoch:string, workName: string },
     withdraw_work:  { workId: string, reqEpoch:string },
-    see_more_users:{ artistId: string },//TO DO
-    see_more_liked_works: { artistId: string },//TO DO
     see_more_artists:{ userId: string },//TO DO
-    see_more_liked_works:{ userId: string },//TO DO
+    see_more_works:{ userId: string },//TO DO
     view_user:{ artistId: string,userId: string },//TO DO
     view_artist:{ artistId: string,userId: string },//TO DO
     view_works_of_artist:{ artistId: string,userId: string },//TO DO
@@ -243,10 +234,8 @@ declare type DBProcedureResultsMappingType = {
     submit_first_work: { workId: string, artistId: string, creationTime: string, workName: string },
     submit_work: { workId: string, artistId: string, creationTime: string, workName: string },
     withdraw_work: { id:string, workId: string,time: string,key_: string, value:string },
-    see_more_users: { userId: { userName: string, userId: string } },
-    see_more_liked_works: { workId: { workName: string, workId: string }, withdraw: string },
+    see_more_works: { workId: { workName: string, workId: string }, withdraw: string },
     see_more_artists:{ artistId: { userName: string, artistId: string }, watch: string },
-    see_more_works: { workId: { workName: string, workId: string }, like: string },
     view_user: { userId: { userName: string, userId: string }, ban?: string },
     view_artist: { artistId: { userName: string, artistId: string }, watch: string },
     view_works_of_artists:{ workId: { workName: string, workId: string }, like: string },

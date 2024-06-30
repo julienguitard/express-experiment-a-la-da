@@ -602,13 +602,13 @@ ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_liked_works (user_id_arg TEXT) RETURNS SETOF seeable_liked_works_
+CREATE OR REPLACE FUNCTION see_liked_works (user_id_arg TEXT) RETURNS SETOF likable_works_
 AS
 $$
 
 SELECT work_,
        unlike
-FROM seeable_liked_works
+FROM likable_works
 WHERE user_id = user_id_arg
 ORDER BY RANDOM() LIMIT 10;
 
@@ -645,85 +645,49 @@ FROM insert_work_event (work_id_arg,req_epoch_arg,'withdraw')
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION see_more_users (artist_id_arg TEXT) RETURNS SETOF more_seeable_watchers_
+CREATE OR REPLACE FUNCTION see_more_artists (user_id_arg TEXT) RETURNS SETOF more_artists_
 AS
 $$
 
-SELECT user_
-FROM more_seeable_watchers
-WHERE artist_id = artist_id_arg
+
+SELECT include_ref('artist_id',artist_id,'user_name',user_name) AS artist
+FROM (SELECT t0.artist_id,
+             user_id,
+             user_name,
+             CASE
+               WHEN t1.artist_id IS NULL THEN 1
+               ELSE 0
+             END AS more_
+      FROM denormalized_artists t0
+        LEFT JOIN (SELECT DISTINCT artist_id
+                   FROM users_artists_keys_without_banned
+                   WHERE user_id = user_id_arg) t1 USING (artist_id))
+WHERE more_ = 1
 ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION see_more_works (artist_id_arg TEXT) RETURNS SETOF more_of_seeable_works_ 
+CREATE OR REPLACE FUNCTION see_more_works (user_id_arg TEXT) RETURNS SETOF more_works_
 AS
 $$
 
-SELECT work_,
-       withdraw
-FROM more_of_seeable_works
-WHERE artist_id = artist_id_arg
+SELECT include_ref('work_id',work_id,'work_name',work_name) AS work_,
+       include_ref('artist_id',artist_id,'user_name',user_name) AS artist
+FROM (SELECT t0.work_id,
+             artist_id,
+             user_id,
+             user_name,
+             work_name,
+             CASE
+               WHEN t1.work_id IS NULL THEN 1
+               ELSE 0
+             END AS more_
+      FROM denormalized_works t0
+        LEFT JOIN (SELECT DISTINCT work_id
+                   FROM users_works_keys_without_withdrawn
+                   WHERE user_id = user_id_arg) t1 USING (work_id))
+WHERE more_ = 1
 ORDER BY RANDOM() LIMIT 10;
-
-$$ LANGUAGE SQL;
-
-CREATE OR REPLACE FUNCTION see_more_artists (user_id_arg TEXT) RETURNS SETOF more_seeable_artists_
-AS
-$$
-
-SELECT artist,
-       watch
-FROM more_seeable_artists
-WHERE user_id = user_id_arg
-ORDER BY RANDOM() LIMIT 10;
-
-$$ LANGUAGE SQL;
-
-CREATE OR REPLACE FUNCTION see_more_liked_works (user_id_arg TEXT) RETURNS SETOF more_seeable_liked_works_
-AS
-$$
-
-SELECT work_,
-       unlike
-FROM more_seeable_liked_works
-WHERE user_id = user_id_arg ;
-
-$$ LANGUAGE SQL;
-
-
-CREATE OR REPLACE FUNCTION view_user (user_id_arg TEXT, artist_id_arg TEXT) RETURNS SETOF more_seeable_watchers_
-AS
-$$
-
-SELECT user_
-FROM more_seeable_watchers
-WHERE TRIM('"' FROM CAST(user_['user_id'] AS VARCHAR(256))) = user_id_arg
-AND   artist_id = artist_id_arg;
-
-$$ LANGUAGE SQL;
-
-CREATE OR REPLACE FUNCTION view_artist (artist_id_arg TEXT, user_id_arg TEXT) RETURNS SETOF more_seeable_artists_
-AS
-$$
-
-SELECT artist,
-       watch
-FROM more_seeable_artists
-WHERE TRIM('"' FROM CAST(artist['user_id'] AS VARCHAR(256))) = artist_id_arg
-AND   user_id = user_id_arg;
-
-$$ LANGUAGE SQL;
-
-CREATE OR REPLACE FUNCTION view_works_of_artist (work_id_arg TEXT, user_id_arg TEXT) RETURNS SETOF more_seeable_liked_works_
-AS
-$$
-
-SELECT work_,
-       unlike
-FROM more_seeable_liked_works
-WHERE TRIM('"' FROM CAST(work_['work_id'] AS VARCHAR(256))) = work_id_arg
-AND   user_id = user_id_arg;
 
 $$ LANGUAGE SQL;
 

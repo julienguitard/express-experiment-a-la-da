@@ -126,17 +126,11 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
       return { 
         workId: req.params.workId, 
         reqEpoch:req.session.reqEpoch };
-  
-    case "see_more_users"://TO DO
-      return { artistId: req.session.artistId };
 
-    case "see_more_liked_works"://TO DO
-      return { artistId: req.session.userId };
-
-    case "see_more_artists"://TO DO
+    case "see_more_artists":
       return { userId: req.session.userId };
 
-    case "see_more_liked_works"://TO DO
+    case "see_more_works":
       return { userId: req.session.userId };
 
     case "view_user"://TO DO
@@ -258,13 +252,13 @@ function transformDBprocedureOutputs<T extends keyof DBProcedureArgsMappingType>
     case "see_more_users"://TO DO
       return { artistId: req.session.artistId };
 
-    case "see_more_liked_works"://TO DO
+    case "see_more_works"://TO DO
       return { artistId: req.session.userId };
 
     case "see_more_artists"://TO DO
       return { userId: req.session.userId };
 
-    case "see_more_liked_works"://TO DO
+    case "see_more_works"://TO DO
       return { userId: req.session.userId };
 
     case "view_user"://TO DO

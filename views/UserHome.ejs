@@ -37,7 +37,7 @@
       </tr>
       <% for(r of see_liked_works.rows) { %>
       <tr>
-        <td><a href="/profile/artists/artist/<%= r.work_.work_id %>"> <%= r.work_.work_name %></a></td>
+        <td><a href="/profile/works/work/<%= r.work_.work_id %>"> <%= r.work_.work_name %></a></td>
         <td><a href="/profile/works/works/<%= r.unlike%>/unlike"> Unlike </a></td>
       </tr>
       <% } %>

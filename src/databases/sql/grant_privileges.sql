@@ -1,9 +1,17 @@
 GRANT ALL
-  ON simulation_003
+  ON simulation_000
   TO express_000;
 
 GRANT ALL
   ON simulation_002
+  TO express_000;
+
+GRANT ALL
+  ON simulation_003
+  TO express_000;
+
+GRANT ALL
+  ON simulation_001
   TO express_000;
 
 GRANT ALL
@@ -15,23 +23,11 @@ GRANT ALL
   TO express_000;
 
 GRANT ALL
-  ON responses_logs
-  TO express_000;
-
-GRANT ALL
-  ON simulation_000
-  TO express_000;
-
-GRANT ALL
-  ON simulation_001
+  ON simulation_005
   TO express_000;
 
 GRANT ALL
   ON simulation_006
-  TO express_000;
-
-GRANT ALL
-  ON simulation_005
   TO express_000;
 
 GRANT ALL
@@ -96,6 +92,10 @@ GRANT ALL
 
 GRANT ALL
   ON works_events
+  TO express_000;
+
+GRANT ALL
+  ON responses_logs
   TO express_000;
 
 GRANT ALL
@@ -167,11 +167,11 @@ GRANT ALL
   TO express_000;
 
 GRANT ALL
-  ON users_artists_keys_without_deleted
+  ON users_works_keys_without_deleted
   TO express_000;
 
 GRANT ALL
-  ON users_works_keys_without_deleted
+  ON users_artists_keys_without_deleted
   TO express_000;
 
 GRANT ALL
@@ -208,6 +208,10 @@ GRANT ALL
 
 GRANT ALL
   ON denormalized_artists
+  TO express_000;
+
+GRANT ALL
+  ON denormalized_works
   TO express_000;
 
 GRANT ALL
@@ -251,43 +255,27 @@ GRANT ALL
   TO express_000;
 
 GRANT ALL
-  ON seeable_liked_works
+  ON likable_works
   TO express_000;
 
 GRANT ALL
-  ON seeable_liked_works_
+  ON likable_works_
   TO express_000;
 
 GRANT ALL
-  ON more_seeable_watchers
+  ON more_artists
   TO express_000;
 
 GRANT ALL
-  ON more_seeable_watchers_
+  ON more_artists_
   TO express_000;
 
 GRANT ALL
-  ON more_of_seeable_works
+  ON more_works
   TO express_000;
 
 GRANT ALL
-  ON more_of_seeable_works_
-  TO express_000;
-
-GRANT ALL
-  ON more_seeable_artists
-  TO express_000;
-
-GRANT ALL
-  ON more_seeable_artists_
-  TO express_000;
-
-GRANT ALL
-  ON more_seeable_liked_works
-  TO express_000;
-
-GRANT ALL
-  ON more_seeable_liked_works_
+  ON more_works_
   TO express_000;
 
 GRANT ALL

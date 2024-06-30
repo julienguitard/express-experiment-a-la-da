@@ -210,20 +210,6 @@ const routeDBProcedureDict: Record<
       fallback: "/home",
     },
   },
-  "/home/users/more": {
-    NotSignedin: {
-      dbProcedures: [],
-      redirect: "/",
-    },
-    SignedinAsUser: {
-      dbProcedures: [],
-      redirect: "/home",
-    },
-    SignedinAsArtist: {
-      dbProcedures: ["see_more_users"],
-      fallback: "/home",
-    }, //TO DO
-  },
   "/home/artists/more": {
     NotSignedin: {
       dbProcedures: [],
@@ -231,6 +217,7 @@ const routeDBProcedureDict: Record<
     },
     SignedinAsUser: {
       dbProcedures: ["see_more_artists"],
+      render: "MoreArtists",
       fallback: "/home",
     }, //TO DO
     SignedinAsArtist: {
@@ -241,30 +228,19 @@ const routeDBProcedureDict: Record<
   "/home/works/more": {
     NotSignedin: {
       dbProcedures: [],
+      render: "MoreArtists",
       redirect: "/",
     },
     SignedinAsUser: {
-      dbProcedures: [],
-      redirect: "/home",
-    },
+      dbProcedures: ["see_more_works"],
+      render: "MoreWorks",
+      fallback: "/home",
+    }, 
     SignedinAsArtist: {
       dbProcedures: ["see_more_works"],
+      render: "MoreWorks",
       fallback: "/home",
-    },
-  }, //TO DO
-  "/home/works/like/more": {
-    NotSignedin: {
-      dbProcedures: [],
-      redirect: "/",
-    },
-    SignedinAsUser: {
-      dbProcedures: ["see_more_liked_works"],
-      fallback: "/home",
-    }, //TO DO
-    SignedinAsArtist: {
-      dbProcedures: ["see_more_liked_works"],
-      fallback: "/home",
-    }, //TO DO
+    }, 
   },
   "/profile/users/user/:userId": {
     NotSignedin: {
