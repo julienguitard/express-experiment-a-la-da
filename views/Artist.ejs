@@ -10,27 +10,29 @@
 <div class=table-container><table>
   <tr>
   <th>Artist name</th>
-  <th>Watch/Unwatch</th>
+  <th>Action</th>
   </tr>
+  <% for(r of view_artist.rows) {%>
   <tr>
-    <td><a href="/profile/artists/artist/1e0bb3ab006e8f93efdfc385c1e13722"> Jill </a></td>
-    <td><a href="/profile/artists/artist/1e0bb3ab006e8f93efdfc385c1e13722/unwatch"> Unwatch </a></td>
-  </tr>
+      <td><a href="/profile/artists/artist/<%= r.artist.artist_id %>"> <%= r.artist.artist_name %></a></td>
+      <td><a href="/profile/artists/artist/<%= r.action_.first_id %>/<%= r.action_.second_id %>/<%= r.action_.key_ %>"> <%= r.action_.key_ %></a></td>
+    </tr>
+    <% } %>
 </table></div>
 
 <div class=table-container><table>
   <tr>
   <td>Work name</td>
-  <td>Like/Unlike/td>
+  <td>User name</td>
+  <td>Action </td>
   </tr>
-  <tr>
-    <td><a href="/profile/works/work/ad8a727b09600707339c4a4531208b8"> Jill debut </a></td>
-    <td><a href="/profile/works/work/ad8a727b09600707339c4a4531208b8/withdraw"> Like </a></td>
-  </tr>
-  <tr>
-    <td><a href="/profile/works/work/408661a97a79ce10a01ff23f5cc64b1a"> Dream </a></td>
-    <td><a href="/profile/works/work/408661a97a79ce10a01ff23f5cc64b1a/withdraw"> Unlike </a></td>
-  </tr>
+  <% for(r of view_works_of_artist.rows) {%>
+    <tr>
+      <td><a href="/profile/works/work/<%= r.work_.work_id %>"> <%= r.work_.work_name %></a></td>
+      <td><a href="/profile/artists/artist/<%= r.artist.artist_id %>"> <%= r.artist.artist_name %></a></td>
+      <td><a href="/profile/works/work/<%= r.action_.first_id %>/<%= r.action_.second_id %>/<%= r.action_.key_ %>"> <%= r.action_.key_ %></a></td>
+    </tr>
+    <% } %>
 </table></div>
 
 <a href="/home"> Back home </a>

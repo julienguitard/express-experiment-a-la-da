@@ -19,20 +19,20 @@ declare type RoutePath =
     | "/home/works/firstSubmit/submit"
     | "/home/works/submit"
     | "/home/works/submit/submit"
-    | "/home/works/withdraw/:workId"
-    | "/home/works/withdraw/:workId/submit"
+    | "/profile/works/work/:artistId/:workId/withdraw"
+    | "/profile/works/work/:artistId/:workId/withdraw/submit"
     | "/profile/users/user/:userId"
     | "/profile/artists/artist/:artistId"
     | "/profile/works/work/:workId/view"
     | "/profile/works/work/:userWorkId/review"
     | "/profile/works/work/:workId"
-    | "/profile/users/user/:userArtistId/ban"
-    | "/profile/users/user/:userArtistId/ban/submit"
-    | "/profile/artists/artist/:artistId/watch"
-    | "/profile/artists/artist/:userArtistId/unwatch"
-    | "/profile/artists/artist/:userArtistId/rewatch"
-    | "/profile/works/work/:userWorkId/like"
-    | "/profile/works/work/:userWorkId/unlike"
+    | "/profile/users/user/:artistId/:userArtistId/ban"
+    | "/profile/users/user/:artistId/:userArtistId/ban/submit"
+    | "/profile/artists/artist/:userId/:artistId/watch"
+    | "/profile/artists/artist/:userId/:userArtistId/unwatch"
+    | "/profile/artists/artist/:userId/:userArtistId/rewatch"
+    | "/profile/works/work/:userId/:userWorkId/like"
+    | "/profile/works/work/:userId/:userWorkId/unlike"
     | "/signout"
     | "/signout/submit"
     | "/delete"
@@ -112,6 +112,7 @@ declare type EjsViewPropsMappingType = {
         }>,
     },
     Ban: { userName: string, startTime: string, userId: string }, //TO DO
+    FirstSubmit: { userName: string, startTime: string },
     Submit: { userName: string, startTime: string },
     Withdraw: { userName: string, startTime: string, workId: string },
     Signout: { userName: string, startTime: string },
@@ -198,13 +199,11 @@ declare type DBProcedureArgsMappingType = {
     view_user:{ artistId: string,userId: string },//TO DO
     view_artist:{ artistId: string,userId: string },//TO DO
     view_works_of_artist:{ artistId: string,userId: string },//TO DO
-    view_work:{ userId: string,workId: string },//TO DO
+    view_work:{userWorkId: string,userId: string,workId: string,reqEpoch: string},
     ban_watcher:{ userArtistId: string,reqEpoch:string},
     watch_artist:{ userArtistId: string, userId: string,artistId: string, reqEpoch:string },
     rewatch_artist:{ userArtistId: string,reqEpoch:string},
     unwatch_artist: { userId: string,artistId: string },
-    go_view_work:{ userId: string,workId: string };//TO DO
-    go_review_work:{ userWorkIdId: string },//TO DO
     like_work:{ userWorkId: string, reqEpoch:string},
     unlike_work:{ userWorkId: string,reqEpoch:string },
     delete_:{ userId: string, reqEpoch: string},

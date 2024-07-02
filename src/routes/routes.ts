@@ -124,7 +124,7 @@ const routeDBProcedureDict: Record<
     },
     SignedinAsUser: {
       dbProcedures: [],
-      render: "Submit",
+      render: "FirstSubmit",
     },
     SignedinAsArtist: {
       dbProcedures: [],
@@ -179,7 +179,7 @@ const routeDBProcedureDict: Record<
       fallback: "/home",
     },
   },
-  "/home/works/withdraw/:workId": {
+  "/profile/works/work/:artistId/:workId/withdraw": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",
@@ -193,7 +193,7 @@ const routeDBProcedureDict: Record<
       render: "Withdraw",
     },
   },
-  "/home/works/withdraw/:workId/submit": {
+  "/profile/works/work/:artistId/:workId/withdraw/submit": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",
@@ -270,7 +270,7 @@ const routeDBProcedureDict: Record<
       fallback: "/home",
     },
   }, //TO DO
-  "/profile/users/user/:userArtistId/ban": {
+  "/profile/users/user/:artistId/:userArtistId/ban": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",
@@ -283,7 +283,7 @@ const routeDBProcedureDict: Record<
       dbProcedures: [],
     },
   },
-  "/profile/users/user/:userArtistId/ban/submit": {
+  "/profile/users/user/:artistId/:userArtistId/ban/submit": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",
@@ -300,7 +300,7 @@ const routeDBProcedureDict: Record<
       fallback: "/home",
     },
   },
-  "/profile/artists/artist/:artistId/watch": {
+  "/profile/artists/artist/:userId/:artistId/watch": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",
@@ -316,7 +316,7 @@ const routeDBProcedureDict: Record<
       fallback: "/home",
     },
   },
-  "/profile/artists/artist/:userArtistId/rewatch": {
+  "/profile/artists/artist/:userId/:userArtistId/rewatch": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",
@@ -332,7 +332,7 @@ const routeDBProcedureDict: Record<
       fallback: "/home",
     },
   },
-  "/profile/artists/artist/:userArtistId/unwatch": {
+  "/profile/artists/artist/:userId/:userArtistId/unwatch": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",
@@ -348,22 +348,6 @@ const routeDBProcedureDict: Record<
       fallback: "/home",
     },
   },
-  "/profile/works/work/:workId/view": {
-    NotSignedin: {
-      dbProcedures: [],
-      redirect: "/",
-    },
-    SignedinAsUser: {
-      dbProcedures: ["go_view_work"],
-      event: "view",
-      fallback: "/home",
-    },
-    SignedinAsArtist: {
-      dbProcedures: ["go_view_work"],
-      event: "view",
-      fallback: "/home",
-    },
-  }, //TO DO
   "/profile/works/work/:workId": {
     NotSignedin: {
       dbProcedures: [],
@@ -371,6 +355,7 @@ const routeDBProcedureDict: Record<
     },
     SignedinAsUser: {
       dbProcedures: ["view_work"],
+      render : "Work",
       redirect: "/home",
     },
     SignedinAsArtist: {
@@ -378,24 +363,8 @@ const routeDBProcedureDict: Record<
       render : "Work",
       fallback: "/home",
     },
-  }, //TO DO
-  "/profile/works/work/:userWorkId/review": {
-    NotSignedin: {
-      dbProcedures: [],
-      redirect: "/",
-    },
-    SignedinAsUser: {
-      dbProcedures: ["go_review_work"],
-      event: "view",
-      fallback: "/home",
-    },
-    SignedinAsArtist: {
-      dbProcedures: ["go_review_work"],
-      event: "view",
-      fallback: "/home",
-    },
-  }, //TO DO
-  "/profile/works/work/:userWorkId/like": {
+  }, 
+  "/profile/works/work/:userId/:userWorkId/like": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",
@@ -403,15 +372,17 @@ const routeDBProcedureDict: Record<
     SignedinAsUser: {
       dbProcedures: ["like_work"],
       event: "like",
+      redirect:"/home",
       fallback: "/home",
     },
     SignedinAsArtist: {
       dbProcedures: ["like_work"],
       event: "like",
+      redirect:"/home",
       fallback: "/home",
     },
   },
-  "/profile/works/work/:userWorkId/unlike": {
+  "/profile/works/work/:userId/:userWorkId/unlike": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",
@@ -419,11 +390,13 @@ const routeDBProcedureDict: Record<
     SignedinAsUser: {
       dbProcedures: ["unlike_work"],
       event: "unlike",
+      redirect:"/home",
       fallback: "/home",
     },
     SignedinAsArtist: {
       dbProcedures: ["unlike_work"],
       event: "unlike",
+      redirect:"/home",
       fallback: "/home",
     },
   },
@@ -499,7 +472,7 @@ const routes: Array<RouteData> = Object.entries(routeDBProcedureDict).map(
       route: k,
       method: (Object.entries(v).filter(([vk,vv]) => (vv.method === 'post')).length > 0)?'post':'get',
       controlers: [
-        consoleControler,
+        /*consoleControler,*/
         sessionFirstUpdateControler,
         logToPostgresControler,
         builderFromRoutePath(k, v, hash),

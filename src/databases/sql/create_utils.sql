@@ -8,13 +8,7 @@ SELECT CONCAT(CONCAT ('DROP FUNCTION IF EXISTS ',proname),' CASCADE ;')
 FROM (SELECT *
       FROM PG_PROC
       WHERE pronamespace = 2200
-      AND NOT(proname = 'include_ref'));
-
---Function for creating some complexe values
-CREATE OR REPLACE FUNCTION include_ref (TEXT,TEXT,TEXT,TEXT) RETURNS JSONB
-AS
-$$
-SELECT CAST('{"' ||$1|| '":"' ||$2|| '","' ||$3|| '":"' ||$4|| '"}' AS JSONB) $$ LANGUAGE SQL;
+      AND NOT(proname = 'JSONB_BUILD_OBJECT'));
 
 --What to grant
 SELECT CONCAT(CONCAT('GRANT ALL ON ',name),' TO express_000;') FROM (

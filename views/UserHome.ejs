@@ -18,7 +18,7 @@
       <% for(r of see_watched_artists.rows) { %>
       <tr>
         <td><a href="/profile/artists/artist/<%= r.artist.artist_id %>"> <%= r.artist.user_name %></a></td>
-        <td><a href="/profile/artists/artist/<%= r.unwatch%>/unwatch"> Unwatch </a></td>
+        <td><a href="/profile/artists/artist/<%= r.unwatch.user_id%>/<%= r.unwatch.user_artist_id%>/unwatch"> Unwatch </a></td>
       </tr>
       <% } %>
     </table>
@@ -38,7 +38,7 @@
       <% for(r of see_liked_works.rows) { %>
       <tr>
         <td><a href="/profile/works/work/<%= r.work_.work_id %>"> <%= r.work_.work_name %></a></td>
-        <td><a href="/profile/works/works/<%= r.unlike%>/unlike"> Unlike </a></td>
+        <td><a href="/profile/works/work/<%= r.unlike.user_id%>/<%= r.unlike.user_work_id%>/unlike"> Unlike </a></td>
       </tr>
       <% } %>
     </table>

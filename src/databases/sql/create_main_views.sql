@@ -244,14 +244,29 @@ FROM (SELECT t0.id,
              t0.creation_time,
              t0.key_,
              t0.value,
-             t1.artist_id
-      FROM users_works_keys_without_withdrawn t0
-        JOIN (SELECT DISTINCT work_id,
-                     artist_id
-              FROM works_keys_without_withdrawn) t1 USING (work_id))
-  JOIN (SELECT DISTINCT user_id,
-               artist_id
-        FROM users_artists_keys_without_banned) USING (user_id,artist_id)
+             CASE
+               WHEN t1.user_id IS NOT NULL THEN 1
+               ELSE 0
+             END AS ban
+      FROM (SELECT t0.id,
+                   t0.user_work_id,
+                   t0.user_id,
+                   t0.work_id,
+                   t0.creation_time,
+                   t0.key_,
+                   t0.value,
+                   t1.artist_id
+            FROM users_works_keys_without_withdrawn t0
+              JOIN (SELECT DISTINCT work_id,
+                           artist_id
+                    FROM works_keys_without_withdrawn) t1 USING (work_id)) t0
+        LEFT JOIN (SELECT DISTINCT user_id,
+                          artist_id
+                   FROM users_artists_keys
+                   WHERE key_ = 'ban') t1
+               ON t0.user_id = t1.user_id
+              AND t0.artist_id = t1.artist_id)
+WHERE ban = 0
 );
 
 -- Some denormalized utils
@@ -340,8 +355,8 @@ SELECT * FROM checkable_signups
 );
 
 CREATE OR REPLACE VIEW seeable_watchers AS (
-SELECT include_ref('user_name',user_name,'user_id',user_id) AS user_,
-       user_artist_id AS ban,
+SELECT JSONB_BUILD_OBJECT('user_name',user_name,'user_id',user_id) AS user_,
+       JSONB_BUILD_OBJECT('artist_id',artist_id,'user_artist_id',user_artist_id) AS ban,
        artist_id
 FROM (SELECT user_artist_id,
              user_id,
@@ -367,8 +382,8 @@ FROM seeable_watchers
 );
 
 CREATE OR REPLACE VIEW seeable_works AS (
-SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
-       work_id AS withdraw,
+SELECT JSONB_BUILD_OBJECT('work_name',work_name,'work_id',work_id) AS work_,
+       JSONB_BUILD_OBJECT('artist_id',artist_id,'work_id',work_id) AS withdraw,
        artist_id
 FROM (SELECT DISTINCT work_id,
              artist_id,
@@ -384,8 +399,8 @@ FROM seeable_works
 );
 
 CREATE OR REPLACE VIEW seeable_artists AS (
-SELECT include_ref('user_name',user_name,'artist_id',artist_id) AS artist,
-       user_artist_id AS unwatch,
+SELECT JSONB_BUILD_OBJECT('user_name',user_name,'artist_id',artist_id) AS artist,
+       JSONB_BUILD_OBJECT('user_id',user_id,'user_artist_id',user_artist_id) AS unwatch,
        user_id
 FROM (SELECT user_artist_id,
              user_id,
@@ -411,8 +426,8 @@ FROM seeable_artists
 );
 
 CREATE OR REPLACE VIEW likable_works AS (
-SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
-       user_work_id AS unlike,
+SELECT JSONB_BUILD_OBJECT('work_name',work_name,'work_id',work_id) AS work_,
+       JSONB_BUILD_OBJECT('user_id',user_id,'user_work_id',user_work_id)AS unlike,
        user_id
 FROM (SELECT user_work_id,
              user_id,
@@ -435,10 +450,8 @@ FROM likable_works
 --WHERE user_id=$1 
 );
 
-
-
 CREATE OR REPLACE VIEW more_artists AS (
-SELECT include_ref('artist_id',artist_id,'user_name',user_name) AS artist
+SELECT JSONB_BUILD_OBJECT('artist_id',artist_id,'user_name',user_name) AS artist
 FROM (SELECT artist_id,
              user_id,
              user_name
@@ -451,8 +464,8 @@ FROM more_artists
 );
 
 CREATE OR REPLACE VIEW more_works AS (
-SELECT include_ref('work_id',work_id,'work_name',work_name) AS work_,
-       include_ref('artist_id',artist_id,'user_name',user_name) AS artist
+SELECT JSONB_BUILD_OBJECT('work_id',work_id,'work_name',work_name) AS work_,
+       JSONB_BUILD_OBJECT('artist_id',artist_id,'user_name',user_name) AS artist
 FROM (SELECT work_id,
              artist_id,
              user_id,
@@ -469,7 +482,7 @@ FROM more_works
 
 CREATE OR REPLACE VIEW viewable_users AS
 (
-SELECT include_ref('user_name',user_name,'user_id',user_id) AS user_,
+SELECT JSONB_BUILD_OBJECT('user_name',user_name,'user_id',user_id) AS user_,
        user_artist_id AS ban,
        artist_id
 FROM (SELECT user_id,
@@ -494,7 +507,7 @@ FROM viewable_users
 
 CREATE OR REPLACE VIEW viewable_artists AS
 (
-SELECT include_ref('user_name',user_name,'artist_id',artist_id) AS artist,
+SELECT JSONB_BUILD_OBJECT('user_name',user_name,'artist_id',artist_id) AS artist,
        user_artist_id AS watch,
        user_id
 FROM (SELECT artist_id,
@@ -517,7 +530,7 @@ FROM viewable_artists
 
 CREATE OR REPLACE VIEW viewable_works_of_artist AS
 (
-SELECT include_ref('work_name',work_name,'work_id',work_id) AS work_,
+SELECT JSONB_BUILD_OBJECT('work_name',work_name,'work_id',work_id) AS work_,
        user_work_id AS like_,
        user_id
 FROM (SELECT work_id,
@@ -531,7 +544,7 @@ FROM (SELECT work_id,
   LEFT JOIN (SELECT DISTINCT user_work_id,
                     user_id,
                     work_id
-             FROM users_works_keys_without_banned) USING (work_id)
+             FROM users_works_keys_without_withdrawn) USING (work_id)
 --WHERE user_id=$1
 );
 
@@ -542,3 +555,66 @@ SELECT work_,
 FROM viewable_works_of_artist
 --WHERE user_id=$1
 ); 
+
+CREATE OR REPLACE VIEW viewable_works AS 
+(
+SELECT JSONB_BUILD_OBJECT('work_id',work_id,'work_name',work_name) AS work_,
+       JSONB_BUILD_OBJECT('artist_id',artist_id,'user_name',user_name) AS artist,
+       JSONB_BUILD_OBJECT('first_id',first_id,'second_id',second_id,'key_',INITCAP(key_)) AS action_,
+       user_id_
+FROM (SELECT user_id,
+             artist_id,
+             work_id,
+             user_name,
+             work_name,
+             first_id,
+             second_id,
+             CASE
+               WHEN key_ = 'submit' THEN 'withdraw'
+               WHEN key_ = 'like' AND value = 1 THEN 'unlike'
+               WHEN key_ = 'like' AND value = 0 THEN 'relike'
+               WHEN key_ IS NULL THEN 'like'
+               ELSE key_
+             END AS key_,
+             user_id_
+      FROM (SELECT t0.user_id,
+                   t0.artist_id,
+                   t0.work_id,
+                   t0.user_name,
+                   t0.work_name,
+                   t0.artist_id AS first_id,
+                   t0.work_id AS second_id,
+                   t1.key_,
+                   t1.value,
+                   t0.user_id AS user_id_
+            FROM denormalized_works t0
+              JOIN works_keys_without_withdrawn t1 USING (work_id)
+            UNION ALL
+            SELECT t0.user_id,
+                   t0.artist_id,
+                   t0.work_id,
+                   t0.user_name,
+                   t0.work_name,
+                   t1.user_id AS first_id,
+                   t1.user_work_id AS second_id,
+                   t2.key_,
+                   t2.value,
+                   t1.user_id AS user_id_
+            FROM denormalized_works t0
+              LEFT JOIN (SELECT DISTINCT user_work_id,
+                                user_id,
+                                work_id
+                         FROM users_works_keys_without_withdrawn) t1 ON t0.work_id = t1.work_id
+              LEFT JOIN (SELECT *
+                         FROM users_works_keys_without_withdrawn
+                         WHERE NOT (key_ IN ('create','view'))) t2 ON t0.work_id = t2.work_id))
+);
+
+CREATE OR REPLACE VIEW viewable_works_ AS 
+(
+SELECT work_,
+       artist,
+       action_
+FROM viewable_works
+--WHERE work_id = $1 user_id_ = $2
+);

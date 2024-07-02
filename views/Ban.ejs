@@ -7,8 +7,11 @@
   <title>Sandbox</title>
 </head>
 
+<form action="/profile/users/user/<%= params.artistId %>/<%= params.userArtistId %>/ban/submit" method="post">
+  <input type="submit" value="Confirm banning" class="delete-update">
+</form>
+<br>
 <a href="/home"> Get back </a>
-<a href="/profile/users/user/58a9fce14954d73241cce675d68d378a/ban/submit"> Confirm banning user </a>
 
 <p> Signed in as <%= userName %> <br> <a href="/signout"> Sign out </a> </p>
 <p> Started browsing at <%= startTime %> </p>

@@ -58,7 +58,6 @@ async function queryPoolFromProcedure<T extends keyof DBProcedureArgsMappingType
   cb?:(ou:QueryResult<any>)=>any
 ): Promise<QueryResult<any>> {
   const params = processQueryPoolArgs(args);
-  console.log('pro: '+pro);
   if (cb){
       return queryPoolFromProcedure_(po, pro,params, cb);
   }

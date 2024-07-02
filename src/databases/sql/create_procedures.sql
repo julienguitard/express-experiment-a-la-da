@@ -650,7 +650,7 @@ AS
 $$
 
 
-SELECT include_ref('artist_id',artist_id,'user_name',user_name) AS artist
+SELECT JSONB_BUILD_OBJECT('artist_id',artist_id,'user_name',user_name) AS artist
 FROM (SELECT t0.artist_id,
              user_id,
              user_name,
@@ -671,8 +671,8 @@ CREATE OR REPLACE FUNCTION see_more_works (user_id_arg TEXT) RETURNS SETOF more_
 AS
 $$
 
-SELECT include_ref('work_id',work_id,'work_name',work_name) AS work_,
-       include_ref('artist_id',artist_id,'user_name',user_name) AS artist
+SELECT JSONB_BUILD_OBJECT('work_id',work_id,'work_name',work_name) AS work_,
+       JSONB_BUILD_OBJECT('artist_id',artist_id,'user_name',user_name) AS artist
 FROM (SELECT t0.work_id,
              artist_id,
              user_id,
@@ -684,22 +684,35 @@ FROM (SELECT t0.work_id,
              END AS more_
       FROM denormalized_works t0
         LEFT JOIN (SELECT DISTINCT work_id
-                   FROM users_works_keys_without_withdrawn
+                   FROM users_works_keys_without_banned
                    WHERE user_id = user_id_arg) t1 USING (work_id))
 WHERE more_ = 1
 ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION view_work (work_id_arg TEXT, artist_id_arg TEXT)  RETURNS SETOF seeable_works_
+CREATE OR REPLACE FUNCTION view_work (user_work_id_arg TEXT, user_id_arg TEXT, work_id_arg TEXT, req_epoch_arg TEXT)  RETURNS SETOF viewable_works_
 AS
 $$
 
+SELECT *
+FROM insert_user_work (user_work_id_arg,user_id_arg,work_id_arg,req_epoch_arg);
+
+SELECT *
+FROM insert_user_work_event (user_work_id_arg,req_epoch_arg,'view');
+
+
 SELECT work_,
-       withdraw
-FROM seeable_works
+       artist,
+       CASE
+         WHEN user_id_ IS NULL THEN JSONB_BUILD_OBJECT ('first_id',user_id_arg,'second_id',user_work_id_arg,'key_',action_['key_'])
+         ELSE action_
+       END AS action_
+FROM viewable_works
 WHERE TRIM('"' FROM CAST(work_['work_id'] AS VARCHAR(256))) = work_id_arg
-AND   artist_id = artist_id_arg;
+AND   (user_id_ = user_id_arg OR user_id_ IS NULL)
+ORDER BY CAST(artist['artist_id'] AS VARCHAR(256)),
+         CAST(work_['work_id'] AS VARCHAR(256));
 
 $$ LANGUAGE SQL;
 
@@ -748,39 +761,12 @@ FROM insert_user_artist_event (user_artist_id_arg,req_epoch_arg,'unwatch')
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION go_view_work (user_work_id_arg TEXT, user_id_arg TEXT, work_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_works_core
-AS
-$$
-
-DELETE
-FROM users_works_core_buffer;
-
-SELECT *
-FROM insert_user_work (user_work_id_arg,user_id_arg,work_id_arg,req_epoch_arg);
-
-SELECT *
-FROM insert_user_work_event (user_work_id_arg,req_epoch_arg,'view');
-
-SELECT *
-FROM users_works_core_buffer;
-
-$$ LANGUAGE SQL;
-
-CREATE OR REPLACE FUNCTION go_review_work (user_work_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_works_events
-AS
-$$
-
-SELECT *
-FROM insert_user_work_event (user_work_id_arg,req_epoch_arg,'view');
-
-$$ LANGUAGE SQL;
-
 CREATE OR REPLACE FUNCTION like_work (user_work_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_works_events
 AS
 $$
 
 SELECT *
-FROM insert_work_event (user_work_id_arg,req_epoch_arg,'like')
+FROM insert_user_work_event (user_work_id_arg,req_epoch_arg,'like')
 
 $$ LANGUAGE SQL;
 
@@ -789,7 +775,7 @@ AS
 $$
 
 SELECT *
-FROM insert_work_event (user_work_id_arg,req_epoch_arg,'unlike')
+FROM insert_user_work_event (user_work_id_arg,req_epoch_arg,'unlike')
 
 $$ LANGUAGE SQL;
 

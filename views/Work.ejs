@@ -10,12 +10,14 @@
 <div class=table-container><table>
   <tr>
   <td>Work name</td>
-  <td>Withdraw</td>
+  <td>User name</td>
+  <td>Action </td>
   </tr>
   <% for(r of view_work.rows) {%>
     <tr>
       <td><a href="/profile/works/work/<%= r.work_.work_id %>"> <%= r.work_.work_name %></a></td>
-      <td><a href="/home/works/withdraw/<%= r.withdraw %>"> Withdraw </a></td>
+      <td><a href="/profile/artists/artist/<%= r.artist.artist_id %>"> <%= r.artist.artist_name %></a></td>
+      <td><a href="/profile/works/work/<%= r.action_.first_id %>/<%= r.action_.second_id %>/<%= r.action_.key_ %>"> <%= r.action_.key_ %></a></td>
     </tr>
     <% } %>
 </table></div>

@@ -3,10 +3,6 @@ GRANT ALL
   TO express_000;
 
 GRANT ALL
-  ON simulation_002
-  TO express_000;
-
-GRANT ALL
   ON simulation_003
   TO express_000;
 
@@ -15,7 +11,7 @@ GRANT ALL
   TO express_000;
 
 GRANT ALL
-  ON requests_logs
+  ON simulation_002
   TO express_000;
 
 GRANT ALL
@@ -28,6 +24,42 @@ GRANT ALL
 
 GRANT ALL
   ON simulation_006
+  TO express_000;
+
+GRANT ALL
+  ON users_artists_core_buffer
+  TO express_000;
+
+GRANT ALL
+  ON works_core_buffer
+  TO express_000;
+
+GRANT ALL
+  ON artists_core_buffer
+  TO express_000;
+
+GRANT ALL
+  ON users_events_buffer
+  TO express_000;
+
+GRANT ALL
+  ON simulation_004
+  TO express_000;
+
+GRANT ALL
+  ON users_core
+  TO express_000;
+
+GRANT ALL
+  ON works_events
+  TO express_000;
+
+GRANT ALL
+  ON users_works_events_buffer
+  TO express_000;
+
+GRANT ALL
+  ON requests_logs
   TO express_000;
 
 GRANT ALL
@@ -47,19 +79,7 @@ GRANT ALL
   TO express_000;
 
 GRANT ALL
-  ON users_artists_core_buffer
-  TO express_000;
-
-GRANT ALL
-  ON users_events_buffer
-  TO express_000;
-
-GRANT ALL
   ON works_events_buffer
-  TO express_000;
-
-GRANT ALL
-  ON works_core_buffer
   TO express_000;
 
 GRANT ALL
@@ -67,31 +87,11 @@ GRANT ALL
   TO express_000;
 
 GRANT ALL
-  ON artists_core_buffer
-  TO express_000;
-
-GRANT ALL
-  ON users_works_events_buffer
-  TO express_000;
-
-GRANT ALL
   ON users_works_core_buffer
   TO express_000;
 
 GRANT ALL
-  ON simulation_004
-  TO express_000;
-
-GRANT ALL
-  ON users_core
-  TO express_000;
-
-GRANT ALL
   ON users_works_events
-  TO express_000;
-
-GRANT ALL
-  ON works_events
   TO express_000;
 
 GRANT ALL
@@ -120,6 +120,50 @@ GRANT ALL
 
 GRANT ALL
   ON full_logs
+  TO express_000;
+
+GRANT ALL
+  ON more_works_
+  TO express_000;
+
+GRANT ALL
+  ON viewable_users
+  TO express_000;
+
+GRANT ALL
+  ON viewable_users_
+  TO express_000;
+
+GRANT ALL
+  ON viewable_artists
+  TO express_000;
+
+GRANT ALL
+  ON viewable_artists_
+  TO express_000;
+
+GRANT ALL
+  ON viewable_works_of_artist
+  TO express_000;
+
+GRANT ALL
+  ON viewable_works_of_artist_
+  TO express_000;
+
+GRANT ALL
+  ON viewable_works
+  TO express_000;
+
+GRANT ALL
+  ON viewable_works_
+  TO express_000;
+
+GRANT ALL
+  ON more_artists_
+  TO express_000;
+
+GRANT ALL
+  ON more_works
   TO express_000;
 
 GRANT ALL
@@ -167,11 +211,11 @@ GRANT ALL
   TO express_000;
 
 GRANT ALL
-  ON users_works_keys_without_deleted
+  ON users_artists_keys_without_deleted
   TO express_000;
 
 GRANT ALL
-  ON users_artists_keys_without_deleted
+  ON users_works_keys_without_deleted
   TO express_000;
 
 GRANT ALL
@@ -264,41 +308,5 @@ GRANT ALL
 
 GRANT ALL
   ON more_artists
-  TO express_000;
-
-GRANT ALL
-  ON more_artists_
-  TO express_000;
-
-GRANT ALL
-  ON more_works
-  TO express_000;
-
-GRANT ALL
-  ON more_works_
-  TO express_000;
-
-GRANT ALL
-  ON viewable_users
-  TO express_000;
-
-GRANT ALL
-  ON viewable_users_
-  TO express_000;
-
-GRANT ALL
-  ON viewable_artists
-  TO express_000;
-
-GRANT ALL
-  ON viewable_artists_
-  TO express_000;
-
-GRANT ALL
-  ON viewable_works_of_artist
-  TO express_000;
-
-GRANT ALL
-  ON viewable_works_of_artist_
   TO express_000;
 
