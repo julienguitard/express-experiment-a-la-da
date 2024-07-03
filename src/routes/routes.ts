@@ -16,6 +16,7 @@ import {
 
 import { builderFromRoutePath } from "../middlewares/factory.js";
 import { hash } from "../utils/hash";
+import { resolve } from "path";
 
 const routeDBProcedureDict: Record<
   RoutePath,
@@ -222,6 +223,7 @@ const routeDBProcedureDict: Record<
     }, //TO DO
     SignedinAsArtist: {
       dbProcedures: ["see_more_artists"],
+      render: "MoreArtists",
       fallback: "/home",
     }, //TO DO
   },
@@ -263,10 +265,12 @@ const routeDBProcedureDict: Record<
     },
     SignedinAsUser: {
       dbProcedures: ["view_artist", "view_works_of_artist"],
+      render:"Artist",
       fallback: "/home",
     },
     SignedinAsArtist: {
       dbProcedures: ["view_artist", "view_works_of_artist"],
+      render:"Artist",
       fallback: "/home",
     },
   }, //TO DO
@@ -308,27 +312,13 @@ const routeDBProcedureDict: Record<
     SignedinAsUser: {
       dbProcedures: ["watch_artist"],
       event: "watch",
+      redirect:"/home",
       fallback: "/home",
     },
     SignedinAsArtist: {
       dbProcedures: ["watch_artist"],
       event: "watch",
-      fallback: "/home",
-    },
-  },
-  "/profile/artists/artist/:userId/:userArtistId/rewatch": {
-    NotSignedin: {
-      dbProcedures: [],
-      redirect: "/",
-    },
-    SignedinAsUser: {
-      dbProcedures: ["rewatch_artist"],
-      event: "watch",
-      fallback: "/home",
-    },
-    SignedinAsArtist: {
-      dbProcedures: ["rewatch_artist"],
-      event: "watch",
+      redirect:"/home",
       fallback: "/home",
     },
   },
@@ -340,11 +330,13 @@ const routeDBProcedureDict: Record<
     SignedinAsUser: {
       dbProcedures: ["unwatch_artist"],
       event: "unwatch",
+      redirect:"/home",
       fallback: "/home",
     },
     SignedinAsArtist: {
       dbProcedures: ["unwatch_artist"],
       event: "unwatch",
+      redirect:"/home",
       fallback: "/home",
     },
   },

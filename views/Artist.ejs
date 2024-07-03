@@ -29,8 +29,7 @@
   <% for(r of view_works_of_artist.rows) {%>
     <tr>
       <td><a href="/profile/works/work/<%= r.work_.work_id %>"> <%= r.work_.work_name %></a></td>
-      <td><a href="/profile/artists/artist/<%= r.artist.artist_id %>"> <%= r.artist.artist_name %></a></td>
-      <td><a href="/profile/works/work/<%= r.action_.first_id %>/<%= r.action_.second_id %>/<%= r.action_.key_ %>"> <%= r.action_.key_ %></a></td>
+      <td><a href="/profile/artists/artist/<%= r.artist.artist_id %>"> <%= r.artist.user_name %></a></td>
     </tr>
     <% } %>
 </table></div>

@@ -691,6 +691,26 @@ ORDER BY RANDOM() LIMIT 10;
 
 $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION view_artist (user_artist_id_arg TEXT, user_id_arg TEXT, artist_id_arg TEXT, req_epoch_arg TEXT)  RETURNS SETOF viewable_artists_
+AS
+$$
+
+SELECT *
+FROM insert_user_artist (user_artist_id_arg,user_id_arg,artist_id_arg,req_epoch_arg);
+
+
+SELECT artist,
+       CASE
+         WHEN user_id_ IS NULL THEN JSONB_BUILD_OBJECT ('first_id',user_id_arg,'second_id',user_artist_id_arg,'key_',action_['key_'])
+         ELSE action_
+       END AS action_
+FROM viewable_artists
+WHERE TRIM('"' FROM CAST(artist['artist_id'] AS VARCHAR(256))) = artist_id_arg
+AND   (user_id_ = user_id_arg OR user_id_ IS NULL)
+ORDER BY CAST(artist['artist_id'] AS VARCHAR(256))
+
+$$ LANGUAGE SQL;
+
 CREATE OR REPLACE FUNCTION view_work (user_work_id_arg TEXT, user_id_arg TEXT, work_id_arg TEXT, req_epoch_arg TEXT)  RETURNS SETOF viewable_works_
 AS
 $$
@@ -716,6 +736,25 @@ ORDER BY CAST(artist['artist_id'] AS VARCHAR(256)),
 
 $$ LANGUAGE SQL;
 
+
+CREATE OR REPLACE FUNCTION view_works_of_artist (artist_id_arg TEXT) RETURNS SETOF more_works_
+AS
+$$
+
+SELECT JSONB_BUILD_OBJECT('work_id',work_id,'work_name',work_name) AS work_,
+       JSONB_BUILD_OBJECT('artist_id',artist_id,'user_name',user_name) AS artist
+FROM (SELECT work_id,
+             artist_id,
+             user_id,
+             user_name,
+             work_name
+      FROM denormalized_works
+      WHERE artist_id = artist_id_arg)
+ORDER BY RANDOM() LIMIT 10;
+
+$$ LANGUAGE SQL;
+
+
 CREATE OR REPLACE FUNCTION ban_watcher (user_artist_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_artists_events
 AS
 $$
@@ -725,25 +764,8 @@ FROM insert_user_artist_event (user_artist_id_arg,req_epoch_arg,'ban')
 
 $$ LANGUAGE SQL;
 
-CREATE OR REPLACE FUNCTION watch_artist (user_artist_id_arg TEXT, user_id_arg TEXT, artist_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF users_artists_core
-AS
-$$
 
-DELETE
-FROM users_artists_core_buffer;
-
-SELECT *
-FROM insert_user_artist (user_artist_id_arg,user_id_arg,artist_id_arg,req_epoch_arg);
-
-SELECT *
-FROM insert_user_artist_event (user_artist_id_arg,req_epoch_arg,'watch');
-
-SELECT *
-FROM users_artists_core_buffer;
-
-$$ LANGUAGE SQL;
-
-CREATE OR REPLACE FUNCTION rewatch_artist (user_artist_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF  users_artists_events
+CREATE OR REPLACE FUNCTION watch_artist (user_artist_id_arg TEXT, req_epoch_arg TEXT) RETURNS SETOF  users_artists_events
 AS
 $$
 

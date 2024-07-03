@@ -197,13 +197,12 @@ declare type DBProcedureArgsMappingType = {
     see_more_artists:{ userId: string },//TO DO
     see_more_works:{ userId: string },//TO DO
     view_user:{ artistId: string,userId: string },//TO DO
-    view_artist:{ artistId: string,userId: string },//TO DO
-    view_works_of_artist:{ artistId: string,userId: string },//TO DO
+    view_artist:{ userArtistId: string,userId: string,artistId: string,reqEpoch: string},//TO DO
+    view_works_of_artist:{ artistId: string },//TO DO
     view_work:{userWorkId: string,userId: string,workId: string,reqEpoch: string},
     ban_watcher:{ userArtistId: string,reqEpoch:string},
-    watch_artist:{ userArtistId: string, userId: string,artistId: string, reqEpoch:string },
-    rewatch_artist:{ userArtistId: string,reqEpoch:string},
-    unwatch_artist: { userId: string,artistId: string },
+    watch_artist:{ userArtistId: string,reqEpoch:string},
+    unwatch_artist: { userArtistId: string,reqEpoch:string},
     like_work:{ userWorkId: string, reqEpoch:string},
     unlike_work:{ userWorkId: string,reqEpoch:string },
     delete_:{ userId: string, reqEpoch: string},
@@ -241,7 +240,6 @@ declare type DBProcedureResultsMappingType = {
     view_work: { workId: { workName: string, workId: string }, like: string },
     ban_watcher: { id:string, userArtistId: string,time: string,key_: string, value:string },
     watch_artist:  { userArtistId: string, userId:string, artistId:string, creationTime: string },
-    rewatch_artist:  { id:string, userArtistId: string,time: string,key_: string, value:string },
     unwatch_artist:  { id:string, userArtistId: string,time: string,key_: string, value:string },
     like_work: {id:string, userWorkId: string,time: string,key_: string, value:string },
     unlike_work: { id:string, userWorkId: string,time: string,key_: string, value:string },

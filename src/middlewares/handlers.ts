@@ -192,34 +192,30 @@ function getDBprocedureArgs<T extends keyof DBProcedureArgsMappingType>(
       return { artistId: req.session.artistId, userId: req.params.userId };
 
     case "view_artist"://TO DO
-      return { artistId: req.params.artistId, userId: req.session.userId };
+      return {
+        userWorkId: hash(req.session.userId + req.params.artistId), 
+        userId: req.session.userId,
+        workId: req.params.artistId, 
+        reqEpoch: req.session.reqEpoch 
+      };
 
     case "view_works_of_artist"://TO DO
-      return { artistId: req.params.artistId, userId: req.session.userId };
+      return { artistId: req.params.artistId};
 
     case "view_work":
       return {
         userWorkId: hash(req.session.userId + req.params.workId), 
         userId: req.session.userId,
-         workId: req.params.workId, 
-         reqEpoch: req.session.reqEpoch 
-        };
+        workId: req.params.workId, 
+        reqEpoch: req.session.reqEpoch 
+      };
 
     case "ban_watcher":
       return {
         userArtistId: req.params.userArtistId,
         reqEpoch: req.session.reqEpoch
       };
-
     case "watch_artist":
-      return {
-        userArtistId: hash(req.session.userId + req.params.artistId),
-        userId: req.session.userId,
-        artistId: req.params.artistId,
-        reqEpoch: req.session.reqEpoch
-      };
-
-    case "rewatch_artist":
       return {
         userArtistId: req.params.userArtistId,
         reqEpoch: req.session.reqEpoch
