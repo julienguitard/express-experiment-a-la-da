@@ -1,9 +1,7 @@
-import { StringifyOptions } from "querystring";
 import { Request, Reponse, Error, NextFunction } from "express";
 import { Pool, QueryResult } from "pg";
 import { Session, SessionData } from "./express-session";
 
-/*declare type OneMore<T> = [T, Array<T>];*/
 
 
 declare type RoutePath =
@@ -28,9 +26,8 @@ declare type RoutePath =
     | "/profile/works/work/:workId"
     | "/profile/users/user/:artistId/:userArtistId/ban"
     | "/profile/users/user/:artistId/:userArtistId/ban/submit"
-    | "/profile/artists/artist/:userId/:artistId/watch"
+    | "/profile/artists/artist/:userId/:userArtistId/watch"
     | "/profile/artists/artist/:userId/:userArtistId/unwatch"
-    | "/profile/artists/artist/:userId/:userArtistId/rewatch"
     | "/profile/works/work/:userId/:userWorkId/like"
     | "/profile/works/work/:userId/:userWorkId/unlike"
     | "/signout"
@@ -38,13 +35,11 @@ declare type RoutePath =
     | "/delete"
     | "/delete/submit";
 
-
 declare type Redirection = keyof RedirectionArgsMappingType;
 
 declare type RedirectionArgsMappingType = {
     "/home": {},
-    "/": {},
-    "/profile/works/work/:workId":{}
+    "/": {}
 }
 
 declare type RouteEvent = 'create'
@@ -145,30 +140,8 @@ declare type EjsViewPropsMappingType = {
 
 
 
-declare interface ProcedureOutput<T> {
-    watches?: T;
-    likes?: T;
-    watchers?: T;
-    liked?: T;
-    moreUsers?: T;
-    moreArtists?: T;
-    moreWorks?: T;
-}
 
-declare interface PhantomData {
-    pwd: string,
-    workId: string,
-    workName: string,
-    userArtistId: string,
-    userWorkId: string,
-    reqEpoch: string,
-    key_: string,
-}
 
-type UbiquitousConcept =
-    | keyof ProcedureOutput
-    | keyof SessionData
-    | keyof PhantomData;
 
 declare type DBProcedure =
     | keyof DBProcedureArgsMappingType
@@ -269,7 +242,6 @@ declare interface CellProps {
 export type {
     CellProps,
     RouteEvent,
-    UbiquitousConcept,
     DBProcedure,
     DBProcedureArgsMappingType,
     DBProcedureResultsMappingType,

@@ -31,13 +31,10 @@ const preRouterUsables:Array<RequestHandler> = [
   bodyParser.urlencoded({ extended: false })
 ];
 
-const postRouterUsables:Array<RequestHandler|ErrorRequestHandler>  = [
- //TO DO pageNotFoundControler
-]
+const postRouterUsables:Array<RequestHandler|ErrorRequestHandler>  = []
 
 preRouterUsables.map((u) => app.use(u));
 app.use("/", router);
 postRouterUsables.map((u) => app.use(u));
-
 
 export { app, port };

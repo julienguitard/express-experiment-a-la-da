@@ -1,7 +1,5 @@
 import {
   RouteData,
-  DBProcedure,
-  EjsView,
   RoutePath,
   Verb,
   RouteEvent,
@@ -285,6 +283,7 @@ const routeDBProcedureDict: Record<
     },
     SignedinAsArtist: {
       dbProcedures: [],
+      render:"Ban"
     },
   },
   "/profile/users/user/:artistId/:userArtistId/ban/submit": {
@@ -304,7 +303,7 @@ const routeDBProcedureDict: Record<
       fallback: "/home",
     },
   },
-  "/profile/artists/artist/:userId/:artistId/watch": {
+  "/profile/artists/artist/:userId/:userArtistId/watch": {
     NotSignedin: {
       dbProcedures: [],
       redirect: "/",

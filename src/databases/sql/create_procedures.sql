@@ -661,7 +661,7 @@ FROM (SELECT t0.artist_id,
       FROM denormalized_artists t0
         LEFT JOIN (SELECT DISTINCT artist_id
                    FROM users_artists_keys_without_banned
-                   WHERE user_id = user_id_arg) t1 USING (artist_id))
+                   WHERE user_id = user_id_arg AND key_='watch' AND value=1) t1 USING (artist_id))
 WHERE more_ = 1
 ORDER BY RANDOM() LIMIT 10;
 
@@ -685,7 +685,7 @@ FROM (SELECT t0.work_id,
       FROM denormalized_works t0
         LEFT JOIN (SELECT DISTINCT work_id
                    FROM users_works_keys_without_banned
-                   WHERE user_id = user_id_arg) t1 USING (work_id))
+                   WHERE user_id = user_id_arg AND (key_='like' AND value=1)) t1 USING (work_id))
 WHERE more_ = 1
 ORDER BY RANDOM() LIMIT 10;
 

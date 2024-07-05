@@ -6,7 +6,6 @@ function mergeInto<T extends string, U>(destObj: Record<T, U>): (obj: Record<T, 
     return merging;
 }
 
-
 function updateInto<T extends string, U>(destObj: Record<T, U>, props: Array<T>): (obj: Record<T, U>) => void {
     function update(obj: Record<T, U>): void {
         for (let p of props) {
