@@ -9,11 +9,10 @@ function convertToSql(pro:DBProcedure,params:Array<string>|undefined):string {
     return  `SELECT * FROM ${pro}${argsString} LIMIT 10 ;`
 }
 
-
 function processQueryPoolArgs<T extends keyof DBProcedureArgsMappingType>(
     args: DBProcedureArgsMappingType[T]
   ): Array < string > {
-    return Object.entries(args).map((kv) => kv[1]);
+    return Object.entries(args).map(([k,v]) => v);
   
   }
 

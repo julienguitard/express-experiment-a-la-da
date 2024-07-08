@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { Session, SessionLevel} from "../express-session";
-import pg, { PoolConfig, Pool, QueryResult } from "pg";
-import { pool, queryPool, queryPoolFromProcedure } from "../databases/index.js";
-import { RouteData, Controler, RoutePath, DBProcedure, EjsView, RouteEvent, Verb, RoutePathLevelData} from "../types";
+import { Pool, QueryResult } from "pg";
+import { queryPoolFromProcedure } from "../databases/index.js";
+import { RouteData, Controler, RoutePath, DBProcedure, EjsView, Verb, RoutePathLevelData} from "../types";
 import {
   getSessionLevel,
   assertDBprocedureArgs,
@@ -21,6 +21,7 @@ import { parseSQLOutput } from "../databases/factory";
 function builderFromRoutePath(
   routePath : RoutePath,
   routePathData :Record<SessionLevel, RoutePathLevelData>,
+  pool: Pool,
   hash:(s: string) => string,
 ):(req:Request,res:Response,next:NextFunction)=>void{
   function mdw(req:Request,res:Response,next:NextFunction):void{

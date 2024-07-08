@@ -1,15 +1,12 @@
-import express, { Application, RequestHandler, ErrorRequestHandler} from "express";
+import express, { Application, Router, RequestHandler, ErrorRequestHandler} from "express";
 import session, { SessionOptions } from "express-session";
 import cors from "cors";
 import helmet from "helmet";
-import path from "path";
 import bodyParser from "body-parser";
-import { router } from "./routes/index.js";
+import {pool} from './databases/index';
+import {routeDBProcedureDict,generateRouter} from "./routes/index.js";
 import morgan from "morgan";
-import {
-  errorControler,
-  pageNotFoundControler,
-} from "./middlewares/index.js";
+
 
 const app: Application = express();
 const port: number = 3001;
@@ -33,6 +30,7 @@ const preRouterUsables:Array<RequestHandler> = [
 
 const postRouterUsables:Array<RequestHandler|ErrorRequestHandler>  = []
 
+const router:Router = generateRouter(routeDBProcedureDict,pool);
 preRouterUsables.map((u) => app.use(u));
 app.use("/", router);
 postRouterUsables.map((u) => app.use(u));

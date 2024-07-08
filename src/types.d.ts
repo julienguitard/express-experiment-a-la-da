@@ -2,8 +2,6 @@ import { Request, Reponse, Error, NextFunction } from "express";
 import { Pool, QueryResult } from "pg";
 import { Session, SessionData } from "./express-session";
 
-
-
 declare type RoutePath =
     | "/"
     | "/landing/signin"
@@ -21,8 +19,6 @@ declare type RoutePath =
     | "/profile/works/work/:artistId/:workId/withdraw/submit"
     | "/profile/users/user/:userId"
     | "/profile/artists/artist/:artistId"
-    | "/profile/works/work/:workId/view"
-    | "/profile/works/work/:userWorkId/review"
     | "/profile/works/work/:workId"
     | "/profile/users/user/:artistId/:userArtistId/ban"
     | "/profile/users/user/:artistId/:userArtistId/ban/submit"
@@ -41,107 +37,6 @@ declare type RedirectionArgsMappingType = {
     "/home": {},
     "/": {}
 }
-
-declare type RouteEvent = 'create'
-|'delete'
-|'submit'
-|'withdraw'
-|'ban'
-|'watch'
-|'unwatch'
-|'view'
-|'like'
-|'unlike';
-
-declare type Verb = 'get' | 'post'
-declare type RoutePathLevelData = {
-    dbProcedures: Array<DBProcedure>,
-    redirect?:RoutePath,
-    render?:EjsView,
-    method?:Verb,
-    event?:RouteEvent,
-    fallback?:RoutePath}
-
-declare type RouteData = {
-    route: RoutePath;
-    method: Verb;
-    controlers: Array<Controler>;
-}
-
-declare type EjsView = keyof EjsViewPropsMappingType;
-
-declare type EjsViewPropsMappingType = {
-    Index: { userName: string?; startTime: string },
-    Signin: { startTime: string },
-    Signup: { startTime: string },
-    UserHome: {
-        userName: string,
-        startTime: string,
-        myWatchedArtists: Array<{
-            artistId: { userName: string, artistId: string },
-            watch: string,
-        }>,
-        myLikedWorks: Array<{
-            workId: { workName: string, workId: string },
-            like: string,
-        }>,
-    },
-    ArtistHome: {
-        userName: string,
-        startTime: string,
-        myWatchers: Array<{
-            userId: { userName: string, userId: string },
-            ban: string,
-        }>,
-        myWorks: Array<{
-            workId: { workName: string, workId: string },
-            withdraw: string,
-        }>,
-        myWatchedArtists: Array<{
-            artistId: { userName: string, artistId: string },
-            watch: string,
-        }>,
-        myLikedWorks: Array<{
-            workId: { workName: string, workId: string },
-            like: string,
-        }>,
-    },
-    Ban: { userName: string, startTime: string, userId: string }, //TO DO
-    FirstSubmit: { userName: string, startTime: string },
-    Submit: { userName: string, startTime: string },
-    Withdraw: { userName: string, startTime: string, workId: string },
-    Signout: { userName: string, startTime: string },
-    Delete: { userName: string, startTime: string },
-    Work: {
-        workId: { workName: string, workId: string },
-        withdraw: string,
-    },
-    Artist: {
-        artistId: { userName: string, artistId: string },
-        watch: string,
-        works: Array<{
-            workId: { workName: string, workId: string },
-            withdraw: string,
-        }>
-    },
-    User: {
-        userId: { userName: string, userId: string },
-        ban: string,
-    },
-    MoreArtists: Array<{
-        artistId: { userName: string, artistId: string },
-        watch: string,
-    }>,
-    MoreWorks: Array<{
-        workId: { workName: string, workId: string },
-        artistId: { userName: string, artistId: string },
-    }>,
-}
-
-
-
-
-
 
 declare type DBProcedure =
     | keyof DBProcedureArgsMappingType
@@ -223,25 +118,98 @@ declare type DBProcedureResultsMappingType = {
     select_full_logs: { requestId: string, time_: string, route: string, methods: Array<string>, errorId: string, errorTime: string, message: string, responseId: string, responseTime: string, statusCode: string }
 }
 
-declare type Controler =((req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>, next: NextFunction) => void);
+declare type Verb = 'get' | 'post'
+declare type RoutePathLevelData = {
+    dbProcedures: Array<DBProcedure>,
+    redirect?:RoutePath,
+    render?:EjsView,
+    method?:Verb,
+    fallback?:RoutePath}
 
-
-
-declare type Source = "unit" | "route" | "session" | "body" | "params";
-
-declare interface DBHandlerParams {
-    pool: Pool;
-    procedures: Array<DBProcedure>;
+declare type RouteData = {
+    route: RoutePath;
+    method: Verb;
+    controlers: Array<Controler>;
 }
 
-declare interface CellProps {
-    value: any;
-    link?: string,
+declare type EjsView = keyof EjsViewPropsMappingType;
+
+declare type EjsViewPropsMappingType = {
+    Index: { userName: string?; startTime: string },
+    Signin: { startTime: string },
+    Signup: { startTime: string },
+    UserHome: {
+        userName: string,
+        startTime: string,
+        myWatchedArtists: Array<{
+            artistId: { userName: string, artistId: string },
+            watch: string,
+        }>,
+        myLikedWorks: Array<{
+            workId: { workName: string, workId: string },
+            like: string,
+        }>,
+    },
+    ArtistHome: {
+        userName: string,
+        startTime: string,
+        myWatchers: Array<{
+            userId: { userName: string, userId: string },
+            ban: string,
+        }>,
+        myWorks: Array<{
+            workId: { workName: string, workId: string },
+            withdraw: string,
+        }>,
+        myWatchedArtists: Array<{
+            artistId: { userName: string, artistId: string },
+            watch: string,
+        }>,
+        myLikedWorks: Array<{
+            workId: { workName: string, workId: string },
+            like: string,
+        }>,
+    },
+    Ban: { userName: string, startTime: string, userId: string }, //TO DO
+    FirstSubmit: { userName: string, startTime: string },
+    Submit: { userName: string, startTime: string },
+    Withdraw: { userName: string, startTime: string, workId: string },
+    Signout: { userName: string, startTime: string },
+    Delete: { userName: string, startTime: string },
+    Work: {
+        workId: { workName: string, workId: string },
+        withdraw: string,
+    },
+    Artist: {
+        artistId: { userName: string, artistId: string },
+        watch: string,
+        works: Array<{
+            workId: { workName: string, workId: string },
+            withdraw: string,
+        }>
+    },
+    User: {
+        userId: { userName: string, userId: string },
+        ban: string,
+    },
+    MoreArtists: Array<{
+        artistId: { userName: string, artistId: string },
+        watch: string,
+    }>,
+    MoreWorks: Array<{
+        workId: { workName: string, workId: string },
+        artistId: { userName: string, artistId: string },
+    }>,
 }
+
+declare type Controler = (
+    (
+        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, 
+        res: Response<any,Record<string, any>>, 
+        next: NextFunction
+        ) => void);
 
 export type {
-    CellProps,
-    RouteEvent,
     DBProcedure,
     DBProcedureArgsMappingType,
     DBProcedureResultsMappingType,

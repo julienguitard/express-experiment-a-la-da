@@ -406,30 +406,9 @@ function manageFallbackFromRoutePath(
   }
 }
 
-function convertToCellProps(field: string, cell: any): CellProps {
-  let props = { value: cell, link: undefined };
-  if (field === "user_id") {
-    Object.defineProperty(props, "link", `/profile/users/user?${cell}`);
-  } else if (field === "artist_id") {
-    Object.defineProperty(props, "link", `/profile/artists/artist?${cell}`);
-  } else if (field === "work_id") {
-    Object.defineProperty(props, "link", `/profile/works/work?${cell}`);
-  } else if (field === "ban") {
-    Object.defineProperty(props, "link", `/profile/users/user?${cell}/ban`);
-  } else if (field === "withdraw") {
-    Object.defineProperty(
-      props,
-      "link",
-      `/profile/works/work?${cell}/withdraw`
-    );
-  } else if (field === "unlike") {
-    Object.defineProperty(props, "link", `/profile/works/work?${cell}/unlike`);
-  }
-  return props;
-}
 
 const buildErrorHandler = function (
-  poo: Pool,
+  pool: Pool,
   req: Request,
   cb?: (err: Error) => void
 ): (err: Error) => void {

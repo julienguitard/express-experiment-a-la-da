@@ -1,4 +1,3 @@
-
 function mergeInto<T extends string, U>(destObj: Record<T, U>): (obj: Record<T, U>) => Record<T, U> {
     function merging(obj: Record<T, U>): Record<T, U> {
         return { ...destObj, ...obj }
@@ -14,7 +13,7 @@ function updateInto<T extends string, U>(destObj: Record<T, U>, props: Array<T>)
                     destObj[p] = obj[p];
                 }
                 else {
-                    Object.defineProperty(destObj, p, obj[p]);
+                    destObj[p] =obj[p];
                 }
             }
         }

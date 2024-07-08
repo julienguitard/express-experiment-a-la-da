@@ -1,20 +1,9 @@
 import {
-  RouteData,
   RoutePath,
   Verb,
-  RouteEvent,
   RoutePathLevelData,
 } from "../types";
 import { SessionLevel } from "../express-session";
-import {
-  consoleControler,
-  sessionFirstUpdateControler,
-  logToPostgresControler,
-} from "../middlewares/index.js";
-
-import { builderFromRoutePath } from "../middlewares/factory.js";
-import { hash } from "../utils/hash";
-import { resolve } from "path";
 
 const routeDBProcedureDict: Record<
   RoutePath,
@@ -66,7 +55,7 @@ const routeDBProcedureDict: Record<
     NotSignedin: {
       dbProcedures: ["check_signin"],
       redirect: "/home",
-      method: "post",
+      method: "post" as Verb,
       fallback: "/",
     },
     SignedinAsUser: {
@@ -82,8 +71,7 @@ const routeDBProcedureDict: Record<
     NotSignedin: {
       dbProcedures: ["check_signup"],
       redirect: "/home",
-      method: "post",
-      event: "create",
+      method: "post" as Verb,
       fallback: "/",
     },
     SignedinAsUser: {
@@ -138,8 +126,7 @@ const routeDBProcedureDict: Record<
     SignedinAsUser: {
       dbProcedures: ["submit_first_work"],
       redirect: "/home",
-      method: "post",
-      event: "submit",
+      method: "post" as Verb,
       fallback: "/home",
     },
     SignedinAsArtist: {
@@ -173,8 +160,7 @@ const routeDBProcedureDict: Record<
     SignedinAsArtist: {
       dbProcedures: ["submit_work"],
       redirect: "/home",
-      method: "post",
-      event: "submit",
+      method: "post" as Verb,
       fallback: "/home",
     },
   },
@@ -204,8 +190,7 @@ const routeDBProcedureDict: Record<
     SignedinAsArtist: {
       dbProcedures: ["withdraw_work"],
       redirect: "/home",
-      method: "post",
-      event: "withdraw",
+      method: "post" as Verb,
       fallback: "/home",
     },
   },
@@ -298,8 +283,7 @@ const routeDBProcedureDict: Record<
     SignedinAsArtist: {
       dbProcedures: ["ban_watcher"],
       redirect: "/home",
-      method: "post",
-      event: "ban",
+      method: "post" as Verb,
       fallback: "/home",
     },
   },
@@ -310,13 +294,11 @@ const routeDBProcedureDict: Record<
     },
     SignedinAsUser: {
       dbProcedures: ["watch_artist"],
-      event: "watch",
       redirect:"/home",
       fallback: "/home",
     },
     SignedinAsArtist: {
       dbProcedures: ["watch_artist"],
-      event: "watch",
       redirect:"/home",
       fallback: "/home",
     },
@@ -328,13 +310,11 @@ const routeDBProcedureDict: Record<
     },
     SignedinAsUser: {
       dbProcedures: ["unwatch_artist"],
-      event: "unwatch",
       redirect:"/home",
       fallback: "/home",
     },
     SignedinAsArtist: {
       dbProcedures: ["unwatch_artist"],
-      event: "unwatch",
       redirect:"/home",
       fallback: "/home",
     },
@@ -362,13 +342,11 @@ const routeDBProcedureDict: Record<
     },
     SignedinAsUser: {
       dbProcedures: ["like_work"],
-      event: "like",
       redirect:"/home",
       fallback: "/home",
     },
     SignedinAsArtist: {
       dbProcedures: ["like_work"],
-      event: "like",
       redirect:"/home",
       fallback: "/home",
     },
@@ -380,13 +358,11 @@ const routeDBProcedureDict: Record<
     },
     SignedinAsUser: {
       dbProcedures: ["unlike_work"],
-      event: "unlike",
       redirect:"/home",
       fallback: "/home",
     },
     SignedinAsArtist: {
       dbProcedures: ["unlike_work"],
-      event: "unlike",
       redirect:"/home",
       fallback: "/home",
     },
@@ -443,33 +419,16 @@ const routeDBProcedureDict: Record<
     SignedinAsUser: {
       dbProcedures: ["delete_"],
       redirect: "/",
-      method: "post",
-      event: "delete",
+      method: "post" as Verb,
       fallback: "/signout",
     },
     SignedinAsArtist: {
       dbProcedures: ["delete_"],
       redirect: "/",
-      method: "post",
-      event: "delete",
+      method: "post" as Verb,
       fallback: "/signout",
     },
   },
 };
 
-const routes: Array<RouteData> = Object.entries(routeDBProcedureDict).map(
-  ([k, v], i) => {
-    return {
-      route: k,
-      method: (Object.entries(v).filter(([vk,vv]) => (vv.method === 'post')).length > 0)?'post':'get',
-      controlers: [
-        /*consoleControler,*/
-        sessionFirstUpdateControler,
-        logToPostgresControler,
-        builderFromRoutePath(k, v, hash),
-      ],
-    };
-  }
-);
-
-export { routes };
+export { routeDBProcedureDict }

@@ -1,13 +1,17 @@
-function mapDict<T extends string,U,V>(f
-    :(u:U)=>V,r:Record<T,U>){
-        return Object.fromEntries(Object.entries(r).map((kv:[T,U])=>[kv[0],f(kv[1])]));
+function mapDict<U,V>(f
+    :(u:U)=>V,r:Record<string,U>):Record<string,V>{
+        const entries:Array<[string,U]> = Object.entries(r);
+        const transformedEntries:Array<[string,V]> = entries.map((kv:[string,U])=>[kv[0],f(kv[1])]);
+        const newDict:Record<string,V> = Object.fromEntries(transformedEntries);
+        return newDict;
 }
 
 async function promiseRecord<U>(rec:Record<string,Promise<U>>):Promise<Record<string,U>>{
-    const keys = Object.entries(rec).map((kv:[string,Promise<U>])=>kv[0]);
-    const values = Object.entries(rec).map((kv:[string,Promise<U>])=>kv[1]);
-    const prom = Promise.all(values);
-    return prom.then((values:U[])=>Object.fromEntries(values.map((v,i)=>[keys[i],v])))
+    const keys:Array<string> = Object.entries(rec).map((kv:[string,Promise<U>])=>kv[0]);
+    const values:Array<Promise<U>> = Object.entries(rec).map((kv:[string,Promise<U>])=>kv[1]);
+    const prom:Promise<Array<U>> = Promise.all(values);
+    const dict:Promise<Record<string,U>> = prom.then((values:U[])=>Object.fromEntries(values.map((v,i)=>[keys[i],v])));
+    return dict;
 }
 
 export {mapDict, promiseRecord};
