@@ -38,8 +38,14 @@ FROM (SELECT routine_index,
               FROM information_schema.columns
               WHERE table_catalog = 'online_artists'
               AND   table_schema = 'public') t1 USING (table_name)
-      ORDER BY ordinal_position)
+      ORDER BY routine_index,ordinal_position)
 GROUP BY routine_index,
          routine_name,
          table_name
 ORDER BY routine_index;
+
+
+
+
+
+
