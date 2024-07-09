@@ -34,180 +34,433 @@ declare type RoutePath =
 declare type Redirection = keyof RedirectionArgsMappingType;
 
 declare type RedirectionArgsMappingType = {
-    "/home": {},
-    "/": {}
-}
+    "/home": {};
+    "/": {};
+};
 
 declare type DBProcedure =
     | keyof DBProcedureArgsMappingType
     | keyof DBProcedureResultsMappingType;
 
 declare type DBProcedureArgsMappingType = {
-    insert_user: { userId: string, reqEpoch: string, userName: string,  pwd: string },
-    insert_user_event: { userId: string, reqEpoch: string,key_: string },
-    insert_artist: { artistId: string,userId: string,reqEpoch: string},
-    insert_artist_event: { artistId: string, reqEpoch: string, key_: string },
-    insert_work:{ workId: string, artistId: string, reqEpoch: string, workName: string },
-    insert_work_event: { workId: string,reqEpoch: string,key_: string },
-    insert_user_artist: { userArtistId: string, userId: string, artistId: string, reqEpoch: string },
-    insert_user_artist_event:{ userArtistId: string, reqEpoch: string, key_: string },
-    insert_user_work: { userWorkId: string,  userId: string, workId: string, reqEpoch: string },
-    insert_user_work_event:{ userWorkId: string,  reqEpoch: string, key_: string },
-    check_signin:{ userName: string,pwd: string },
-    check_signup: { userId : string, reqEpoch:string, userName: string, pwd: string },
-    see_watchers:{ artistId: string },
-    see_works:{ artistId: string },
-    see_watched_artists: { userId: string },
-    see_liked_works: { userId: string },
-    submit_first_work: { workId: string, artistId: string,user_id:string, reqEpoch:string, workName: string },
-    submit_work: { workId: string, artistId: string,reqEpoch:string, workName: string },
-    withdraw_work:  { workId: string, reqEpoch:string },
-    see_more_artists:{ userId: string },//TO DO
-    see_more_works:{ userId: string },//TO DO
-    view_user:{ artistId: string,userId: string },//TO DO
-    view_artist:{ userArtistId: string,userId: string,artistId: string,reqEpoch: string},//TO DO
-    view_works_of_artist:{ artistId: string },//TO DO
-    view_work:{userWorkId: string,userId: string,workId: string,reqEpoch: string},
-    ban_watcher:{ userArtistId: string,reqEpoch:string},
-    watch_artist:{ userArtistId: string,reqEpoch:string},
-    unwatch_artist: { userArtistId: string,reqEpoch:string},
-    like_work:{ userWorkId: string, reqEpoch:string},
-    unlike_work:{ userWorkId: string,reqEpoch:string },
-    delete_:{ userId: string, reqEpoch: string},
-    insert_into_requests_logs: { reqEpoch: string, time_:string, route: string, methods: Array<string> },
-    insert_into_responses_logs: { reqEpoch: string, time_:string, route: string,  statusCode: string },
-    insert_into_errors_logs:{ reqEpoch: string, time_:string, route: string ,  message: string },
-    select_full_logs: {},
-}
+    insert_user: {
+        userId: string;
+        reqEpoch: string;
+        userName: string;
+        pwd: string;
+    };
+    insert_user_event: { userId: string; reqEpoch: string; key_: string };
+    insert_artist: { artistId: string; userId: string; reqEpoch: string };
+    insert_artist_event: { artistId: string; reqEpoch: string; key_: string };
+    insert_work: {
+        workId: string;
+        artistId: string;
+        reqEpoch: string;
+        workName: string;
+    };
+    insert_work_event: { workId: string; reqEpoch: string; key_: string };
+    insert_user_artist: {
+        userArtistId: string;
+        userId: string;
+        artistId: string;
+        reqEpoch: string;
+    };
+    insert_user_artist_event: {
+        userArtistId: string;
+        reqEpoch: string;
+        key_: string;
+    };
+    insert_user_work: {
+        userWorkId: string;
+        userId: string;
+        workId: string;
+        reqEpoch: string;
+    };
+    insert_user_work_event: {
+        userWorkId: string;
+        reqEpoch: string;
+        key_: string;
+    };
+    check_signin: { userName: string; pwd: string };
+    check_signup: {
+        userId: string;
+        reqEpoch: string;
+        userName: string;
+        pwd: string;
+    };
+    see_watchers: { artistId: string };
+    see_works: { artistId: string };
+    see_watched_artists: { userId: string };
+    see_liked_works: { userId: string };
+    submit_first_work: {
+        workId: string;
+        artistId: string;
+        user_id: string;
+        reqEpoch: string;
+        workName: string;
+    };
+    submit_work: {
+        workId: string;
+        artistId: string;
+        reqEpoch: string;
+        workName: string;
+    };
+    withdraw_work: { workId: string; reqEpoch: string };
+    see_more_artists: { userId: string }; //TO DO
+    see_more_works: { userId: string }; //TO DO
+    view_user: { artistId: string; userId: string }; //TO DO
+    view_artist: {
+        userArtistId: string;
+        userId: string;
+        artistId: string;
+        reqEpoch: string;
+    }; //TO DO
+    view_works_of_artist: { artistId: string }; //TO DO
+    view_work: {
+        userWorkId: string;
+        userId: string;
+        workId: string;
+        reqEpoch: string;
+    };
+    ban_watcher: { userArtistId: string; reqEpoch: string };
+    watch_artist: { userArtistId: string; reqEpoch: string };
+    unwatch_artist: { userArtistId: string; reqEpoch: string };
+    like_work: { userWorkId: string; reqEpoch: string };
+    unlike_work: { userWorkId: string; reqEpoch: string };
+    delete_: { userId: string; reqEpoch: string };
+    insert_into_requests_logs: {
+        reqEpoch: string;
+        time_: string;
+        route: string;
+        methods: Array<string>;
+    };
+    insert_into_responses_logs: {
+        reqEpoch: string;
+        time_: string;
+        route: string;
+        statusCode: string;
+    };
+    insert_into_errors_logs: {
+        reqEpoch: string;
+        time_: string;
+        route: string;
+        message: string;
+    };
+    select_full_logs: {};
+};
 
 declare type DBProcedureResultsMappingType = {
-    insert_user: { userId: string, creationTime: string, userName: string,  pwd: string },
-    insert_user_event: { id:string, userId: string,time: string,key_: string, value:string },
-    insert_artist: { artistId: string, userId: string,creationTime: string},
-    insert_artist_event: { id:string, artistId: string,time: string,key_: string, value:string },
-    insert_work:{ workId: string, artistId: string, creationTime: string, workName: string },
-    insert_work_event: { id:string, wokId: string,time: string,key_: string, value:string },
-    insert_user_artist: { userArtistId: string, userId: string, artistId: string, creationTime: string },
-    insert_user_artist_event: { id:string,  userArtistId: string,time: string,key_: string, value:string },
-    insert_user_work: { userWorkId: string,  userId: string, workId: string, creationTime: string },
-    insert_user_work_event:{ id:string,  userWorkId: string,time: string,key_: string, value:string },
-    check_signin: { userId: string, artistId?: string, userName: string},
-    check_signup: { userId: string, userName: string },
-    see_watchers: { user: { userName: string, userId: string }, ban: string },
-    see_works: { work: { workName: string, workId: string }, withdraw: string },
-    see_watched_artists: { artist: { userName: string, artistId: string }, unwatch: string },
-    see_liked_works: { work: { workName: string, workId: string }, unlike: string },
-    submit_first_work: { workId: string, artistId: string, creationTime: string, workName: string },
-    submit_work: { workId: string, artistId: string, creationTime: string, workName: string },
-    withdraw_work: { id:string, workId: string,time: string,key_: string, value:string },
-    see_more_works: { workId: { workName: string, workId: string }, withdraw: string },
-    see_more_artists:{ artistId: { userName: string, artistId: string }, watch: string },
-    view_user: { userId: { userName: string, userId: string }, ban?: string },
-    view_artist: { artistId: { userName: string, artistId: string }, watch: string },
-    view_works_of_artists:{ workId: { workName: string, workId: string }, like: string },
-    view_work: { workId: { workName: string, workId: string }, like: string },
-    ban_watcher: { id:string, userArtistId: string,time: string,key_: string, value:string },
-    watch_artist:  { userArtistId: string, userId:string, artistId:string, creationTime: string },
-    unwatch_artist:  { id:string, userArtistId: string,time: string,key_: string, value:string },
-    like_work: {id:string, userWorkId: string,time: string,key_: string, value:string },
-    unlike_work: { id:string, userWorkId: string,time: string,key_: string, value:string },
-    delete_ : {id:string, userId: string,time: string,key_: string, value:string},
-    insert_into_requests_logs: { id: string, time_: string, route: string, methods: Array<string> },
-    insert_into_responses_logs:  { id: string, time_: string, requestId: string, statusCode: string },
-    insert_into_errors_logs:  { id: string, time_: string, requestId: string, message: string  },
-    select_full_logs: { requestId: string, time_: string, route: string, methods: Array<string>, errorId: string, errorTime: string, message: string, responseId: string, responseTime: string, statusCode: string }
-}
+    insert_user: {
+        id: string;
+        pwd: string;
+        user_name: string;
+        creation_time: string;
+    };
+    insert_user_event: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        user_id: string;
+    };
+    insert_artist: { id: string; user_id: string; creation_time: string };
+    insert_artist_event: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        artist_id: string;
+    };
+    insert_work: {
+        id: string;
+        artist_id: string;
+        work_name: string;
+        creation_time: string;
+    };
+    insert_work_event: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        work_id: string;
+    };
+    insert_user_artist: {
+        id: string;
+        user_id: string;
+        artist_id: string;
+        creation_time: string;
+    };
+    insert_user_artist_event: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        user_artist_id: string;
+    };
+    insert_user_work: {
+        id: string;
+        user_id: string;
+        work_id: string;
+        creation_time: string;
+    };
+    insert_user_work_event: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        user_work_id: string;
+    };
+    check_signin: { user_id: string; artist_id: string; user_name: string };
+    check_signup: { user_id: string; user_name: string };
+    see_watchers: { ban: Record<string, string>; user_: Record<string, string> };
+    see_works: {
+        work_: Record<string, string>;
+        withdraw: Record<string, string>;
+    };
+    see_watched_artists: {
+        artist: Record<string, string>;
+        unwatch: Record<string, string>;
+    };
+    see_liked_works: {
+        work_: Record<string, string>;
+        unlike: Record<string, string>;
+    };
+    submit_first_work: {
+        id: string;
+        artist_id: string;
+        work_name: string;
+        creation_time: string;
+    };
+    submit_work: {
+        id: string;
+        artist_id: string;
+        work_name: string;
+        creation_time: string;
+    };
+    withdraw_work: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        work_id: string;
+    };
+    see_more_artists: { artist: Record<string, string> };
+    see_more_works: {
+        work_: Record<string, string>;
+        artist: Record<string, string>;
+    };
+    view_artist: {
+        artist: Record<string, string>;
+        action_: Record<string, string>;
+    };
+    view_work: {
+        work_: Record<string, string>;
+        artist: Record<string, string>;
+        action_: Record<string, string>;
+    };
+    view_works_of_artist: {
+        work_: Record<string, string>;
+        artist: Record<string, string>;
+    };
+    ban_watcher: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        user_artist_id: string;
+    };
+    watch_artist: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        user_artist_id: string;
+    };
+    unwatch_artist: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        user_artist_id: string;
+    };
+    like_work: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        user_work_id: string;
+    };
+    unlike_work: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        user_work_id: string;
+    };
+    delete_: {
+        id: string;
+        key_: string;
+        _time: string;
+        value: string;
+        user_id: string;
+    };
+    insert_stringo_requests_logs: {
+        id: string;
+        route: string;
+        time_: string;
+        methods: string;
+    };
+    insert_stringo_responses_logs: {
+        id: string;
+        time_: string;
+        request_id: string;
+        status_code: string;
+    };
+    insert_stringo_errors_logs: {
+        id: string;
+        time_: string;
+        message: string;
+        request_id: string;
+    };
+    select_full_logs: {
+        id: string;
+        route: string;
+        time_: string;
+        message: string;
+        methods: string;
+        error_id: string;
+        error_time: string;
+        reponse_id: string;
+        status_code: string;
+        response_time: string;
+    };
+};
 
-declare type Verb = 'get' | 'post'
+declare type Verb = "get" | "post";
 declare type RoutePathLevelData = {
-    dbProcedures: Array<DBProcedure>,
-    redirect?:RoutePath,
-    render?:EjsView,
-    method?:Verb,
-    fallback?:RoutePath}
+    dbProcedures: Array<DBProcedure>;
+    redirect?: RoutePath;
+    render?: EjsView;
+    method?: Verb;
+    fallback?: RoutePath;
+};
 
 declare type RouteData = {
     route: RoutePath;
     method: Verb;
     controlers: Array<Controler>;
-}
+};
 
 declare type EjsView = keyof EjsViewPropsMappingType;
 
 declare type EjsViewPropsMappingType = {
-    Index: { userName: string?; startTime: string },
-    Signin: { startTime: string },
-    Signup: { startTime: string },
+    Index: {
+        userName: string?;
+        startTime: string;
+    };
+    Signin: {
+        startTime: string;
+    };
+    Signup: {
+        startTime: string;
+    };
     UserHome: {
-        userName: string,
-        startTime: string,
-        myWatchedArtists: Array<{
-            artistId: { userName: string, artistId: string },
-            watch: string,
-        }>,
-        myLikedWorks: Array<{
-            workId: { workName: string, workId: string },
-            like: string,
-        }>,
-    },
+        userName: string;
+        startTime: string;
+        see_watched_artists: Array<{
+            artist: { artist_id: string; user_name: string };
+            unwatch: { user_id: string; user_artist_id: string };
+        }>;
+        see_liked_work: Array<{
+            work_id: { work_id: string; work_name: string };
+            like_: { user_id: string; user_work_id: string };
+        }>;
+    };
     ArtistHome: {
-        userName: string,
-        startTime: string,
-        myWatchers: Array<{
-            userId: { userName: string, userId: string },
-            ban: string,
-        }>,
-        myWorks: Array<{
-            workId: { workName: string, workId: string },
-            withdraw: string,
-        }>,
-        myWatchedArtists: Array<{
-            artistId: { userName: string, artistId: string },
-            watch: string,
-        }>,
-        myLikedWorks: Array<{
-            workId: { workName: string, workId: string },
-            like: string,
-        }>,
-    },
-    Ban: { userName: string, startTime: string, userId: string }, //TO DO
-    FirstSubmit: { userName: string, startTime: string },
-    Submit: { userName: string, startTime: string },
-    Withdraw: { userName: string, startTime: string, workId: string },
-    Signout: { userName: string, startTime: string },
-    Delete: { userName: string, startTime: string },
-    Work: {
-        workId: { workName: string, workId: string },
-        withdraw: string,
-    },
-    Artist: {
-        artistId: { userName: string, artistId: string },
-        watch: string,
-        works: Array<{
-            workId: { workName: string, workId: string },
-            withdraw: string,
-        }>
-    },
-    User: {
-        userId: { userName: string, userId: string },
-        ban: string,
-    },
-    MoreArtists: Array<{
-        artistId: { userName: string, artistId: string },
-        watch: string,
-    }>,
+        userName: string;
+        startTime: string;
+        see_watchers: Array<{
+            user_: { user_id: string; user_name: string };
+            ban: { artist_id: string; user_artist_id: string };
+        }>;
+        see_liked_work: Array<{
+            work_: { work_id: string; work_name: string };
+            withdraw: { artist_id: string; work_id: string };
+        }>;
+        see_watched_artists: Array<{
+            artist: { artist_id: string; user_name: string };
+            unwatch: { user_id: string; user_artist_id: string };
+        }>;
+        see_liked_work: Array<{
+            work_id: { work_id: string; work_name: string };
+            like_: { user_id: string; user_work_id: string };
+        }>;
+    };
+    Ban: {
+        startTime: string;
+        userId: string;
+        params: { artist_id: string; user_artist_id: string };
+    };
+    MoreArtists: {
+        startTime: string;
+        userId: string;
+        see_more_artists: Array<{
+            artist: { artist_id: string; user_name: string };
+        }>;
+    };
     MoreWorks: Array<{
-        workId: { workName: string, workId: string },
-        artistId: { userName: string, artistId: string },
-    }>,
-}
+        startTime: string;
+        userId: string;
+        see_more_works: Array<{
+            work_: { artist_id: string; user_name: string };
+        }>;
+    }>;
+    FirstSubmit: {
+        userName: string;
+        startTime: string;
+    };
+    Submit: {
+        userName: string;
+        startTime: string;
+    };
+    Withdraw: {
+        userName: string;
+        startTime: string;
+        params: { artist_id: string; user_artist_id: string };
+    };
+    Work: {
+        userName: string;
+        startTime: string;
+        view_work:Array$<{
+            work_: {work_id: string; work_name: string };
+            artist: {artist_id: string; artist_name: string };
+            action_:{ first_id: string; second_id: string; key_: string }
+        }>
+    };
+    Artist: {
+        userName: string;
+        startTime: string;
+        view_artist: Array<{
+            artist: { artist_id: string; artist_name: string };
+            action_: { first_id: string; second_id: string; key_: string };
+        }>;
+        view_works_of_artist: Array<{
+            work_: { artist_id: string; user_name: string };
+        }>;
+    };
+    Signout: { 
+        startTime: string 
+    };
+    Delete: { 
+        startTime: string 
+    };
+};
 
 declare type Controler = (
-    (
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, 
-        res: Response<any,Record<string, any>>, 
-        next: NextFunction
-        ) => void);
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+    next: NextFunction
+) => void;
 
 export type {
     DBProcedure,
@@ -221,5 +474,5 @@ export type {
     RoutePathLevelData,
     RouteData,
     Controler,
-    Verb
-}
+    Verb,
+};
