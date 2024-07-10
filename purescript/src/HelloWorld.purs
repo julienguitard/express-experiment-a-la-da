@@ -1,9 +1,6 @@
-module Main where
+module HelloWorld where
 
 import Prelude hiding ((/))
-
-import Effect (Effect)
-import Effect.Console (log)
 
 import HTTPurple
 

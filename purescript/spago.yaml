@@ -3,6 +3,8 @@ package:
   dependencies:
     - console
     - effect
+    - foreign
+    - httpurple
     - prelude
   test:
     main: Test.Main
