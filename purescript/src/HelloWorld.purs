@@ -11,9 +11,9 @@ route :: RouteDuplex' Route
 route = mkRoute
   { "Hello": "hello" / segment
   }
-
+  
 main :: ServerM
 main =
-  serve { port: 3000 } { route, router }
+  serve { port: 8080 } { route, router }
   where
   router { route: Hello name } = ok $ "hello " <> name
